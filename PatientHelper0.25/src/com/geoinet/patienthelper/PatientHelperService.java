@@ -113,7 +113,7 @@ public class PatientHelperService extends IOIOService{
 		//The size may change while we are in this method as the IOIO will still be communicating
 		final int tempSize = buffer.size();
 		//This is where we'd send the data up to the server, at the moment we're just inserting it into the local database
-
+		
 		if(tempSize > 50)//must have a buffer over 50
 		{
 
@@ -228,9 +228,13 @@ public class PatientHelperService extends IOIOService{
 										List<NameValuePair> filedata=new ArrayList<NameValuePair>(4);
 										JSONObject values=new JSONObject();
 										try{
-										values.put("solution",readData[1]);
-										values.put("severity",readData[2]);
-										values.put("description",readData[3]);
+											values.put("solution",readData[1]);
+											values.put("severity",readData[2]);
+											values.put("description",readData[3]);
+											for(int i=7;i<readData.length;i++){
+												values.put(readData[i],"Checked");
+												
+											}
 										}
 										catch(Exception e){
 											Log.e("JSON Attack Service","Failed adding values");
@@ -294,9 +298,9 @@ public class PatientHelperService extends IOIOService{
 										filedata.add(new BasicNameValuePair("api_key", "1"));
 										filedata.add(new BasicNameValuePair("timeRecorded",readData[0]));
 										filedata.add(new BasicNameValuePair("val",values.toString()));
-										filedata.add(new BasicNameValuePair("Lat",readData[3]));
-										filedata.add(new BasicNameValuePair("Lon",readData[4]));
-										filedata.add(new BasicNameValuePair("Velocity",readData[5]));
+										filedata.add(new BasicNameValuePair("lat",readData[3]));
+										filedata.add(new BasicNameValuePair("lon",readData[4]));
+										filedata.add(new BasicNameValuePair("veloc",readData[5]));
 										filedata.add(new BasicNameValuePair("htype", "medication"));
 										PostToServer filepostMan=new PostToServer();
 										filepostMan.postResults(filedata,"http://www.geospaces.org/aura/webroot/health.jsp");
@@ -350,9 +354,9 @@ public class PatientHelperService extends IOIOService{
 										filedata.add(new BasicNameValuePair("timeRecorded",readData[0]));
 										filedata.add(new BasicNameValuePair("htype", "peakflow"));
 										filedata.add(new BasicNameValuePair("val",values.toString()));
-										filedata.add(new BasicNameValuePair("Lat",readData[3]));
-										filedata.add(new BasicNameValuePair("Lon",readData[4]));
-										filedata.add(new BasicNameValuePair("Velocity",readData[5]));
+										filedata.add(new BasicNameValuePair("lat",readData[3]));
+										filedata.add(new BasicNameValuePair("lon",readData[4]));
+										filedata.add(new BasicNameValuePair("veloc",readData[5]));
 										PostToServer filepostMan=new PostToServer();
 										filepostMan.postResults(filedata,"http://www.geospaces.org/aura/webroot/health.jsp");
 									}
@@ -558,7 +562,7 @@ public class PatientHelperService extends IOIOService{
 			try
 			{
 				//Attempt to put the thread to sleep for 300 ms or data roughly every .3 seconds
-				Thread.sleep(300);//for sleep 5000 you get data every 5 seconds, roughly 5 minutes to fill the buffer
+				Thread.sleep(20*1000);//*1000 makes the first number seconds
 			} 
 			catch(InterruptedException e)
 			{

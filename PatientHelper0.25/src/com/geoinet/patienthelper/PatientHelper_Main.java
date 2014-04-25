@@ -1,7 +1,10 @@
 package com.geoinet.patienthelper;
 
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +44,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -66,6 +70,8 @@ public class PatientHelper_Main extends Activity
 	private Spinner doseSpinner;
 	private TextView mProgressText;
 	private TextView mTrackingText;
+	private CheckBox[] checkBoxesAttack=new CheckBox[17];
+	private CheckBox[] checkBoxesDaily=new CheckBox[17];
 	private EditText medName;
 	private EditText description;
 	private Button logButton;
@@ -267,12 +273,54 @@ public class PatientHelper_Main extends Activity
 		mTrackingText = (TextView) findViewById(R.id.tracking);
 		description = (EditText) findViewById(R.id.description);
 		mSeekBar.setProgress(50);
+		checkBoxesAttack[0]=(CheckBox) findViewById(R.id.checkBox1);
+		checkBoxesAttack[1]=(CheckBox) findViewById(R.id.checkBox2);
+		checkBoxesAttack[2]=(CheckBox) findViewById(R.id.checkBox3);
+		checkBoxesAttack[3]=(CheckBox) findViewById(R.id.checkBox4);
+		checkBoxesAttack[4]=(CheckBox) findViewById(R.id.checkBox5);
+		checkBoxesAttack[5]=(CheckBox) findViewById(R.id.checkBox6);
+		checkBoxesAttack[6]=(CheckBox) findViewById(R.id.checkBox7);
+		checkBoxesAttack[7]=(CheckBox) findViewById(R.id.checkBox8);
+		checkBoxesAttack[8]=(CheckBox) findViewById(R.id.checkBox9);
+		checkBoxesAttack[9]=(CheckBox) findViewById(R.id.checkBox10);
+		checkBoxesAttack[10]=(CheckBox) findViewById(R.id.checkBox11);
+		checkBoxesAttack[11]=(CheckBox) findViewById(R.id.checkBox12);
+		checkBoxesAttack[12]=(CheckBox) findViewById(R.id.checkBox13);
+		checkBoxesAttack[13]=(CheckBox) findViewById(R.id.checkBox14);
+		checkBoxesAttack[14]=(CheckBox) findViewById(R.id.checkBox15);
+		checkBoxesAttack[15]=(CheckBox) findViewById(R.id.checkBox16);
+		checkBoxesAttack[16]=(CheckBox) findViewById(R.id.checkBox17);
 
 		//Tab 5: Graphical Analysis
 		tabSpec = tabHost.newTabSpec("tag1");
 		tabSpec.setContent(R.id.tab1);
 		tabSpec.setIndicator("Graphs");
 		tabHost.addTab(tabSpec);
+		
+		//tab 6 daily conditions
+		tabSpec = tabHost.newTabSpec("tag6");
+		tabSpec.setContent(R.id.tab6);
+		tabSpec.setIndicator("Daily Conditions");
+		tabHost.addTab(tabSpec);
+		checkBoxesDaily[0]=(CheckBox) findViewById(R.id.checkBox18);
+		checkBoxesDaily[1]=(CheckBox) findViewById(R.id.checkBox19);
+		checkBoxesDaily[2]=(CheckBox) findViewById(R.id.checkBox20);
+		checkBoxesDaily[3]=(CheckBox) findViewById(R.id.checkBox21);
+		checkBoxesDaily[4]=(CheckBox) findViewById(R.id.checkBox22);
+		checkBoxesDaily[5]=(CheckBox) findViewById(R.id.checkBox23);
+		checkBoxesDaily[6]=(CheckBox) findViewById(R.id.checkBox24);
+		checkBoxesDaily[7]=(CheckBox) findViewById(R.id.checkBox25);
+		checkBoxesDaily[8]=(CheckBox) findViewById(R.id.checkBox26);
+		checkBoxesDaily[9]=(CheckBox) findViewById(R.id.checkBox27);
+		checkBoxesDaily[10]=(CheckBox) findViewById(R.id.checkBox28);
+		checkBoxesDaily[11]=(CheckBox) findViewById(R.id.checkBox29);
+		checkBoxesDaily[12]=(CheckBox) findViewById(R.id.checkBox30);
+		checkBoxesDaily[13]=(CheckBox) findViewById(R.id.checkBox31);
+		checkBoxesDaily[14]=(CheckBox) findViewById(R.id.checkBox32);
+		checkBoxesDaily[15]=(CheckBox) findViewById(R.id.checkBox33);
+		checkBoxesDaily[16]=(CheckBox) findViewById(R.id.checkBox34);
+		Button submitDaily =(Button) findViewById(R.id.submitDaily);
+		submitDaily.setOnClickListener(buttonPressed);
 
 
 	}
@@ -306,7 +354,7 @@ public class PatientHelper_Main extends Activity
 								tempDoses="3 Doses";
 							}
 							else if(sol==3){
-								tempDoses="More";
+								tempDoses="Over 3";
 							}
 							else{
 								tempDoses="1 Dose";
@@ -338,8 +386,6 @@ public class PatientHelper_Main extends Activity
 										data.add(new BasicNameValuePair("id",android_id ));
 										data.add(new BasicNameValuePair("api_key", "1"));
 										data.add(new BasicNameValuePair("timeRecorded",date));
-										//data.add(new BasicNameValuePair("medicationName", medNameData));
-										//data.add(new BasicNameValuePair("medicationDose", medDoseData));
 										data.add(new BasicNameValuePair("val", values.toString()));
 										data.add(new BasicNameValuePair("htype", "medication"));
 										data.add(new BasicNameValuePair("lat", gpsLat+""));
@@ -347,6 +393,8 @@ public class PatientHelper_Main extends Activity
 										data.add(new BasicNameValuePair("veloc", gpsVeloc+""));
 										PostToServer postMan=new PostToServer();
 										final String temp=postMan.postResults(data,"http://www.geospaces.org/aura/webroot/health.jsp");
+										
+										sendFiles();
 									}
 								});
 								submitMed.start();
@@ -416,8 +464,14 @@ public class PatientHelper_Main extends Activity
 								tempsol="Inhaler";
 							}
 							String descript = description.getText().toString();
+							String checkboxResults="";
+							for(int i=0;i<checkBoxesAttack.length;i++){
+								if(checkBoxesAttack[i].isChecked()){
+									checkboxResults+=", "+checkBoxesAttack[i].getText();
+								}
+							}
 							final String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-							final String tempString=", "+tempsol+", "+severity+", "+descript+", "+gpsLat+", "+gpsLon+", "+gpsVeloc+" \r\n";
+							final String tempString=", "+tempsol+", "+severity+", "+descript+", "+gpsLat+", "+gpsLon+", "+gpsVeloc+checkboxResults+" \r\n";
 							final String solutionData=tempsol;
 							final int severityData=severity;
 							final String description=descript;
@@ -431,9 +485,14 @@ public class PatientHelper_Main extends Activity
 										List<NameValuePair> data=new ArrayList<NameValuePair>(3);//need to break down remaining
 										JSONObject values=new JSONObject();
 										try{
-										values.put("solution",solutionData);
-										values.put("severity",severityData);
-										values.put("description",description);
+											values.put("solution",solutionData);
+											values.put("severity",severityData);
+											values.put("description",description);
+											for(int i=0;i<checkBoxesAttack.length;i++){
+												if(checkBoxesAttack[i].isChecked()){
+													values.put(checkBoxesAttack[i].getText().toString(),"Checked");
+												}
+											}
 										}
 										catch(Exception e){
 											Log.e("JSON Attack","Failed adding values");
@@ -448,6 +507,8 @@ public class PatientHelper_Main extends Activity
 										data.add(new BasicNameValuePair("veloc", gpsVeloc+""));
 										PostToServer postMan=new PostToServer();
 										final String temp=postMan.postResults(data,"http://www.geospaces.org/aura/webroot/health.jsp");
+										
+										sendFiles();
 									}
 								});
 								submitAttack.start();
@@ -466,7 +527,7 @@ public class PatientHelper_Main extends Activity
 								else{
 
 									FileWriter fw=new FileWriter(file2,false);
-									fw.write("Year-Month-Day Hour:Minute:Second, Solution, Severity, Unusual Conditions,Lat,Lon,Velocity\r\n");//add the information as to what is between each comma.
+									fw.write("Year-Month-Day Hour:Minute:Second, Solution, Severity, Unusual Conditions,Lat,Lon,Velocity, Various Number of Checkboxes\r\n");//add the information as to what is between each comma.
 									fw.write(date+tempString);
 									fw.close();
 								}
@@ -522,6 +583,103 @@ public class PatientHelper_Main extends Activity
 					}
 					stopWorker=true;
 				}
+				break;
+			case R.id.submitDaily:
+				AlertDialog.Builder tempAlertBuilder3=new AlertDialog.Builder(PatientHelper_Main.this);
+				tempAlertBuilder3.setTitle("Submit Data")
+				.setMessage("Do you want to submit this data?")
+				.setNeutralButton("No",null)
+				.setPositiveButton("Yes",new DialogInterface.OnClickListener(){
+					public void onClick(DialogInterface arg0, int arg1) {
+						boolean didItWork = true;
+						try 
+						{
+							String checkboxResults="";
+							for(int i=0;i<checkBoxesDaily.length;i++){
+								if(checkBoxesDaily[i].isChecked()){
+									checkboxResults+=", "+checkBoxesDaily[i].getText();
+								}
+							}
+							final String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+							final String tempString=", "+gpsLat+", "+gpsLon+", "+gpsVeloc+checkboxResults+" \r\n";
+							ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+							NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+							if(mWifi.isConnected()){
+								Thread submitDaily=new Thread(new Runnable()
+								{
+									public void run()
+									{     
+										List<NameValuePair> data=new ArrayList<NameValuePair>(3);//need to break down remaining
+										JSONObject values=new JSONObject();
+										try{
+											for(int i=0;i<checkBoxesDaily.length;i++){
+												if(checkBoxesDaily[i].isChecked()){
+													values.put(checkBoxesDaily[i].getText().toString(),"Checked");
+												}
+											}
+										}
+										catch(Exception e){
+											Log.e("JSON Attack","Failed adding values");
+										}
+										data.add(new BasicNameValuePair("id",android_id ));
+										data.add(new BasicNameValuePair("api_key", "1"));
+										data.add(new BasicNameValuePair("timeRecorded",date));
+										data.add(new BasicNameValuePair("val",values.toString() ));
+										data.add(new BasicNameValuePair("htype", "Daily"));
+										data.add(new BasicNameValuePair("lat", gpsLat+""));
+										data.add(new BasicNameValuePair("lon", gpsLon+""));
+										data.add(new BasicNameValuePair("veloc", gpsVeloc+""));
+										PostToServer postMan=new PostToServer();
+										final String temp=postMan.postResults(data,"http://www.geospaces.org/aura/webroot/health.jsp");
+										
+										sendFiles();
+									}
+								});
+								submitDaily.start();
+							}
+							else{
+								File externalMem3=Environment.getExternalStorageDirectory();
+								File directory3=new File (externalMem3.getAbsolutePath()+"/PatientHelper");
+								directory3.mkdirs();
+								File file3=new File(directory3,"dailyData.txt");
+								//add code from buffercleanup in service once all data types have been set for csv saving
+								if(file3.exists()){
+									FileWriter fw=new FileWriter(file3,true);
+									fw.write(date+tempString);
+									fw.close();
+								}
+								else{
+
+									FileWriter fw=new FileWriter(file3,false);
+									fw.write("Year-Month-Day Hour:Minute:Second,Lat,Lon,Velocity, Various Number of Checkboxes\r\n");//add the information as to what is between each comma.
+									fw.write(date+tempString);
+									fw.close();
+								}
+							}
+
+						} 
+						catch (Exception e) 
+						{
+							didItWork = false;
+							Log.e("WRITING ERROR", e.toString());
+							//e.printStackTrace();
+						}
+						finally 
+						{
+							if (didItWork)
+							{
+								Toast.makeText(getApplicationContext(), "Information Saved", Toast.LENGTH_SHORT).show();
+							}
+							else
+							{
+								Toast.makeText(getApplicationContext(), "Error Saving", Toast.LENGTH_SHORT).show();
+							}
+						}
+					}
+
+				});
+				AlertDialog dialog3=tempAlertBuilder3.create();
+				dialog3.show();
 				break;
 			}
 		}
@@ -675,12 +833,14 @@ public class PatientHelper_Main extends Activity
 																		data.add(new BasicNameValuePair("veloc", gpsVeloc+""));
 																		PostToServer postMan=new PostToServer();
 																		final String temp=postMan.postResults(data,"http://www.geospaces.org/aura/webroot/health.jsp");
+																		
+																		sendFiles();
 																	}
 																});
 																submitAttack.start();
 															}
 															else{
-																String tempString=date+", "+fev+", "+pef2+"\r\n";
+																String tempString=date+", "+fev+", "+pef2+", "+gpsLat+", "+gpsLon+", "+gpsVeloc+" \r\n";
 																File externalMem2=Environment.getExternalStorageDirectory();
 																File directory2=new File (externalMem2.getAbsolutePath()+"/PatientHelper");
 																directory2.mkdirs();
@@ -689,13 +849,13 @@ public class PatientHelper_Main extends Activity
 
 																if(file2.exists()){
 																	FileWriter fw=new FileWriter(file2,true);
-																	fw.write(date+tempString);
+																	fw.write(tempString);
 																	fw.close();
 																}
 																else{
 																	FileWriter fw=new FileWriter(file2,false);
 																	fw.write("Year-Month-Day Hour:Minute:Second, FEV1, PEF,Lat,Lon,Velocity\r\n");
-																	fw.write(date+tempString);
+																	fw.write(tempString);
 																	fw.close();
 																}
 															}
@@ -772,6 +932,223 @@ public class PatientHelper_Main extends Activity
 			}
 		}
 		return false;
+	}
+	private void sendFiles(){
+		File externalMem=Environment.getExternalStorageDirectory();
+		File directory=new File (externalMem.getAbsolutePath()+"/PatientHelper");
+		directory.mkdirs();
+		File file=new File(directory,"medicationData.txt");
+		if(file.exists()){
+			BufferedReader br=null;
+			String line;
+			try {
+				br=new BufferedReader(new FileReader(file));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				while((line=br.readLine())!=null){//use split method
+					if(!(line.substring(0,4).equals("Year"))){
+						String[] readData=line.split(",");
+						List<NameValuePair> filedata=new ArrayList<NameValuePair>(3);
+						JSONObject fileValues=new JSONObject();
+						try{
+						fileValues.put("medicationName",readData[1]);
+						fileValues.put("medicationDose",readData[2]);
+						}
+						catch(Exception e){
+							Log.e("JSON Medication Service","Failed adding values");
+						}
+						filedata.add(new BasicNameValuePair("id",android_id));
+						filedata.add(new BasicNameValuePair("api_key", "1"));
+						filedata.add(new BasicNameValuePair("timeRecorded",readData[0]));
+						filedata.add(new BasicNameValuePair("val",fileValues.toString()));
+						filedata.add(new BasicNameValuePair("lat",readData[3]));
+						filedata.add(new BasicNameValuePair("lon",readData[4]));
+						filedata.add(new BasicNameValuePair("veloc",readData[5]));
+						filedata.add(new BasicNameValuePair("htype", "medication"));
+						PostToServer filepostMan=new PostToServer();
+						filepostMan.postResults(filedata,"http://www.geospaces.org/aura/webroot/health.jsp");
+					}
+				}
+
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+
+			try {
+				if(br!=null)
+					br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			file.delete();
+		}
+		file=new File(directory,"peakFlowData.txt");
+		if(file.exists()){
+			BufferedReader br=null;
+			String line;
+			try {
+				br=new BufferedReader(new FileReader(file));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				while((line=br.readLine())!=null){//use split method
+					if(!(line.substring(0,4).equals("Year"))){
+						String[] readData=line.split(",");
+						List<NameValuePair> filedata=new ArrayList<NameValuePair>(3);
+						JSONObject values2=new JSONObject();
+						try{
+						values2.put("fev",readData[1]);
+						values2.put("pef",readData[2]);
+						}
+						catch(Exception e){
+							Log.e("JSON PeakFlow Service","Failed adding values");
+						}
+						filedata.add(new BasicNameValuePair("id",android_id));
+						filedata.add(new BasicNameValuePair("api_key", "1"));
+						filedata.add(new BasicNameValuePair("timeRecorded",readData[0]));
+						filedata.add(new BasicNameValuePair("htype", "peakflow"));
+						filedata.add(new BasicNameValuePair("val",values2.toString()));
+						filedata.add(new BasicNameValuePair("lat",readData[3]));
+						filedata.add(new BasicNameValuePair("lon",readData[4]));
+						filedata.add(new BasicNameValuePair("veloc",readData[5]));
+						PostToServer filepostMan=new PostToServer();
+						filepostMan.postResults(filedata,"http://www.geospaces.org/aura/webroot/health.jsp");
+					}
+				}
+
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+
+			try {
+				if(br!=null)
+					br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			file.delete();
+		}
+		file=new File(directory,"attackData.txt");
+		if(file.exists()){
+			BufferedReader br=null;
+			String line;
+			try {
+				br=new BufferedReader(new FileReader(file));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				while((line=br.readLine())!=null){//use split method
+					if(!(line.substring(0,4).equals("Year"))){
+						String[] readData=line.split(",");
+						List<NameValuePair> filedata=new ArrayList<NameValuePair>(4);
+						JSONObject values2=new JSONObject();
+						try{
+							values2.put("solution",readData[1]);
+							values2.put("severity",readData[2]);
+							values2.put("description",readData[3]);
+							for(int i=7;i<readData.length;i++){
+								values2.put(readData[i],"Checked");
+								
+							}
+						}
+						catch(Exception e){
+							Log.e("JSON Attack Service","Failed adding values");
+						}
+						filedata.add(new BasicNameValuePair("id",android_id));
+						filedata.add(new BasicNameValuePair("api_key", "1"));
+						filedata.add(new BasicNameValuePair("timeRecorded",readData[0]));
+						filedata.add(new BasicNameValuePair("htype", "attack"));
+						filedata.add(new BasicNameValuePair("val",values2.toString()));
+						filedata.add(new BasicNameValuePair("lat",readData[4]));
+						filedata.add(new BasicNameValuePair("lon",readData[5]));
+						filedata.add(new BasicNameValuePair("veloc",readData[6]));
+						PostToServer filepostMan=new PostToServer();
+						filepostMan.postResults(filedata,"http://www.geospaces.org/aura/webroot/health.jsp");
+					}
+				}
+
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+
+			try {
+				if(br!=null)
+					br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			file.delete();
+		}
+		
+		file=new File(directory,"dailyData.txt");
+		if(file.exists()){
+			BufferedReader br=null;
+			String line;
+			try {
+				br=new BufferedReader(new FileReader(file));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				while((line=br.readLine())!=null){//use split method
+					if(!(line.substring(0,4).equals("Year"))){
+						String[] readData=line.split(",");
+						List<NameValuePair> filedata=new ArrayList<NameValuePair>(3);
+						JSONObject values2=new JSONObject();
+						try{
+							for(int i=4;i<readData.length;i++){
+								values2.put(readData[i],"Checked");
+								
+							}
+						}
+						catch(Exception e){
+							Log.e("JSON DailyData Service","Failed adding values");
+						}
+						filedata.add(new BasicNameValuePair("id",android_id));
+						filedata.add(new BasicNameValuePair("api_key", "1"));
+						filedata.add(new BasicNameValuePair("timeRecorded",readData[0]));
+						filedata.add(new BasicNameValuePair("htype", "Daily"));
+						filedata.add(new BasicNameValuePair("val",values2.toString()));
+						filedata.add(new BasicNameValuePair("lat",readData[1]));
+						filedata.add(new BasicNameValuePair("lon",readData[2]));
+						filedata.add(new BasicNameValuePair("veloc",readData[3]));
+						Log.e("Read from txt file",readData[1]+""+readData[2]+""+readData[3]);
+						PostToServer filepostMan=new PostToServer();
+						filepostMan.postResults(filedata,"http://www.geospaces.org/aura/webroot/health.jsp");
+					}
+				}
+
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+
+			try {
+				if(br!=null)
+					br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			file.delete();
+		}
+		
 	}
 
 }
