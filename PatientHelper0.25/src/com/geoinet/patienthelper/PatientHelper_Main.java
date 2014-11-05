@@ -124,7 +124,8 @@ public class PatientHelper_Main extends Activity
 			Log.e("Service running", "service running");
 		}
 		else{//service was not running, start it
-			this.startService(new Intent(this,PatientHelperService.class));
+			//SADA
+			//this.startService(new Intent(this,PatientHelperService.class));
 		}
 		//checks if the device has bluetooth, if yes, turns it on, also simultaniously checks for peakflow device
 		findBT();
@@ -177,7 +178,7 @@ public class PatientHelper_Main extends Activity
 			Log.e("Service running", "service running");
 		}
 		else{//service was not running, start it
-			this.startService(new Intent(this,PatientHelperService.class));
+			//SADA this.startService(new Intent(this,PatientHelperService.class));
 		}
 		//Initialize our buffer
 		stopWorker=false;
@@ -191,7 +192,7 @@ public class PatientHelper_Main extends Activity
 			Log.e("Service running", "service running");
 		}
 		else{//service was not running, start it
-			this.startService(new Intent(this,PatientHelperService.class));
+			//SADA this.startService(new Intent(this,PatientHelperService.class));
 		}
 		stopWorker=true;
 		try {
@@ -206,7 +207,7 @@ public class PatientHelper_Main extends Activity
 			Log.e("Service running", "service running");
 		}
 		else{//service was not running, start it
-			this.startService(new Intent(this,PatientHelperService.class));
+			//SADA this.startService(new Intent(this,PatientHelperService.class));
 		}
 		super.onDestroy();
 		stopWorker=true;
@@ -333,7 +334,7 @@ public class PatientHelper_Main extends Activity
 			switch (arg0.getId()) //need to make dose counter
 			{
 			//Create and send a text to the number indicated, should give nearest street address, but not currently implemented
-			case R.id.scheduledMedSubmit:
+			case 0: //SADA R.id.scheduledMedSubmit:
 				AlertDialog.Builder tempAlertBuilder2=new AlertDialog.Builder(PatientHelper_Main.this);
 				tempAlertBuilder2.setTitle("Submit Data")
 				.setMessage("Do you want to submit this data?")
@@ -437,7 +438,7 @@ public class PatientHelper_Main extends Activity
 
 
 				// Will submit data to the database
-			case R.id.submit:
+			case 1: //SADA R.id.submit:
 
 				AlertDialog.Builder tempAlertBuilder=new AlertDialog.Builder(PatientHelper_Main.this);
 				tempAlertBuilder.setTitle("Submit Data")
@@ -559,7 +560,7 @@ public class PatientHelper_Main extends Activity
 
 				break;
 
-			case R.id.sensorLog:
+			case 2: //SADA R.id.sensorLog:
 				logging = !logging;
 				if(logging == true)
 				{
@@ -584,7 +585,7 @@ public class PatientHelper_Main extends Activity
 					stopWorker=true;
 				}
 				break;
-			case R.id.submitDaily:
+			case 3: //SADA R.id.submitDaily:
 				AlertDialog.Builder tempAlertBuilder3=new AlertDialog.Builder(PatientHelper_Main.this);
 				tempAlertBuilder3.setTitle("Submit Data")
 				.setMessage("Do you want to submit this data?")
@@ -927,9 +928,9 @@ public class PatientHelper_Main extends Activity
 	private boolean isMyServiceRunning() {
 		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-			if (PatientHelperService.class.getName().equals(service.service.getClassName())) {
-				return true;
-			}
+			//if (PatientHelperService.class.getName().equals(service.service.getClassName())) {
+			//	return true;
+			//}
 		}
 		return false;
 	}

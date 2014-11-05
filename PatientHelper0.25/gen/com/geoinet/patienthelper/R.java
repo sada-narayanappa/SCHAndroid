@@ -9,8 +9,8 @@ package com.geoinet.patienthelper;
 
 public final class R {
     public static final class array {
-        public static final int doses=0x7f060001;
-        public static final int solutions=0x7f060000;
+        public static int doses=0x7f060001;
+        public static int solutions=0x7f060000;
     }
     public static final class attr {
     }
@@ -21,111 +21,111 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f040000;
-        public static final int activity_vertical_margin=0x7f040001;
+        public static int activity_horizontal_margin=0x7f040000;
+        public static int activity_vertical_margin=0x7f040001;
     }
     public static final class drawable {
-        public static final int asthma_app_bg=0x7f020000;
-        public static final int geodatalogo=0x7f020001;
-        public static final int ic_launcher=0x7f020002;
+        public static int asthma_app_bg=0x7f020000;
+        public static int geodatalogo=0x7f020001;
+        public static int ic_launcher=0x7f020002;
     }
     public static final class id {
-        public static final int action_settings=0x7f090044;
-        public static final int checkBox1=0x7f09000b;
-        public static final int checkBox10=0x7f090017;
-        public static final int checkBox11=0x7f090018;
-        public static final int checkBox12=0x7f090019;
-        public static final int checkBox13=0x7f09001a;
-        public static final int checkBox14=0x7f09001b;
-        public static final int checkBox15=0x7f09000c;
-        public static final int checkBox16=0x7f09000d;
-        public static final int checkBox17=0x7f09000e;
-        public static final int checkBox18=0x7f090032;
-        public static final int checkBox19=0x7f090033;
-        public static final int checkBox2=0x7f09000f;
-        public static final int checkBox20=0x7f090034;
-        public static final int checkBox21=0x7f090035;
-        public static final int checkBox22=0x7f090036;
-        public static final int checkBox23=0x7f090037;
-        public static final int checkBox24=0x7f090038;
-        public static final int checkBox25=0x7f090039;
-        public static final int checkBox26=0x7f09003a;
-        public static final int checkBox27=0x7f09003b;
-        public static final int checkBox28=0x7f09003c;
-        public static final int checkBox29=0x7f09003d;
-        public static final int checkBox3=0x7f090010;
-        public static final int checkBox30=0x7f09003e;
-        public static final int checkBox31=0x7f09003f;
-        public static final int checkBox32=0x7f090040;
-        public static final int checkBox33=0x7f090041;
-        public static final int checkBox34=0x7f090042;
-        public static final int checkBox4=0x7f090011;
-        public static final int checkBox5=0x7f090012;
-        public static final int checkBox6=0x7f090013;
-        public static final int checkBox7=0x7f090014;
-        public static final int checkBox8=0x7f090015;
-        public static final int checkBox9=0x7f090016;
-        public static final int describeAttack=0x7f090004;
-        public static final int description=0x7f09001c;
-        public static final int doseSpinner=0x7f090023;
-        public static final int fev1data=0x7f090029;
-        public static final int graphInfo=0x7f09002e;
-        public static final int inner2=0x7f09001f;
-        public static final int inner7=0x7f09002d;
-        public static final int inner9=0x7f090031;
-        public static final int linearLayout1=0x7f090001;
-        public static final int medName=0x7f090022;
-        public static final int pefdata=0x7f09002a;
-        public static final int progress=0x7f090009;
-        public static final int scheduledMedSubmit=0x7f090024;
-        public static final int scrollView1=0x7f090003;
-        public static final int scrollView7=0x7f09002c;
-        public static final int scrollView9=0x7f090030;
-        public static final int sensorLog=0x7f090027;
-        public static final int severityBar=0x7f090008;
-        public static final int severityText=0x7f090007;
-        public static final int solutionSpinner=0x7f090006;
-        public static final int solutionText=0x7f090005;
-        public static final int statusBT=0x7f090028;
-        public static final int submit=0x7f09001d;
-        public static final int submitDaily=0x7f090043;
-        public static final int tab1=0x7f09002b;
-        public static final int tab2=0x7f09001e;
-        public static final int tab3=0x7f090025;
-        public static final int tab4=0x7f090002;
-        public static final int tab6=0x7f09002f;
-        public static final int tabhost=0x7f090000;
-        public static final int textView2=0x7f090020;
-        public static final int textView3=0x7f090026;
-        public static final int textView4=0x7f090021;
-        public static final int tracking=0x7f09000a;
+        public static int action_settings=0x7f090044;
+        public static int checkBox1=0x7f09000b;
+        public static int checkBox10=0x7f090017;
+        public static int checkBox11=0x7f090018;
+        public static int checkBox12=0x7f090019;
+        public static int checkBox13=0x7f09001a;
+        public static int checkBox14=0x7f09001b;
+        public static int checkBox15=0x7f09000c;
+        public static int checkBox16=0x7f09000d;
+        public static int checkBox17=0x7f09000e;
+        public static int checkBox18=0x7f090032;
+        public static int checkBox19=0x7f090033;
+        public static int checkBox2=0x7f09000f;
+        public static int checkBox20=0x7f090034;
+        public static int checkBox21=0x7f090035;
+        public static int checkBox22=0x7f090036;
+        public static int checkBox23=0x7f090037;
+        public static int checkBox24=0x7f090038;
+        public static int checkBox25=0x7f090039;
+        public static int checkBox26=0x7f09003a;
+        public static int checkBox27=0x7f09003b;
+        public static int checkBox28=0x7f09003c;
+        public static int checkBox29=0x7f09003d;
+        public static int checkBox3=0x7f090010;
+        public static int checkBox30=0x7f09003e;
+        public static int checkBox31=0x7f09003f;
+        public static int checkBox32=0x7f090040;
+        public static int checkBox33=0x7f090041;
+        public static int checkBox34=0x7f090042;
+        public static int checkBox4=0x7f090011;
+        public static int checkBox5=0x7f090012;
+        public static int checkBox6=0x7f090013;
+        public static int checkBox7=0x7f090014;
+        public static int checkBox8=0x7f090015;
+        public static int checkBox9=0x7f090016;
+        public static int describeAttack=0x7f090004;
+        public static int description=0x7f09001c;
+        public static int doseSpinner=0x7f090023;
+        public static int fev1data=0x7f090029;
+        public static int graphInfo=0x7f09002e;
+        public static int inner2=0x7f09001f;
+        public static int inner7=0x7f09002d;
+        public static int inner9=0x7f090031;
+        public static int linearLayout1=0x7f090001;
+        public static int medName=0x7f090022;
+        public static int pefdata=0x7f09002a;
+        public static int progress=0x7f090009;
+        public static int scheduledMedSubmit=0x7f090024;
+        public static int scrollView1=0x7f090003;
+        public static int scrollView7=0x7f09002c;
+        public static int scrollView9=0x7f090030;
+        public static int sensorLog=0x7f090027;
+        public static int severityBar=0x7f090008;
+        public static int severityText=0x7f090007;
+        public static int solutionSpinner=0x7f090006;
+        public static int solutionText=0x7f090005;
+        public static int statusBT=0x7f090028;
+        public static int submit=0x7f09001d;
+        public static int submitDaily=0x7f090043;
+        public static int tab1=0x7f09002b;
+        public static int tab2=0x7f09001e;
+        public static int tab3=0x7f090025;
+        public static int tab4=0x7f090002;
+        public static int tab6=0x7f09002f;
+        public static int tabhost=0x7f090000;
+        public static int textView2=0x7f090020;
+        public static int textView3=0x7f090026;
+        public static int textView4=0x7f090021;
+        public static int tracking=0x7f09000a;
     }
     public static final class layout {
-        public static final int activity_main=0x7f030000;
-        public static final int main=0x7f030001;
+        public static int activity_main=0x7f030000;
+        public static int main=0x7f030001;
     }
     public static final class menu {
-        public static final int main=0x7f080000;
-        public static final int patient_helper__main=0x7f080001;
+        public static int main=0x7f080000;
+        public static int patient_helper__main=0x7f080001;
     }
     public static final class string {
-        public static final int action_settings=0x7f050001;
-        public static final int app_name=0x7f050003;
-        public static final int button_scan=0x7f05000a;
+        public static int action_settings=0x7f050001;
+        public static int app_name=0x7f050003;
+        public static int button_scan=0x7f05000a;
         /**  Options Menu 
          */
-        public static final int connect=0x7f05000c;
-        public static final int discoverable=0x7f05000d;
-        public static final int hello=0x7f050002;
-        public static final int hello_world=0x7f050000;
-        public static final int none_found=0x7f050007;
-        public static final int none_paired=0x7f050006;
-        public static final int project_description=0x7f05000e;
-        public static final int scanning=0x7f050004;
-        public static final int select_device=0x7f050005;
-        public static final int title_other_devices=0x7f050009;
-        public static final int title_paired_devices=0x7f050008;
-        public static final int warningText=0x7f05000b;
+        public static int connect=0x7f05000c;
+        public static int discoverable=0x7f05000d;
+        public static int hello=0x7f050002;
+        public static int hello_world=0x7f050000;
+        public static int none_found=0x7f050007;
+        public static int none_paired=0x7f050006;
+        public static int project_description=0x7f05000e;
+        public static int scanning=0x7f050004;
+        public static int select_device=0x7f050005;
+        public static int title_other_devices=0x7f050009;
+        public static int title_paired_devices=0x7f050008;
+        public static int warningText=0x7f05000b;
     }
     public static final class style {
         /** 
@@ -138,10 +138,10 @@ public final class R {
             backward-compatibility can go here.
         
          */
-        public static final int AppBaseTheme=0x7f070000;
+        public static int AppBaseTheme=0x7f070000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f070001;
+        public static int AppTheme=0x7f070001;
     }
 }
