@@ -7,5 +7,8 @@
     <string name="action_test">Test</string>
     <string name="title_activity_test">Test</string>
     <string name="action_about">About SCHAS</string>
+    <string name="title_activity_web">Web</string>
+    <string name="action_web">WEb</string>
+    <string name="title_activity_web1">web1</string>
 
 </resources>

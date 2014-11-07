@@ -21,6 +21,7 @@ public class Welcome extends Activity {
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Intent intent = new Intent(Welcome.this, Test.class);
+                    //Intent intent = new Intent(Welcome.this, web1.class);
                     startActivity(intent);
                     //finish();
                 }

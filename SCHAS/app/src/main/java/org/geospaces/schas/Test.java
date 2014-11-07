@@ -16,7 +16,7 @@ public class Test extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-        final Button button = (Button) findViewById(R.id.button2);
+        final Button button = (Button) findViewById(R.id.button1);
         if ( button != null) {
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

@@ -1,6 +1,7 @@
 package org.geospaces.schas;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.view.MenuItem;
 
 /**
@@ -13,14 +14,24 @@ public class HandleMenu  {
         // as you specify a parent activity in AndroidManifest.xml.
 
         int id = item.getItemId();
+        Intent intent = null;
+
         switch (id) {
             case R.id.action_settings:
                 return true;
             case R.id.action_test:
-                a.setContentView(R.layout.activity_test);
+                intent = new Intent(a, Test.class);
+                a.startActivity(intent);
+                //a.setContentView(R.layout.activity_test);
                 return true;
             case R.id.action_about:
-                a.setContentView(R.layout.activity_welcome);
+                intent = new Intent(a, Welcome.class);
+                a.startActivity(intent);
+                return true;
+            case R.id.action_web:
+                intent = new Intent(a, Web.class);
+                a.startActivity(intent);
+                //a.setContentView(R.layout.activity_web);
                 return true;
         }
         return false;

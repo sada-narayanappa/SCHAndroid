@@ -20,6 +20,18 @@
             android:name=".Test"
             android:label="@string/title_activity_test" >
         </activity>
+        <activity
+            android:name=".Web"
+            android:label="@string/title_activity_web" >
+        </activity>
+        <activity
+            android:name=".web1"
+            android:label="@string/title_activity_web1" >
+        </activity>
     </application>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/> -->
 
 </manifest>
