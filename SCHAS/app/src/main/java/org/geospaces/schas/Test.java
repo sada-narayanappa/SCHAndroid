@@ -75,7 +75,7 @@ public class Test extends Activity implements SensorEventListener {
             StringBuilder sb = new StringBuilder(256);
 
 
-            sb.append(  SysStrings.getTheTime() + "\n" + 
+            sb.append(  SysStrings.getTheTime() + "\n" +
                         SysStrings.getTheGPS(locationManager) + "\n" +
                         SysStrings.getOrientation(getApplicationContext()) + "\n" +
                         SysStrings.getGravity(mSensorManager) + "\n" +

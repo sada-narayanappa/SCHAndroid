@@ -129,10 +129,11 @@ public class SysStrings{
         pressure = event.values[0];
     }
     public static String getPressure(SensorManager sm){
+
         if(sm.getDefaultSensor(Sensor.TYPE_PRESSURE) != null) {
             return "pressure(hPa): " + pressure;
         }
-        else{return " NA";}
+        else{return "pressure(hPa): NA";}
 
     }
 
@@ -143,7 +144,7 @@ public class SysStrings{
         if(sm.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null) {
             return "Temp_centigrade: " + temp;
         }
-        else{return "NA";}
+        else{return "Temp_centigrade: NA";}
 
     }
 
