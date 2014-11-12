@@ -82,7 +82,7 @@ public class Test extends Activity implements SensorEventListener {
                         SysStrings.getLight(mSensorManager) + "\n" +
                         SysStrings.getPressure(mSensorManager) + "\n" +
                         SysStrings.getTemp(mSensorManager) + "\n" +
-                        SysStrings.getIEMI(telephonyManager) + "\n" +
+                        SysStrings.getDeviceID(Test.this) + "\n" +
                         SysStrings.getWIFI(connManager,wifiman) + "\n"
             );
             tv1.setText(sb.toString());

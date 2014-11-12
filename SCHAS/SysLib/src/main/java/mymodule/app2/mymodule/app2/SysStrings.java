@@ -1,5 +1,6 @@
 package mymodule.app2.mymodule.app2;
 
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,6 +10,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -97,6 +99,13 @@ public class SysStrings{
         return "deviceId: " + tm.getDeviceId();
     }
 
+    //import android.provider.Settings.Secure;
+
+
+    public static String getDeviceID(Activity a) {
+        String id = Settings.Secure.getString(a.getContentResolver(), Settings.Secure.ANDROID_ID);
+        return "DeviceId: "  + id;
+    }
 
     public static void updateGravity(SensorEvent event){
         x = event.values[0];
