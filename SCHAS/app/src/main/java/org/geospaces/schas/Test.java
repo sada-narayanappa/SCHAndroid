@@ -83,7 +83,11 @@ public class Test extends Activity implements SensorEventListener {
                         SysStrings.getPressure(mSensorManager) + "\n" +
                         SysStrings.getTemp(mSensorManager) + "\n" +
                         SysStrings.getDeviceID(Test.this) + "\n" +
-                        SysStrings.getWIFI(connManager,wifiman) + "\n"
+                        SysStrings.getWIFI(connManager,wifiman) + "\n" +
+                        SysStrings.getBluetoothDevices() + "\n" +
+                        SysStrings.getBatteryStatus(getApplicationContext())
+
+
             );
             tv1.setText(sb.toString());
         }

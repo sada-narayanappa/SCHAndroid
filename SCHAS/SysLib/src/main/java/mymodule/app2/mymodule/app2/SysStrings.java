@@ -1,7 +1,11 @@
 package mymodule.app2.mymodule.app2;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
@@ -10,10 +14,14 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+
+import java.util.Set;
 
 /**
  * Created by Michael Fleming on 11/2/2014.
@@ -154,6 +162,38 @@ public class SysStrings{
             return "Temp_centigrade: " + temp;
         }
         else{return "Temp_centigrade: NA";}
+
+    }
+
+    public static String getBluetoothDevices() {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        String BTlist = "Bluetooth Devices: \n";
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        if (mBluetoothAdapter.isEnabled()){
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice device : pairedDevices) {
+                    if (device.getName() != null) {
+                        BTlist += device.getName() + "  " + device.getAddress() + "\n";
+                    }
+                }
+            }
+            BTlist += "End of Bluetooth Devices";
+        }
+        else{BTlist = "Bluetooth not connected";}
+
+        return BTlist;
+    }
+
+    public static String getBatteryStatus(Context context){
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, ifilter);
+
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+        float batteryPct = 100 * (level / (float)scale);
+
+        return "Battery level: " + batteryPct + "%";
 
     }
 
