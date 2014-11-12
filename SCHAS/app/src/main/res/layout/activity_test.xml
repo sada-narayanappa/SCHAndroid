@@ -22,7 +22,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Weather"
+        android:text="PF/INH"
         android:id="@+id/button3"
         android:layout_toEndOf="@+id/button2"
         android:gravity="center"
