@@ -2,7 +2,6 @@ package org.geospaces.schas;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,16 +14,12 @@ import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import java.util.List;
 
 import mymodule.app2.mymodule.app2.SysStrings;
-
-
-
 
 public class Test extends Activity implements SensorEventListener {
     EditText tv1;
@@ -41,9 +36,13 @@ public class Test extends Activity implements SensorEventListener {
     private ConnectivityManager connManager;
     private WifiManager wifiman;
 
+    private static android.text.format.DateFormat df = new android.text.format.DateFormat();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
         setContentView(R.layout.activity_test);
         tv1 = (EditText)findViewById(R.id.statusText);
 
@@ -51,8 +50,6 @@ public class Test extends Activity implements SensorEventListener {
 
         connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         wifiman = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-
-
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -63,45 +60,50 @@ public class Test extends Activity implements SensorEventListener {
         mSensorManager4 = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mTemp = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 
+        findViewById(R.id.button1).setOnClickListener(button1CB);
+        findViewById(R.id.button2).setOnClickListener(button2CB);
 
-
-        final Button button = (Button) findViewById(R.id.button1);
-        if ( button != null) {
-            button.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.buttonClear).setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                   /* Intent intent = new Intent(Test.this, Welcome.class);
-                    startActivity(intent);
-                    //finish();*/
-                    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    tv1.setText("The Time is:  \n" + SysStrings.getTheTime() + "\n-----------------\n" + "Your location is: \n" + SysStrings.getTheGPS(locationManager)
-                                    + "\n-----------------\n" + "The Orientation is: " + SysStrings.getOrientation(getApplicationContext()) + "\n-----------------\n" +
-                                    "The gravity is: \n" + SysStrings.getGravity(mSensorManager) + "\n-----------------\n" + SysStrings.getLight(mSensorManager) + "\n-----------------\n"
-                                    + SysStrings.getPressure(mSensorManager) + "\n-----------------\n" + SysStrings.getTemp(mSensorManager) + "\n-----------------\n" + "The IMEI Number is: " + SysStrings.getIEMI(telephonyManager) + "\n-----------------\n"
-                                    +  SysStrings.getWIFI(connManager,wifiman) + "\n-----------------\n"
-                    );
+                    tv1.setText("");
                 }
             });
-        }
-
-    final Button button2 = (Button) findViewById(R.id.button2);
-        if ( button2 != null) {
-            button2.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    String list = "";
-                    List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-                    for(int i =0;i<deviceSensors.size();i++) {
-                        list +=deviceSensors.get(i).getName() + "\n\n";
-
-                    }
-                    tv1.setText(list);
-
-                }
-            });
-
-        }
     }
 
+    private View.OnClickListener button1CB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v){
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            StringBuilder sb = new StringBuilder(256);
 
+
+            sb.append(  "Time: "        + df.format("yyyy-MM-dd hh:mm:ss", new java.util.Date()) + "\n" +
+                         SysStrings.getTheGPS(locationManager) + "\n" +
+                         "Orientation:" + SysStrings.getOrientation(getApplicationContext()) + "\n" +
+                          SysStrings.getGravity(mSensorManager) + "\n" +
+                          SysStrings.getLight(mSensorManager) + "\n" +
+                          SysStrings.getPressure(mSensorManager) + "\n" +
+                          SysStrings.getTemp(mSensorManager) + "\n" +
+                          "IMEI: "      + SysStrings.getIEMI(telephonyManager) + "\n" +
+                          SysStrings.getWIFI(connManager,wifiman) + "\n"
+            );
+            tv1.setText(sb.toString());
+        }
+    };
+    private View.OnClickListener button2CB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String list = "";
+            List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+            for (int i = 0; i < deviceSensors.size(); i++) {
+                String name = deviceSensors.get(i).getName();
+                if (name.startsWith("placeholder"))
+                    continue;
+                list += name + "\n";
+            }
+            tv1.setText(list);
+        }
+    };
 
 
     @Override
