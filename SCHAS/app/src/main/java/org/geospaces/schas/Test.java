@@ -36,8 +36,6 @@ public class Test extends Activity implements SensorEventListener {
     private ConnectivityManager connManager;
     private WifiManager wifiman;
 
-    private static android.text.format.DateFormat df = new android.text.format.DateFormat();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,15 +75,15 @@ public class Test extends Activity implements SensorEventListener {
             StringBuilder sb = new StringBuilder(256);
 
 
-            sb.append(  "Time: "        + df.format("yyyy-MM-dd hh:mm:ss", new java.util.Date()) + "\n" +
-                         SysStrings.getTheGPS(locationManager) + "\n" +
-                         "Orientation:" + SysStrings.getOrientation(getApplicationContext()) + "\n" +
-                          SysStrings.getGravity(mSensorManager) + "\n" +
-                          SysStrings.getLight(mSensorManager) + "\n" +
-                          SysStrings.getPressure(mSensorManager) + "\n" +
-                          SysStrings.getTemp(mSensorManager) + "\n" +
-                          "IMEI: "      + SysStrings.getIEMI(telephonyManager) + "\n" +
-                          SysStrings.getWIFI(connManager,wifiman) + "\n"
+            sb.append(  SysStrings.getTheTime() + "\n" + 
+                        SysStrings.getTheGPS(locationManager) + "\n" +
+                        SysStrings.getOrientation(getApplicationContext()) + "\n" +
+                        SysStrings.getGravity(mSensorManager) + "\n" +
+                        SysStrings.getLight(mSensorManager) + "\n" +
+                        SysStrings.getPressure(mSensorManager) + "\n" +
+                        SysStrings.getTemp(mSensorManager) + "\n" +
+                        SysStrings.getIEMI(telephonyManager) + "\n" +
+                        SysStrings.getWIFI(connManager,wifiman) + "\n"
             );
             tv1.setText(sb.toString());
         }
