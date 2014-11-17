@@ -3,10 +3,14 @@ package org.geospaces.schas;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import java.io.File;
 
 
 public class Welcome extends Activity {
@@ -16,6 +20,16 @@ public class Welcome extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
+
+        //Creates a SCHAS directory on the external storage portion of the Device to keep data files
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+            Log.d("MyApp", "No SDCARD");
+        } else {
+            File directory = new File(Environment.getExternalStorageDirectory()+File.separator+"SCHAS");
+            directory.mkdirs();
+        }
+
+        //Continue Button
         final Button button = (Button) findViewById(R.id.button1);
         if ( button != null) {
             button.setOnClickListener(new View.OnClickListener() {
