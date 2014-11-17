@@ -1,1 +1,1 @@
-include ':app', ':schasutils', ':SysLib'
+include ':app', ':schasutils', ':SysLib', ':IOIOLib', ':IOIOLibBT'

@@ -52,21 +52,21 @@
         android:layout_alignParentStart="true"
         android:gravity="center" />
 
-    <EditText
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
         android:id="@+id/statusText"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:linksClickable="true"
         android:gravity="fill_horizontal|fill_vertical"
         android:layout_above="@+id/button1"
-        android:autoText="false"
-        android:background="@android:color/holo_orange_light"
+        android:background="@android:color/holo_orange_light" />
+    <!--android:inputType="textMultiLine"
         android:hint="Status Text will be printed Here"
-        android:editable="false" />
+        android:linksClickable="true"
+        android:autoText="false"
+        android:editable="false" />-->
 </RelativeLayout>

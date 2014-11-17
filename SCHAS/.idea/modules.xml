@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/IOIOLib/IOIOLib.iml" filepath="$PROJECT_DIR$/IOIOLib/IOIOLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/IOIOLibBT/IOIOLibBT.iml" filepath="$PROJECT_DIR$/IOIOLibBT/IOIOLibBT.iml" />
       <module fileurl="file://$PROJECT_DIR$/SCHAS.iml" filepath="$PROJECT_DIR$/SCHAS.iml" />
       <module fileurl="file://$PROJECT_DIR$/SysLib/SysLib.iml" filepath="$PROJECT_DIR$/SysLib/SysLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />

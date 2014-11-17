@@ -16,13 +16,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.util.List;
 
 import mymodule.app2.mymodule.app2.SysStrings;
 
 public class Test extends Activity implements SensorEventListener {
-    EditText tv1;
+    TextView tv1;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -42,7 +43,7 @@ public class Test extends Activity implements SensorEventListener {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         setContentView(R.layout.activity_test);
-        tv1 = (EditText)findViewById(R.id.statusText);
+        tv1 = (TextView)findViewById(R.id.statusText);
 
         telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
 
