@@ -23,7 +23,7 @@ public class Welcome extends Activity {
 
         //Creates a SCHAS directory on the external storage portion of the Device to keep data files
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-            Log.d("MyApp", "No SDCARD");
+            Log.d("SCHAS", "No SDCARD");
         } else {
             File directory = new File(Environment.getExternalStorageDirectory()+File.separator+"SCHAS");
             directory.mkdirs();
