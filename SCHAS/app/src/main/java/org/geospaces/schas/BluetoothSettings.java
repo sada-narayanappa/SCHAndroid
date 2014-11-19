@@ -102,10 +102,29 @@ public class BluetoothSettings extends Activity {
         if ( button != null) {
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    if (peakflow.isChecked()) {
-                        if (button.getText().equals("Collect Data")) {
+
+                   // peakflow.setChecked(false);
+                   // inhaler.setChecked(false);
+
+                    if (button.getText().equals("Collect Data")) {
+
+                        //User Information
+                        if (peakflow.isChecked() && inhaler.isChecked()) {
+                            Toast.makeText(getApplicationContext(), "Both Devices are ready for input", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            if (peakflow.isChecked()) {
+                                Toast.makeText(getApplicationContext(), "PeakFlow is ready for input", Toast.LENGTH_SHORT).show();
+                            }
+                            else if (inhaler.isChecked()) {
+                                Toast.makeText(getApplicationContext(), "Inhaler is ready for input", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        //PeakFlow
+                        if (peakflow.isChecked()) {
                             try {
-                                Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
+                                //Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
                                 openBT();
                             } catch (IOException e) {
                                 button.setText("Collect Data");
@@ -115,16 +134,32 @@ public class BluetoothSettings extends Activity {
                                 //e.printStackTrace();
                                 //Toast.makeText(getApplicationContext(), "This is not going to be easy", Toast.LENGTH_LONG).show();
                             }
-
-                            //button.setText("End Collection");
-                        } else if (button.getText().equals("End Collection")) {
-                           // Toast.makeText(getApplicationContext(), "" +mmSocket.isConnected(), Toast.LENGTH_LONG).show();
-                            onDestroy();
-                            button.setText("Collect Data");
-                            peakflow.setChecked(false);
+                        }
+                        if (inhaler.isChecked()) {
+                            try {
+                                Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
+                                openBT2();
+                            } catch (IOException e) {
+                                button.setText("Collect Data");
+                                Toast.makeText(getApplicationContext(), "Connection Lost, Unable to Connect", Toast.LENGTH_SHORT).show();
+                                inhaler.setChecked(false);
+                                //statusBT.setText("Connection Failed.\nPlease re-attempt connection.");
+                                //e.printStackTrace();
+                                //Toast.makeText(getApplicationContext(), "This is not going to be easy", Toast.LENGTH_LONG).show();
+                            }
                         }
 
                     }
+
+                            //button.setText("End Collection");
+                     else if (button.getText().equals("End Collection")) {
+                       // Toast.makeText(getApplicationContext(), "" +mmSocket.isConnected(), Toast.LENGTH_LONG).show();
+                        onDestroy();
+                        button.setText("Collect Data");
+                        peakflow.setChecked(false);
+                    }
+
+
                     else{Toast.makeText(getApplicationContext(), "No Device to Collect From", Toast.LENGTH_LONG).show();}
 
                     }
@@ -148,19 +183,19 @@ public class BluetoothSettings extends Activity {
             findBT2();
             UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
             try {
-                mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-                mmSocket.connect();
+                mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
+                mmSocket2.connect();
             }
             catch(IOException e)
             {
 
             }
-            if(mmSocket.isConnected())
+            if(mmSocket2.isConnected())
             {
                 inhaler.setChecked(true);
             }
             else{inhaler.setChecked(false);}
-            t.setText(""+mmDevice.getName()+ "-" + mmSocket.isConnected());
+            t.setText(""+mmDevice2.getName()+ "-" + mmSocket2.isConnected());
             try{
                 openBT2();
             }
@@ -196,10 +231,10 @@ public class BluetoothSettings extends Activity {
             {
                 if(device.getName().contains("Inhaler"))
                 {
-                    if(mmDevice == device){
+                    if(mmDevice2 == device){
                         break;
                     }
-                    mmDevice = device;
+                    mmDevice2 = device;
                     //  Toast.makeText(getApplicationContext(), "Bluetooth Found", Toast.LENGTH_SHORT).show();
                     //  peakflow.setChecked(true);
                     break;
@@ -213,24 +248,24 @@ public class BluetoothSettings extends Activity {
 
     public void openBT2() throws IOException {
         //Toast.makeText(getApplicationContext(), "before" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
-        mmSocket.close();
+        mmSocket2.close();
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
 
-        Button b = (Button) findViewById(R.id.inhalerbtn);
+        Button b = (Button) findViewById(R.id.button2);
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-        if (!mmSocket.isConnected()) {
+        if (!mmSocket2.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
-            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-            mmSocket.connect();
+            mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
+            mmSocket2.connect();
         }
         //Toast.makeText(getApplicationContext(), "Past Linking", Toast.LENGTH_LONG).show();
-        mmOutputStream = mmSocket.getOutputStream();
-        mmInputStream = mmSocket.getInputStream();
+        mmOutputStream2 = mmSocket2.getOutputStream();
+        mmInputStream2 = mmSocket2.getInputStream();
 
-        if (mmSocket.isConnected()) {
-            // Toast.makeText(getApplicationContext(), "ISCON", Toast.LENGTH_LONG).show();
+        if (mmSocket2.isConnected()) {
             inhalerThread();
+            b.setText("End Collection");
         }
     }
     public void inhalerThread()
@@ -242,7 +277,7 @@ public class BluetoothSettings extends Activity {
                 while (!Thread.currentThread().isInterrupted() && !stopWorker2) {
                     try {
                         Log.e("Thread","Input Stream");
-                        inhalerinfo += mmInputStream.read();
+                        inhalerinfo += mmInputStream2.read();
 
 
                         //Toast.makeText(getApplicationContext(), "" + inhalerinfo, Toast.LENGTH_SHORT).show();
@@ -306,14 +341,16 @@ public class BluetoothSettings extends Activity {
         private View.OnClickListener buttonListener1 = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+
             findBT();
+
             UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+                //Toast.makeText(getApplicationContext(), ""+mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
+
             try {
                 mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
                 mmSocket.connect();
-            }
-            catch(IOException e)
-            {
+            } catch (IOException e) {
 
             }
             if(mmSocket.isConnected())
@@ -321,6 +358,44 @@ public class BluetoothSettings extends Activity {
                 peakflow.setChecked(true);
             }
             else{peakflow.setChecked(false);}
+
+            findBT2();
+
+            try {
+                mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
+                mmSocket2.connect();
+            }
+            catch(IOException e)
+            {
+
+            }
+            if(mmSocket2.isConnected())
+            {
+                inhaler.setChecked(true);
+            }
+            else{inhaler.setChecked(false);}
+
+
+
+
+            if(mmSocket.isConnected() && mmSocket2.isConnected())
+            {
+                //Toast.makeText(getApplicationContext(), "Both Devices Connected", Toast.LENGTH_SHORT).show();
+            }
+            if(mmSocket.isConnected())
+            {
+               // peakflow.setChecked(true);
+                Toast.makeText(getApplicationContext(), "PeakFlow Connected", Toast.LENGTH_SHORT).show();
+            }
+            //else{peakflow.setChecked(false);}
+
+
+            if(mmSocket2.isConnected())
+            {
+               // inhaler.setChecked(true);
+                Toast.makeText(getApplicationContext(), "Inhaler Connected", Toast.LENGTH_SHORT).show();
+            }
+            //else{inhaler.setChecked(false);}
         }
     };
     void findBT()
