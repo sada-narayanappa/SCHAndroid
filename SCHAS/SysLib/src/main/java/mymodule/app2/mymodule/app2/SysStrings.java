@@ -59,10 +59,12 @@ public class SysStrings{
                 location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 loc = "Fine: \n";
         }
-            loc += "Lat: " + location.getLatitude() + "\nLon: " + location.getLongitude() +
+            /*loc += "Lat: " + location.getLatitude() + "\nLon: " + location.getLongitude() +
                     "\nSpeed: " + location.getSpeed() + "\nAltitude: " + location.getAltitude() +
                     "\nBearing: " + location.getBearing() +
-                    "\nAccuracy:" + location.getAccuracy();
+                    "\nAccuracy:" + location.getAccuracy();*/
+            loc = "" + location.getLatitude() +", " + location.getLongitude() + ", " + location.getSpeed();
+
         }
         else{
             loc = "location: NA";
