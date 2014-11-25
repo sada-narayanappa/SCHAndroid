@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import mymodule.app2.mymodule.app2.SysStrings;
+import mymodule.app2.mymodule.app2.schasStrings;
 
 public class Test extends Activity implements SensorEventListener {
     TextView tv1;
@@ -75,17 +75,17 @@ public class Test extends Activity implements SensorEventListener {
             StringBuilder sb = new StringBuilder(256);
 
 
-            sb.append(  SysStrings.getTheTime() + "\n" +
-                        SysStrings.getTheGPS(locationManager) + "\n" +
-                        SysStrings.getOrientation(getApplicationContext()) + "\n" +
-                        SysStrings.getGravity(mSensorManager) + "\n" +
-                        SysStrings.getLight(mSensorManager) + "\n" +
-                        SysStrings.getPressure(mSensorManager) + "\n" +
-                        SysStrings.getTemp(mSensorManager) + "\n" +
-                        SysStrings.getDeviceID(Test.this) + "\n" +
-                        SysStrings.getWIFI(connManager,wifiman) + "\n" +
-                        SysStrings.getBluetoothDevices() + "\n" +
-                        SysStrings.getBatteryStatus(getApplicationContext())
+            sb.append(  schasStrings.getTheTime() + "\n" +
+                        schasStrings.getTheGPS(locationManager) + "\n" +
+                        schasStrings.getOrientation(getApplicationContext()) + "\n" +
+                        schasStrings.getGravity(mSensorManager) + "\n" +
+                        schasStrings.getLight(mSensorManager) + "\n" +
+                        schasStrings.getPressure(mSensorManager) + "\n" +
+                        schasStrings.getTemp(mSensorManager) + "\n" +
+                        schasStrings.getDeviceID(Test.this) + "\n" +
+                        schasStrings.getWIFI(connManager, wifiman) + "\n" +
+                        schasStrings.getBluetoothDevices() + "\n" +
+                        schasStrings.getBatteryStatus(getApplicationContext())
 
 
             );
@@ -133,16 +133,16 @@ public class Test extends Activity implements SensorEventListener {
     public final void onSensorChanged(SensorEvent event) {
         Sensor thisSensor = event.sensor;
         if (thisSensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            SysStrings.updateGravity(event);
+            schasStrings.updateGravity(event);
         }
         else if (thisSensor.getType() == Sensor.TYPE_LIGHT){
-            SysStrings.updateLight(event);
+            schasStrings.updateLight(event);
         }
         else if (thisSensor.getType() == Sensor.TYPE_PRESSURE){
-            SysStrings.updatePressure(event);
+            schasStrings.updatePressure(event);
         }
         else if (thisSensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE){
-            SysStrings.updateTemp(event);
+            schasStrings.updateTemp(event);
         }
     }
 

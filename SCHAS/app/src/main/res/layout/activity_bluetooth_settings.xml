@@ -27,6 +27,7 @@
         android:text="Attempt Connection"
         android:id="@+id/button"
         android:layout_toEndOf="@+id/inhalercb"
+        android:layout_toRightOf="@id/inhalercb"
         android:layout_below="@+id/inhalercb"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
