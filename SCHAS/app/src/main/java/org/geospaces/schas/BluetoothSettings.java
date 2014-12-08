@@ -41,6 +41,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,6 +54,7 @@ import mymodule.app2.mymodule.app2.schasStrings;
 
 
 public class BluetoothSettings extends Activity {
+    UUID uuid;
     BluetoothAdapter mBluetoothAdapter=null;
     BluetoothDevice mmDevice=null;
     CheckBox peakflow;
@@ -69,6 +72,8 @@ public class BluetoothSettings extends Activity {
     private final static String android_id=BluetoothAdapter.getDefaultAdapter().getAddress().replace(":","");
     BluetoothSocket mmSocket=null;
     LocationManager locationManager;
+    private boolean device1previousconnect = false;
+    private boolean device2previousconnect = false;
     //Inhaler Below
     boolean stopWorker2;
     Thread inhalerTD;
@@ -90,8 +95,6 @@ public class BluetoothSettings extends Activity {
 
 
 
-        findViewById(R.id.inhalerbtn).setOnClickListener(buttonListener2);
-        findViewById(R.id.button).setOnClickListener(buttonListener1);
         peakflow = (CheckBox)findViewById(R.id.PeakFlow);
         inhaler = (CheckBox)findViewById(R.id.inhalercb);
         peakflow.setEnabled(false);
@@ -179,76 +182,231 @@ public class BluetoothSettings extends Activity {
                 }
             });
         }
+        final Button connectButton = (Button) findViewById(R.id.button);
+        if(connectButton != null){
+            connectButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v){
 
-    }
-    private View.OnClickListener buttonListener2 = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            TextView t = (TextView)findViewById(R.id.storage);
-            findBT2();
-            UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-            try {
-                mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
-                mmSocket2.connect();
-            }
-            catch(IOException e)
-            {
+                    mmDevice = null;
+                    mmDevice2 = null;
+                    mmSocket = null;
+                    mmSocket2 = null;
+                    mBluetoothAdapter = null;
+                    mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                    // inhaler.setChecked(false);
+                    // peakflow.setChecked(false);
+                    if(!mBluetoothAdapter.isEnabled())
+                    {
+                        Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(enableBluetooth, 0);
+                    }
+                    if (mBluetoothAdapter.isEnabled()) {
 
-            }
-            if(mmSocket2.isConnected())
-            {
-                inhaler.setChecked(true);
-            }
-            else{inhaler.setChecked(false);}
-            t.setText(""+mmDevice2.getName()+ "-" + mmSocket2.isConnected());
-            try{
-                openBT2();
-            }
-            catch(IOException e)
-            {
+                        findBT();
+                        uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+                        //Toast.makeText(getApplicationContext(), ""+mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
-            }
+
+                        if(mmDevice !=null) {
+                            try {
+                                mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
+                                mmSocket.connect();
+
+                            } catch (IOException e) {
+                                try{
+                                    mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
+                                    mmSocket.connect();
+                                }
+                                catch(Exception f){
+                                    Toast.makeText(getApplicationContext(), "dev 1" + f.getMessage(), Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+
+                            if (mmSocket != null) {
+                                if (mmSocket.isConnected()) {
+                                    peakflow.setChecked(true);
+                                }
+                                else{peakflow.setChecked(false);}
+                            }
+                        }
+
+
+                        findBT2();
+                        if(mmDevice2!=null) {
+                            try {
+                                mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
+                                mmSocket2.connect();
+
+                            } catch (IOException e) {
+                                try{
+                                    mmSocket2 = (BluetoothSocket) mmDevice2.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice2,1);
+                                    mmSocket2.connect();
+                                }
+                                catch(Exception f){
+                                    Toast.makeText(getApplicationContext(), "dev2" + f.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            if (mmSocket2 != null) {
+                                if (mmSocket2.isConnected()) {
+                                    inhaler.setChecked(true);
+                                }
+                                else{inhaler.setChecked(false);}
+                            }
+                        }
+
+
+                        if (mmSocket == null && mmSocket2 == null) {
+                            Toast.makeText(getApplicationContext(), "No Devices connected", Toast.LENGTH_SHORT).show();
+                            Intent intentOpenBluetoothSettings = new Intent();
+                            intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                            startActivity(intentOpenBluetoothSettings);
+                        }
+
+
+                        if (mmSocket != null && mmSocket2 != null) {
+                            if (mmSocket.isConnected() && mmSocket2.isConnected()) {
+                                //Toast.makeText(getApplicationContext(), "Both Devices Connected", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        if (mmSocket != null) {
+                            if (mmSocket.isConnected()) {
+                                // peakflow.setChecked(true);
+                                Toast.makeText(getApplicationContext(), "PeakFlow Connected", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        else{peakflow.setChecked(false);}
+
+                        if (mmSocket2 != null) {
+                            if (mmSocket2.isConnected()) {
+                                Toast.makeText(getApplicationContext(), "Inhaler Connected", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        else{inhaler.setChecked(false);}
+                    }
+                /*else{
+                    Toast.makeText(getApplicationContext(), "Please enable Bluetooth and Connect Devices", Toast.LENGTH_SHORT).show();
+                    Intent intentOpenBluetoothSettings = new Intent();
+                    intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                    startActivity(intentOpenBluetoothSettings);
+                }*/
+                    try {
+                        mmSocket.close();
+                        mmSocket2.close();
+                    }
+                    catch(Exception e){
+
+                    }
+                }
+            });
         }
-    };
 
-    void findBT2()
-    {
+        final Button inhalebutton = (Button) findViewById(R.id.inhalerbtn);
+        if(inhalebutton != null){
+            inhalebutton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v){
+                    TextView t = (TextView)findViewById(R.id.storage);
+                    findBT2();
+                    uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+                    try {
+                        mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
+                        mmSocket2.connect();
+                    }
+                    catch(IOException e)
+                    {
 
-        //mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(mBluetoothAdapter == null)
-        {
+                    }
+                    if(mmSocket2.isConnected())
+                    {
+                        inhaler.setChecked(true);
+                    }
+                    else{inhaler.setChecked(false);}
+                    t.setText(""+mmDevice2.getName()+ "-" + mmSocket2.isConnected());
+                    try{
+                        openBT2();
+                    }
+                    catch(IOException e)
+                    {
+
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.welcome, menu);
+        /*MenuInflater inflater = getMenuInflater();
+        getMenuInflater().inflate(R.menu.bluetooth_settings, menu);*/
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        /*switch (item.getItemId()) {
+            case R.id.action_test:
+                Intent intent = null;
+                intent = new Intent(this, Test.class);
+                this.getApplicationContext().startActivity(intent);
+                return true;
+            case R.id.info_menu:
+                LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                PopupWindow pw = new PopupWindow(inflater.inflate(R.layout.popupinfo, null, false),100,100, true);
+
+                pw.showAtLocation(this.findViewById(R.id.home), Gravity.CENTER, 0, 0);
+                return true;
+            default:*/
+        return super.onOptionsItemSelected(item);
+        // }
+    }
+
+    @Override
+    protected void onPause() {
+        onDestroy();
+        //inhaler.setChecked(false);
+        // peakflow.setChecked(false);
+        super.onPause();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    public void onDestroy(){
+
+        super.onDestroy();
+        //stopWorker=true;
+        // stopWorker2=true;
+       /* try {
+            //this.closeBT();
+        } catch (IOException e) {
+            //e.printStackTrace();
+        }*/
+    }
+
+
+    void findBT2() {
+        if (mBluetoothAdapter == null) {
             Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth, and is therefore incompatable.", Toast.LENGTH_LONG).show();
             onDestroy();
         }
 
-       /* if(!mBluetoothAdapter.isEnabled())
-        {
-            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBluetooth, 0);
-            //Toast.makeText(getApplicationContext(), "Bluetooth Enabled", Toast.LENGTH_SHORT).show();
-
-        }*/
-
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        if(pairedDevices.size() > 0)
-        {
-            for(BluetoothDevice device : pairedDevices)
-            {
-                if(device.getName().contains("RNBT"))
-                {
-                    if(mmDevice2 == device){
-                        break;
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice device : pairedDevices) {
+                    if (device.getName().contains("RNBT")) {
+                        if(mmDevice2 == null) {
+                            device2previousconnect = true;
+                            mmDevice2 = device;
+                        }
+                    } else {
+                        device2previousconnect = false;
                     }
-                    mmDevice2 = device;
-                    //  Toast.makeText(getApplicationContext(), "Bluetooth Found", Toast.LENGTH_SHORT).show();
-                      //peakflow.setChecked(true);
-                    break;
                 }
-                //  Toast.makeText(getApplicationContext(), "Bluetooth Device Not Found", Toast.LENGTH_SHORT).show();
-                //  peakflow.setChecked(false);
-
             }
-        }
+
     }
 
     public void openBT2() throws IOException {
@@ -256,9 +414,8 @@ public class BluetoothSettings extends Activity {
         mmSocket2.close();
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
-
         Button b = (Button) findViewById(R.id.button2);
-        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+        uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket2.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
             mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
@@ -302,166 +459,14 @@ public class BluetoothSettings extends Activity {
         inhalerTD.start();
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.welcome, menu);
-        /*MenuInflater inflater = getMenuInflater();
-        getMenuInflater().inflate(R.menu.bluetooth_settings, menu);*/
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        /*switch (item.getItemId()) {
-            case R.id.action_test:
-                Intent intent = null;
-                intent = new Intent(this, Test.class);
-                this.getApplicationContext().startActivity(intent);
-                return true;
-            case R.id.info_menu:
-                LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                PopupWindow pw = new PopupWindow(inflater.inflate(R.layout.popupinfo, null, false),100,100, true);
-
-                pw.showAtLocation(this.findViewById(R.id.home), Gravity.CENTER, 0, 0);
-                return true;
-            default:*/
-                return super.onOptionsItemSelected(item);
-       // }
-    }
-
-    @Override
-     protected void onPause() {
-        onDestroy();
-        //inhaler.setChecked(false);
-       // peakflow.setChecked(false);
-        super.onPause();
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    public void onDestroy(){
-
-        super.onDestroy();
-        //stopWorker=true;
-       // stopWorker2=true;
-       /* try {
-            //this.closeBT();
-        } catch (IOException e) {
-            //e.printStackTrace();
-        }*/
-    }
-
-
-        private View.OnClickListener buttonListener1 = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            inhaler.setChecked(false);
-            peakflow.setChecked(false);
-            if(!mBluetoothAdapter.isEnabled())
-            {
-
-                Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBluetooth, 0);
-               // Toast.makeText(getApplicationContext(), "Bluetooth Enabled, ReA", Toast.LENGTH_SHORT).show();
-
-            }
-            if (mBluetoothAdapter.isEnabled()) {
-
-                findBT();
-                UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-                //Toast.makeText(getApplicationContext(), ""+mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
-                if(mmDevice !=null) {
-                    try {
-                        mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-                        mmSocket.connect();
-                    } catch (IOException e) {
-                        mmSocket = null;
-                    }
-                    if (mmSocket != null) {
-                        if (mmSocket.isConnected()) {
-                            peakflow.setChecked(true);
-                        } else {
-                            peakflow.setChecked(false);
-                        }
-                    }
-                }
-                findBT2();
-                if(mmDevice2!=null) {
-                    try {
-                        mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
-                        mmSocket2.connect();
-                    } catch (IOException e) {
-                        mmSocket2 = null;
-                    }
-                    if (mmSocket2 != null) {
-                        if (mmSocket2.isConnected()) {
-                            inhaler.setChecked(true);
-                        } else {
-                            inhaler.setChecked(false);
-                        }
-                    }
-                }
-
-
-                if (mmSocket == null && mmSocket2 == null) {
-                    Toast.makeText(getApplicationContext(), "No Devices connected", Toast.LENGTH_SHORT).show();
-                    Intent intentOpenBluetoothSettings = new Intent();
-                    intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-                    startActivity(intentOpenBluetoothSettings);
-                }
-
-
-                if (mmSocket != null && mmSocket2 != null) {
-                    if (mmSocket.isConnected() && mmSocket2.isConnected()) {
-                        //Toast.makeText(getApplicationContext(), "Both Devices Connected", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                if (mmSocket != null) {
-                    if (mmSocket.isConnected()) {
-                        // peakflow.setChecked(true);
-                        Toast.makeText(getApplicationContext(), "PeakFlow Connected", Toast.LENGTH_SHORT).show();
-                    }
-                    //else{peakflow.setChecked(false);}
-                }
-
-                if (mmSocket2 != null) {
-                    if (mmSocket2.isConnected()) {
-                        // inhaler.setChecked(true);
-                        Toast.makeText(getApplicationContext(), "Inhaler Connected", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-            /*else{
-                Toast.makeText(getApplicationContext(), "Please enable Bluetooth and Connect Devices", Toast.LENGTH_SHORT).show();
-                Intent intentOpenBluetoothSettings = new Intent();
-                intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-                startActivity(intentOpenBluetoothSettings);
-            }*/
-        }
-    };
     void findBT()
     {
 
-        //mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if(mBluetoothAdapter == null)
         {
             Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth, and is therefore incompatable.", Toast.LENGTH_LONG).show();
             onDestroy();
         }
-
-        /*if(!mBluetoothAdapter.isEnabled())
-        {
-            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBluetooth, 0);
-            //Toast.makeText(getApplicationContext(), "Bluetooth Enabled", Toast.LENGTH_SHORT).show();
-
-        }*/
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         if(pairedDevices.size() > 0)
@@ -470,39 +475,16 @@ public class BluetoothSettings extends Activity {
             {
                 if(device.getName().contains("ASMA"))
                 {
-                    mmDevice = device;
-                  //  Toast.makeText(getApplicationContext(), "Bluetooth Found", Toast.LENGTH_SHORT).show();
-                  //  peakflow.setChecked(true);
-
-                    break;
-
+                    if(mmDevice == null) {
+                        device1previousconnect = true;
+                        mmDevice = device;
+                    }
                 }
-              //  Toast.makeText(getApplicationContext(), "Bluetooth Device Not Found", Toast.LENGTH_SHORT).show();
-              //  peakflow.setChecked(false);
+                else{device1previousconnect = false;}
 
             }
         }
     }
-
-    public String calculateMem()
-    {
-        //Calculating Available
-        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
-        long bytesAvailable = (long)stat.getBlockSize() * (long)stat.getAvailableBlocks();
-        long megAvailable = bytesAvailable / (1024 * 1024);
-
-        //Calculating Total
-        long blockSize = stat.getBlockSize();
-        long totalBlocks = stat.getBlockCount();
-        long Total = (totalBlocks * blockSize) / (1024*1024);
-
-        long megUsed = Total-megAvailable;
-
-        return (megUsed + "/" + Total +"MB used");
-    }
-
-
-
 
     //Following code was the Code eric used to pull data from peakflow meter
      public void openBT() throws IOException
@@ -513,7 +495,7 @@ public class BluetoothSettings extends Activity {
 
 
         Button b = (Button) findViewById(R.id.button2);
-        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+        uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if(!mmSocket.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
             mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
@@ -532,10 +514,6 @@ public class BluetoothSettings extends Activity {
 
        // statusBT.setText("Successful Connection");//lets user know bt is open
     }
-
-
-
-
 
     public void beginListenForData()
     {
@@ -963,6 +941,23 @@ public class BluetoothSettings extends Activity {
         if(mmSocket2!=null)
             mmSocket2.close();
         Toast.makeText(getApplicationContext(), "Connection Closed", Toast.LENGTH_LONG).show();
+    }
+
+    public String calculateMem()
+    {
+        //Calculating Available
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+        long bytesAvailable = (long)stat.getBlockSize() * (long)stat.getAvailableBlocks();
+        long megAvailable = bytesAvailable / (1024 * 1024);
+
+        //Calculating Total
+        long blockSize = stat.getBlockSize();
+        long totalBlocks = stat.getBlockCount();
+        long Total = (totalBlocks * blockSize) / (1024*1024);
+
+        long megUsed = Total-megAvailable;
+
+        return (megUsed + "/" + Total +"MB used");
     }
 
 }
