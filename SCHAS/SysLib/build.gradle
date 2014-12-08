@@ -5,7 +5,7 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "mymodule.app2.mymodule.app2"
+        //applicationId "mymodule.app2.mymodule.app2"
         minSdkVersion 10
         targetSdkVersion 10
         versionCode 1
@@ -13,7 +13,9 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
+            //runProguard false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled false // new version
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

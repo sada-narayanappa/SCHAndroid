@@ -69,7 +69,7 @@ public class BluetoothSettings extends Activity {
     private static double gpsLat=-1;
     private static double gpsLon=-1;
     private static double gpsVeloc=-1;
-    private final static String android_id=BluetoothAdapter.getDefaultAdapter().getAddress().replace(":","");
+    private static String android_id= "NA";
     BluetoothSocket mmSocket=null;
     LocationManager locationManager;
     private boolean device1previousconnect = false;
@@ -93,7 +93,8 @@ public class BluetoothSettings extends Activity {
         setContentView(R.layout.activity_bluetooth_settings);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-
+        BluetoothAdapter adap = BluetoothAdapter.getDefaultAdapter();
+        android_id= (adap == null) ? "NA" : adap.getAddress().replace(":","");
 
         peakflow = (CheckBox)findViewById(R.id.PeakFlow);
         inhaler = (CheckBox)findViewById(R.id.inhalercb);
@@ -195,6 +196,10 @@ public class BluetoothSettings extends Activity {
                     mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
                     // inhaler.setChecked(false);
                     // peakflow.setChecked(false);
+                    if ( mBluetoothAdapter == null) {
+                        Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth, and is therefore incompatable.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     if(!mBluetoothAdapter.isEnabled())
                     {
                         Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -302,12 +307,15 @@ public class BluetoothSettings extends Activity {
         }
 
         final Button inhalebutton = (Button) findViewById(R.id.inhalerbtn);
-        if(inhalebutton != null){
+        if(inhalebutton != null ){
             inhalebutton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v){
                     TextView t = (TextView)findViewById(R.id.storage);
                     findBT2();
                     uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+                    if ( mmDevice2 == null ) {
+                        return;
+                    }
                     try {
                         mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
                         mmSocket2.connect();
@@ -344,22 +352,10 @@ public class BluetoothSettings extends Activity {
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        /*switch (item.getItemId()) {
-            case R.id.action_test:
-                Intent intent = null;
-                intent = new Intent(this, Test.class);
-                this.getApplicationContext().startActivity(intent);
-                return true;
-            case R.id.info_menu:
-                LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                PopupWindow pw = new PopupWindow(inflater.inflate(R.layout.popupinfo, null, false),100,100, true);
-
-                pw.showAtLocation(this.findViewById(R.id.home), Gravity.CENTER, 0, 0);
-                return true;
-            default:*/
-        return super.onOptionsItemSelected(item);
-        // }
+        if ( !HandleMenu.onOptionsItemSelected(item, this)) {
+            return super.onOptionsItemSelected(item);
+        }
+        return true;
     }
 
     @Override
@@ -391,6 +387,7 @@ public class BluetoothSettings extends Activity {
         if (mBluetoothAdapter == null) {
             Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth, and is therefore incompatable.", Toast.LENGTH_LONG).show();
             onDestroy();
+            return;
         }
 
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -466,6 +463,7 @@ public class BluetoothSettings extends Activity {
         {
             Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth, and is therefore incompatable.", Toast.LENGTH_LONG).show();
             onDestroy();
+            return;
         }
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();

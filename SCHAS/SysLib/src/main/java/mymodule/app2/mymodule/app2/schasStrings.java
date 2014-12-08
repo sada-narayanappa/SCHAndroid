@@ -170,8 +170,8 @@ public class schasStrings {
     public static String getBluetoothDevices() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         String BTlist = "Bluetooth Devices: \n";
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        if (mBluetoothAdapter.isEnabled()){
+        if ( mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()){
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
             if (pairedDevices.size() > 0) {
                 for (BluetoothDevice device : pairedDevices) {
                     if (device.getName() != null) {
