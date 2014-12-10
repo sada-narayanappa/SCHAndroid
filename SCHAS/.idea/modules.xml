@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SCHAS.iml" filepath="$PROJECT_DIR$/SCHAS.iml" />
-      <module fileurl="file://$PROJECT_DIR$/SysLib/SysLib.iml" filepath="$PROJECT_DIR$/SysLib/SysLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SCHASLib/SysLib.iml" filepath="$PROJECT_DIR$/SCHASLib/SysLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/schasutils/schasutils.iml" filepath="$PROJECT_DIR$/schasutils/schasutils.iml" />
     </modules>
