@@ -54,35 +54,39 @@ import mymodule.app2.mymodule.app2.schasStrings;
 
 
 public class BluetoothSettings extends Activity {
-    UUID uuid;
-    BluetoothAdapter mBluetoothAdapter = null;
-    BluetoothDevice mmDevice = null;
-    CheckBox peakflow;
-    TextView storage;
+    UUID                uuid;
+    BluetoothAdapter    mBluetoothAdapter = null;
+    BluetoothDevice     mmDevice = null;
+    CheckBox            peakflow;
+    TextView            storage;
     //Peakflow Below
-    volatile boolean stopWorker;
-    int readBufferPosition;
-    byte[] readBuffer;
-    Thread workerThread;
-    OutputStream mmOutputStream = null;
-    InputStream mmInputStream = null;
+    volatile boolean    stopWorker;
+    int                 readBufferPosition;
+    byte[]              readBuffer;
+    Thread              workerThread;
+    OutputStream        mmOutputStream = null;
+    InputStream         mmInputStream = null;
+
+
+    BluetoothSocket     mmSocket = null;
+    LocationManager     locationManager;
+    private boolean     device1previousconnect = false;
+    private boolean     device2previousconnect = false;
+    //Inhaler Below
+    boolean             stopWorker2;
+    Thread              inhalerTD;
+    int                 inhalerinfo = 0;
+    OutputStream        mmOutputStream2 = null;
+    InputStream         mmInputStream2 = null;
+    BluetoothSocket     mmSocket2 = null;
+    BluetoothDevice     mmDevice2 = null;
+    CheckBox            inhaler;
+
     private static double gpsLat = -1;
     private static double gpsLon = -1;
     private static double gpsVeloc = -1;
     private static String android_id = "NA";
-    BluetoothSocket mmSocket = null;
-    LocationManager locationManager;
-    private boolean device1previousconnect = false;
-    private boolean device2previousconnect = false;
-    //Inhaler Below
-    boolean stopWorker2;
-    Thread inhalerTD;
-    int inhalerinfo = 0;
-    OutputStream mmOutputStream2 = null;
-    InputStream mmInputStream2 = null;
-    BluetoothSocket mmSocket2 = null;
-    BluetoothDevice mmDevice2 = null;
-    CheckBox inhaler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,10 +322,7 @@ public class BluetoothSettings extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.welcome, menu);
-        /*MenuInflater inflater = getMenuInflater();
-        getMenuInflater().inflate(R.menu.bluetooth_settings, menu);*/
         return true;
     }
 
