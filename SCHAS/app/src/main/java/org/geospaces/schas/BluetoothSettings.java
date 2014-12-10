@@ -170,7 +170,6 @@ public class BluetoothSettings extends Activity {
         final Button connectButton = (Button) findViewById(R.id.button);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
-            button.setText("BlueTooth not supported");
             connectButton.setEnabled(false);
         }
 
