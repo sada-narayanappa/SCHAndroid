@@ -93,12 +93,9 @@ public class BluetoothSettings extends Activity {
         BluetoothAdapter adap = BluetoothAdapter.getDefaultAdapter();
         android_id = (adap == null) ? "NA" : adap.getAddress().replace(":", "");
 
-<<<<<<< HEAD
-=======
         peakflow = (CheckBox) findViewById(R.id.PeakFlow);
         inhaler = (CheckBox) findViewById(R.id.inhalercb);
         storage = (TextView) findViewById(R.id.storage);
->>>>>>> origin/master
         stopWorker = false;
 
         peakflow.setEnabled(false);
@@ -106,28 +103,6 @@ public class BluetoothSettings extends Activity {
         inhaler.setEnabled(false);
 
         final Button button = (Button) findViewById(R.id.button2);
-<<<<<<< HEAD
-        if ( button != null) {
-            button.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-
-                    if (button.getText().equals("Collect Data")) {
-
-                        //User Information
-                        if (peakflow.isChecked() && inhaler.isChecked()) {
-                            Toast.makeText(getApplicationContext(), "Both Devices are ready for input", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            if (peakflow.isChecked()) {
-                                Toast.makeText(getApplicationContext(), "PeakFlow is ready for input", Toast.LENGTH_SHORT).show();
-                            }
-                            else if (inhaler.isChecked()) {
-                                Toast.makeText(getApplicationContext(), "Inhaler is ready for input", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        //PeakFlow
-=======
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (button.getText().equals("Collect Data")) {
@@ -135,7 +110,6 @@ public class BluetoothSettings extends Activity {
                     if (peakflow.isChecked() && inhaler.isChecked()) {
                         Toast.makeText(getApplicationContext(), "Both Devices are ready for input", Toast.LENGTH_SHORT).show();
                     } else {
->>>>>>> origin/master
                         if (peakflow.isChecked()) {
                             Toast.makeText(getApplicationContext(), "PeakFlow is ready for input", Toast.LENGTH_SHORT).show();
                         } else if (inhaler.isChecked()) {
@@ -156,12 +130,6 @@ public class BluetoothSettings extends Activity {
                             //Toast.makeText(getApplicationContext(), "This is not going to be easy", Toast.LENGTH_LONG).show();
                         }
                     }
-<<<<<<< HEAD
-                     else if (button.getText().equals("End Collection")) {
-                        onDestroy();
-                        button.setText("Collect Data");
-                        peakflow.setChecked(false);
-=======
                     if (inhaler.isChecked()) {
                         try {
                             Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
@@ -174,7 +142,6 @@ public class BluetoothSettings extends Activity {
                             //e.printStackTrace();
                             //Toast.makeText(getApplicationContext(), "This is not going to be easy", Toast.LENGTH_LONG).show();
                         }
->>>>>>> origin/master
                     }
 
                 }
@@ -214,16 +181,11 @@ public class BluetoothSettings extends Activity {
                 mmSocket = null;
                 mmSocket2 = null;
 
-<<<<<<< HEAD
-                        findBT();
-                        uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-=======
                 if (!mBluetoothAdapter.isEnabled()) {
                     Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivityForResult(enableBluetooth, 0);
                 }
                 if (mBluetoothAdapter.isEnabled()) {
->>>>>>> origin/master
 
                     findBT();
                     uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
@@ -286,16 +248,6 @@ public class BluetoothSettings extends Activity {
                     }
 
 
-<<<<<<< HEAD
-                        if (mmSocket != null && mmSocket2 != null) {
-                            if (mmSocket.isConnected() && mmSocket2.isConnected()) {
-                            }
-                        }
-                        if (mmSocket != null) {
-                            if (mmSocket.isConnected()) {
-                                Toast.makeText(getApplicationContext(), "PeakFlow Connected", Toast.LENGTH_SHORT).show();
-                            }
-=======
                     if (mmSocket != null && mmSocket2 != null) {
                         if (mmSocket.isConnected() && mmSocket2.isConnected()) {
                             //Toast.makeText(getApplicationContext(), "Both Devices Connected", Toast.LENGTH_SHORT).show();
@@ -305,7 +257,6 @@ public class BluetoothSettings extends Activity {
                         if (mmSocket.isConnected()) {
                             // peakflow.setChecked(true);
                             Toast.makeText(getApplicationContext(), "PeakFlow Connected", Toast.LENGTH_SHORT).show();
->>>>>>> origin/master
                         }
                     } else {
                         peakflow.setChecked(false);
@@ -315,16 +266,8 @@ public class BluetoothSettings extends Activity {
                         if (mmSocket2.isConnected()) {
                             Toast.makeText(getApplicationContext(), "Inhaler Connected", Toast.LENGTH_SHORT).show();
                         }
-<<<<<<< HEAD
-                        else{inhaler.setChecked(false);}
-                    }
-                    try {
-                        mmSocket.close();
-                        mmSocket2.close();
-=======
                     } else {
                         inhaler.setChecked(false);
->>>>>>> origin/master
                     }
                 }
             /*else{
@@ -394,6 +337,8 @@ public class BluetoothSettings extends Activity {
     @Override
     protected void onPause() {
         onDestroy();
+        //inhaler.setChecked(false);
+        // peakflow.setChecked(false);
         super.onPause();
     }
 
@@ -421,18 +366,6 @@ public class BluetoothSettings extends Activity {
             onDestroy();
             return;
         }
-<<<<<<< HEAD
-            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice device : pairedDevices) {
-                    if (device.getName().contains("RNBT")) {
-                        if(mmDevice2 == null) {
-                            device2previousconnect = true;
-                            mmDevice2 = device;
-                        }
-                    } else {
-                        device2previousconnect = false;
-=======
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
@@ -441,7 +374,6 @@ public class BluetoothSettings extends Activity {
                     if (mmDevice2 == null) {
                         device2previousconnect = true;
                         mmDevice2 = device;
->>>>>>> origin/master
                     }
                 } else {
                     device2previousconnect = false;
@@ -452,16 +384,18 @@ public class BluetoothSettings extends Activity {
     }
 
     public void openBT2() throws IOException {
-
+        //Toast.makeText(getApplicationContext(), "before" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
         mmSocket2.close();
+        //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
         Button b = (Button) findViewById(R.id.button2);
-
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket2.isConnected()) {
+            //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
             mmSocket2 = mmDevice2.createRfcommSocketToServiceRecord(uuid);
             mmSocket2.connect();
         }
+        //Toast.makeText(getApplicationContext(), "Past Linking", Toast.LENGTH_LONG).show();
         mmOutputStream2 = mmSocket2.getOutputStream();
         mmInputStream2 = mmSocket2.getInputStream();
 
@@ -480,29 +414,20 @@ public class BluetoothSettings extends Activity {
                     try {
                         Log.e("Thread", "Input Stream");
                         inhalerinfo += mmInputStream2.read();
-<<<<<<< HEAD
-                    }
-                    catch(Exception e)
-                    {
-                        stopWorker2=true;
-=======
 
 
                         //Toast.makeText(getApplicationContext(), "" + inhalerinfo, Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         stopWorker2 = true;
->>>>>>> origin/master
                         Log.e("Thread", "Exception");
+
                     }
                 }
+                //Toast.makeText(getApplicationContext(), "In Thread", Toast.LENGTH_SHORT).show();
             }
         });
-<<<<<<< HEAD
-        Log.e("Thread","Ran");
-=======
         //Toast.makeText(getApplicationContext(), "START", Toast.LENGTH_SHORT).show();
         Log.e("Thread", "Ran");
->>>>>>> origin/master
         inhalerTD.start();
     }
 
@@ -528,39 +453,23 @@ public class BluetoothSettings extends Activity {
     }
 
     //Following code was the Code eric used to pull data from peakflow meter
-<<<<<<< HEAD
-     public void openBT() throws IOException
-    {
-=======
     public void openBT() throws IOException {
         //Toast.makeText(getApplicationContext(), "before" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
->>>>>>> origin/master
         mmSocket.close();
+        //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
+
 
         Button b = (Button) findViewById(R.id.button2);
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-<<<<<<< HEAD
-        if(!mmSocket.isConnected()) {
-=======
         if (!mmSocket.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
->>>>>>> origin/master
             mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
             mmSocket.connect();
         }
+        //Toast.makeText(getApplicationContext(), "Past Linking", Toast.LENGTH_LONG).show();
         mmOutputStream = mmSocket.getOutputStream();
         mmInputStream = mmSocket.getInputStream();
 
-<<<<<<< HEAD
-        if(mmSocket.isConnected()) {
-            b.setText("End Collection");
-            beginListenForData();
-        }
-    }
-
-    public void beginListenForData()
-    {
-=======
         if (mmSocket.isConnected()) {
             // Toast.makeText(getApplicationContext(), "ISCON", Toast.LENGTH_LONG).show();
             b.setText("End Collection");
@@ -574,7 +483,6 @@ public class BluetoothSettings extends Activity {
     public void beginListenForData() {
         //Toast.makeText(getApplicationContext(), "Step1", Toast.LENGTH_LONG).show();
 
->>>>>>> origin/master
         final Handler handler = new Handler();
         final byte delimiter = 3; //This is the ASCII code for a newline character
 
@@ -915,17 +823,10 @@ public class BluetoothSettings extends Activity {
                 //e.printStackTrace();
             }
             file.delete();
-<<<<<<< HEAD
-        }
-        file=new File(directory,"inhalerDuration.txt");
-        if(file.exists()){
-            BufferedReader br=null;
-=======
         }//here
         file = new File(directory, "inhalerDuration.txt");
         if (file.exists()) {
             BufferedReader br = null;
->>>>>>> origin/master
             String line;
             try {
                 br = new BufferedReader(new FileReader(file));
