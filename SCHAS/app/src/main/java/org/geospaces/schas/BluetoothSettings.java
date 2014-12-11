@@ -113,7 +113,7 @@ public class BluetoothSettings extends Activity {
             });
         }
 
-        final Button connectButton = (Button) findViewById(R.id.button);
+        final Button connectButton = (Button) findViewById(R.id.attemptConnection);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             connectButton.setEnabled(false);
@@ -131,7 +131,6 @@ public class BluetoothSettings extends Activity {
                     startActivityForResult(enableBluetooth, 0);
                 }
                 if (mBluetoothAdapter.isEnabled()) {
-
                     findBT();
                     uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
                     //Toast.makeText(getApplicationContext(), ""+mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
@@ -459,7 +458,6 @@ public class BluetoothSettings extends Activity {
         mmSocket.close();
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
-
         Button b = (Button) findViewById(R.id.CollectData);
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket.isConnected()) {
@@ -476,8 +474,6 @@ public class BluetoothSettings extends Activity {
             b.setText("End Collection");
             beginListenForData();
         }
-
-
         // statusBT.setText("Successful Connection");//lets user know bt is open
     }
 
