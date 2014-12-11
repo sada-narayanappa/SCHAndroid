@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:text="Attempt Connection"
             android:id="@+id/button"
-            android:layout_below="@+id/button2"
+            android:layout_below="@+id/CollectData"
             android:layout_alignLeft="@+id/text2"
             android:layout_alignStart="@+id/text2" />
 
@@ -191,7 +191,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Collect Data"
-            android:id="@+id/button2"
+            android:id="@+id/CollectData"
             android:layout_toRightOf="@+id/uploaded"
             android:layout_toEndOf="@+id/uploaded" />
 

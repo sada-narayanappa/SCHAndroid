@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,15 +16,11 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +36,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -107,8 +100,8 @@ public class BluetoothSettings extends Activity {
         storage.setText(this.calculateMem());
         inhaler.setEnabled(false);
 
-        final Button button = (Button) findViewById(R.id.button2);
-        button.setOnClickListener(button2OnClickListener);
+        final Button button = (Button) findViewById(R.id.CollectData);
+        button.setOnClickListener(collectDataOnClickListener);
 
         final Button button4 = (Button) findViewById(R.id.button4);
         if (button4 != null) {
@@ -272,9 +265,9 @@ public class BluetoothSettings extends Activity {
     /**
      * This is a callback function for button2.
      */
-    private View.OnClickListener button2OnClickListener  = new View.OnClickListener() {
+    private View.OnClickListener collectDataOnClickListener  = new View.OnClickListener() {
         public void onClick(View v) {
-            final Button button = (Button) findViewById(R.id.button2);
+            final Button button = (Button) findViewById(R.id.CollectData);
 
             if (button.getText().equals("Collect Data")) {
                 //User Information
@@ -325,10 +318,8 @@ public class BluetoothSettings extends Activity {
             } else {
                 Toast.makeText(getApplicationContext(), "No Device to Collect From", Toast.LENGTH_LONG).show();
             }
-
         }
     };
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -398,7 +389,7 @@ public class BluetoothSettings extends Activity {
         mmSocket2.close();
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
-        Button b = (Button) findViewById(R.id.button2);
+        Button b = (Button) findViewById(R.id.CollectData);
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket2.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
@@ -469,7 +460,7 @@ public class BluetoothSettings extends Activity {
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
 
-        Button b = (Button) findViewById(R.id.button2);
+        Button b = (Button) findViewById(R.id.CollectData);
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();

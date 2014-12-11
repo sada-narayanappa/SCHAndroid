@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="PostMan"
-        android:id="@+id/button2"
+        android:id="@+id/CollectData"
         android:layout_toEndOf="@+id/button1"
         android:gravity="center"
         android:layout_alignParentBottom="true"
@@ -24,10 +24,10 @@
         android:layout_height="wrap_content"
         android:text="PF/INH"
         android:id="@+id/inhalerbtn"
-        android:layout_toEndOf="@+id/button2"
+        android:layout_toEndOf="@+id/CollectData"
         android:gravity="center"
         android:layout_toStartOf="@+id/buttonClear"
-        android:layout_toRightOf="@+id/button2"
+        android:layout_toRightOf="@+id/CollectData"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/buttonClear" />
 

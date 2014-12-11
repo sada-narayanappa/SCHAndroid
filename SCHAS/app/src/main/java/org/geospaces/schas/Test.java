@@ -59,7 +59,7 @@ public class Test extends Activity implements SensorEventListener {
         mTemp = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 
         findViewById(R.id.button1).setOnClickListener(button1CB);
-        findViewById(R.id.button2).setOnClickListener(button2CB);
+        findViewById(R.id.CollectData).setOnClickListener(button2CB);
 
         findViewById(R.id.buttonClear).setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
