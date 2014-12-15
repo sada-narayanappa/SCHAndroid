@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,15 +16,11 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +36,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,33 +47,40 @@ import mymodule.app2.mymodule.app2.schasStrings;
 
 
 public class BluetoothSettings extends Activity {
-    UUID uuid;
-    BluetoothAdapter mBluetoothAdapter = null;
-    BluetoothDevice mmDevice = null;
-    CheckBox peakflow;
-    TextView storage;
+    UUID                uuid;
+    BluetoothAdapter    mBluetoothAdapter = null;
+    BluetoothDevice     mmDevice = null;
+    CheckBox            peakflow;
+    TextView            storage;
     //Peakflow Below
-    volatile boolean stopWorker;
-    int readBufferPosition;
-    byte[] readBuffer;
-    Thread workerThread;
-    OutputStream mmOutputStream = null;
-    InputStream mmInputStream = null;
+    volatile boolean    stopWorker;
+    int                 readBufferPosition;
+    byte[]              readBuffer;
+    Thread              workerThread;
+    OutputStream        mmOutputStream = null;
+    InputStream         mmInputStream = null;
+
+
+    BluetoothSocket     mmSocket = null;
+    LocationManager     locationManager;
+    private boolean     device1previousconnect = false;
+    private boolean     device2previousconnect = false;
+    //Inhaler Below
+    boolean             stopWorker2;
+    Thread              inhalerTD;
+    int                 inhalerinfo = 0;
+    OutputStream        mmOutputStream2 = null;
+    InputStream         mmInputStream2 = null;
+    BluetoothSocket     mmSocket2 = null;
+    BluetoothDevice     mmDevice2 = null;
+    CheckBox            inhaler;
+
     private static double gpsLat = -1;
     private static double gpsLon = -1;
     private static double gpsVeloc = -1;
     private static String android_id = "NA";
-    BluetoothSocket mmSocket = null;
-    LocationManager locationManager;
-    //Inhaler Below
-    boolean stopWorker2;
-    Thread inhalerTD;
-    int inhalerinfo = 0;
-    OutputStream mmOutputStream2 = null;
-    InputStream mmInputStream2 = null;
-    BluetoothSocket mmSocket2 = null;
-    BluetoothDevice mmDevice2 = null;
-    CheckBox inhaler;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,62 +95,17 @@ public class BluetoothSettings extends Activity {
         inhaler = (CheckBox) findViewById(R.id.inhalercb);
         storage = (TextView) findViewById(R.id.storage);
         stopWorker = false;
+
         peakflow.setEnabled(false);
         storage.setText(this.calculateMem());
         inhaler.setEnabled(false);
 
-        final Button collectDataButton = (Button) findViewById(R.id.button2);
-        collectDataButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (collectDataButton.getText().equals("Collect Data")) {
-                    //User Information
-                    if (peakflow.isChecked() && inhaler.isChecked()) {
-                        Toast.makeText(getApplicationContext(), "Both Devices are ready for input", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        if (peakflow.isChecked()) {
-                            Toast.makeText(getApplicationContext(), "PeakFlow is ready for input", Toast.LENGTH_SHORT).show();
-                        } else if (inhaler.isChecked()) {
-                            Toast.makeText(getApplicationContext(), "Inhaler is ready for input", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    //PeakFlow
-                    if (peakflow.isChecked()) {
-                        try {
-                            openBT();
-                        } catch (IOException e) {
-                            collectDataButton.setText("Collect Data");
-                            Toast.makeText(getApplicationContext(), "Connection Lost, Unable to Connect", Toast.LENGTH_SHORT).show();
-                            peakflow.setChecked(false);
-                        }
-                    }
-                    if (inhaler.isChecked()) {
-                        try {
-                            Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
-                            openBT2();
-                        } catch (IOException e) {
-                            collectDataButton.setText("Collect Data");
-                            Toast.makeText(getApplicationContext(), "Connection Lost, Unable to Connect", Toast.LENGTH_SHORT).show();
-                            inhaler.setChecked(false);
-                        }
-                    }
+        final Button button = (Button) findViewById(R.id.CollectData);
+        button.setOnClickListener(collectDataOnClickListener);
 
-                }
-                //button.setText("End Collection");
-                else if (collectDataButton.getText().equals("End Collection")) {
-                    // Toast.makeText(getApplicationContext(), "" +mmSocket.isConnected(), Toast.LENGTH_LONG).show();
-                    onDestroy();
-                    collectDataButton.setText("Collect Data");
-                    peakflow.setChecked(false);
-                } else {
-                    Toast.makeText(getApplicationContext(), "No Device to Collect From", Toast.LENGTH_LONG).show();
-                }
-
-            }
-        });
-        final Button testButtonForInhaler = (Button) findViewById(R.id.button4);
-        if (testButtonForInhaler != null) {
-            testButtonForInhaler.setOnClickListener(new View.OnClickListener() {
+        final Button button4 = (Button) findViewById(R.id.button4);
+        if (button4 != null) {
+            button4.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     TextView t = (TextView) findViewById(R.id.storage);
                     t.setText("" + inhalerinfo);
@@ -158,7 +113,7 @@ public class BluetoothSettings extends Activity {
             });
         }
 
-        final Button connectButton = (Button) findViewById(R.id.button);
+        final Button connectButton = (Button) findViewById(R.id.attemptConnection);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             connectButton.setEnabled(false);
@@ -176,7 +131,6 @@ public class BluetoothSettings extends Activity {
                     startActivityForResult(enableBluetooth, 0);
                 }
                 if (mBluetoothAdapter.isEnabled()) {
-
                     findBT();
                     uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
                     //Toast.makeText(getApplicationContext(), ""+mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
@@ -260,6 +214,12 @@ public class BluetoothSettings extends Activity {
                         inhaler.setChecked(false);
                     }
                 }
+            /*else{
+                Toast.makeText(getApplicationContext(), "Please enable Bluetooth and Connect Devices", Toast.LENGTH_SHORT).show();
+                Intent intentOpenBluetoothSettings = new Intent();
+                intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                startActivity(intentOpenBluetoothSettings);
+            }*/
                 try {
                     mmSocket.close();
                     mmSocket2.close();
@@ -301,12 +261,68 @@ public class BluetoothSettings extends Activity {
         }
     }
 
+    /**
+     * This is a callback function for button2.
+     */
+    private View.OnClickListener collectDataOnClickListener  = new View.OnClickListener() {
+        public void onClick(View v) {
+            final Button button = (Button) findViewById(R.id.CollectData);
+
+            if (button.getText().equals("Collect Data")) {
+                //User Information
+                if (peakflow.isChecked() && inhaler.isChecked()) {
+                    Toast.makeText(getApplicationContext(), "Both Devices are ready for input", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (peakflow.isChecked()) {
+                        Toast.makeText(getApplicationContext(), "PeakFlow is ready for input", Toast.LENGTH_SHORT).show();
+                    } else if (inhaler.isChecked()) {
+                        Toast.makeText(getApplicationContext(), "Inhaler is ready for input", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                //PeakFlow
+                if (peakflow.isChecked()) {
+                    try {
+                        //Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
+                        openBT();
+                    } catch (IOException e) {
+                        button.setText("Collect Data");
+                        Toast.makeText(getApplicationContext(), "Connection Lost, Unable to Connect", Toast.LENGTH_SHORT).show();
+                        peakflow.setChecked(false);
+                        //statusBT.setText("Connection Failed.\nPlease re-attempt connection.");
+                        //e.printStackTrace();
+                        //Toast.makeText(getApplicationContext(), "This is not going to be easy", Toast.LENGTH_LONG).show();
+                    }
+                }
+                if (inhaler.isChecked()) {
+                    try {
+                        Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
+                        openBT2();
+                    } catch (IOException e) {
+                        button.setText("Collect Data");
+                        Toast.makeText(getApplicationContext(), "Connection Lost, Unable to Connect", Toast.LENGTH_SHORT).show();
+                        inhaler.setChecked(false);
+                        //statusBT.setText("Connection Failed.\nPlease re-attempt connection.");
+                        //e.printStackTrace();
+                        //Toast.makeText(getApplicationContext(), "This is not going to be easy", Toast.LENGTH_LONG).show();
+                    }
+                }
+
+            }
+            //button.setText("End Collection");
+            else if (button.getText().equals("End Collection")) {
+                // Toast.makeText(getApplicationContext(), "" +mmSocket.isConnected(), Toast.LENGTH_LONG).show();
+                onDestroy();
+                button.setText("Collect Data");
+                peakflow.setChecked(false);
+            } else {
+                Toast.makeText(getApplicationContext(), "No Device to Collect From", Toast.LENGTH_LONG).show();
+            }
+        }
+    };
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.welcome, menu);
-        /*MenuInflater inflater = getMenuInflater();
-        getMenuInflater().inflate(R.menu.bluetooth_settings, menu);*/
         return true;
     }
 
@@ -356,9 +372,11 @@ public class BluetoothSettings extends Activity {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().contains("RNBT")) {
                     if (mmDevice2 == null) {
+                        device2previousconnect = true;
                         mmDevice2 = device;
                     }
                 } else {
+                    device2previousconnect = false;
                 }
             }
         }
@@ -370,7 +388,7 @@ public class BluetoothSettings extends Activity {
         mmSocket2.close();
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
-        Button b = (Button) findViewById(R.id.button2);
+        Button b = (Button) findViewById(R.id.CollectData);
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket2.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
@@ -423,9 +441,11 @@ public class BluetoothSettings extends Activity {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().contains("ASMA")) {
                     if (mmDevice == null) {
+                        device1previousconnect = true;
                         mmDevice = device;
                     }
                 } else {
+                    device1previousconnect = false;
                 }
 
             }
@@ -438,8 +458,7 @@ public class BluetoothSettings extends Activity {
         mmSocket.close();
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
-
-        Button b = (Button) findViewById(R.id.button2);
+        Button b = (Button) findViewById(R.id.CollectData);
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
@@ -455,8 +474,6 @@ public class BluetoothSettings extends Activity {
             b.setText("End Collection");
             beginListenForData();
         }
-
-
         // statusBT.setText("Successful Connection");//lets user know bt is open
     }
 
