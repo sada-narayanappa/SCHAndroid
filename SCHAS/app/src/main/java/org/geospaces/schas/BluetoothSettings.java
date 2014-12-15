@@ -72,8 +72,6 @@ public class BluetoothSettings extends Activity {
     private static String android_id = "NA";
     BluetoothSocket mmSocket = null;
     LocationManager locationManager;
-    private boolean device1previousconnect = false;
-    private boolean device2previousconnect = false;
     //Inhaler Below
     boolean stopWorker2;
     Thread inhalerTD;
@@ -97,19 +95,19 @@ public class BluetoothSettings extends Activity {
         inhaler = (CheckBox) findViewById(R.id.inhalercb);
         storage = (TextView) findViewById(R.id.storage);
         stopWorker = false;
-
         peakflow.setEnabled(false);
         storage.setText(this.calculateMem());
         inhaler.setEnabled(false);
 
-        final Button button = (Button) findViewById(R.id.button2);
-        button.setOnClickListener(new View.OnClickListener() {
+        final Button collectDataButton = (Button) findViewById(R.id.button2);
+        collectDataButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (button.getText().equals("Collect Data")) {
+                if (collectDataButton.getText().equals("Collect Data")) {
                     //User Information
                     if (peakflow.isChecked() && inhaler.isChecked()) {
                         Toast.makeText(getApplicationContext(), "Both Devices are ready for input", Toast.LENGTH_SHORT).show();
-                    } else {
+                    }
+                    else {
                         if (peakflow.isChecked()) {
                             Toast.makeText(getApplicationContext(), "PeakFlow is ready for input", Toast.LENGTH_SHORT).show();
                         } else if (inhaler.isChecked()) {
@@ -119,15 +117,11 @@ public class BluetoothSettings extends Activity {
                     //PeakFlow
                     if (peakflow.isChecked()) {
                         try {
-                            //Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
                             openBT();
                         } catch (IOException e) {
-                            button.setText("Collect Data");
+                            collectDataButton.setText("Collect Data");
                             Toast.makeText(getApplicationContext(), "Connection Lost, Unable to Connect", Toast.LENGTH_SHORT).show();
                             peakflow.setChecked(false);
-                            //statusBT.setText("Connection Failed.\nPlease re-attempt connection.");
-                            //e.printStackTrace();
-                            //Toast.makeText(getApplicationContext(), "This is not going to be easy", Toast.LENGTH_LONG).show();
                         }
                     }
                     if (inhaler.isChecked()) {
@@ -135,21 +129,18 @@ public class BluetoothSettings extends Activity {
                             Toast.makeText(getApplicationContext(), "tried OpenBT", Toast.LENGTH_LONG).show();
                             openBT2();
                         } catch (IOException e) {
-                            button.setText("Collect Data");
+                            collectDataButton.setText("Collect Data");
                             Toast.makeText(getApplicationContext(), "Connection Lost, Unable to Connect", Toast.LENGTH_SHORT).show();
                             inhaler.setChecked(false);
-                            //statusBT.setText("Connection Failed.\nPlease re-attempt connection.");
-                            //e.printStackTrace();
-                            //Toast.makeText(getApplicationContext(), "This is not going to be easy", Toast.LENGTH_LONG).show();
                         }
                     }
 
                 }
                 //button.setText("End Collection");
-                else if (button.getText().equals("End Collection")) {
+                else if (collectDataButton.getText().equals("End Collection")) {
                     // Toast.makeText(getApplicationContext(), "" +mmSocket.isConnected(), Toast.LENGTH_LONG).show();
                     onDestroy();
-                    button.setText("Collect Data");
+                    collectDataButton.setText("Collect Data");
                     peakflow.setChecked(false);
                 } else {
                     Toast.makeText(getApplicationContext(), "No Device to Collect From", Toast.LENGTH_LONG).show();
@@ -157,9 +148,9 @@ public class BluetoothSettings extends Activity {
 
             }
         });
-        final Button button4 = (Button) findViewById(R.id.button4);
-        if (button4 != null) {
-            button4.setOnClickListener(new View.OnClickListener() {
+        final Button testButtonForInhaler = (Button) findViewById(R.id.button4);
+        if (testButtonForInhaler != null) {
+            testButtonForInhaler.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     TextView t = (TextView) findViewById(R.id.storage);
                     t.setText("" + inhalerinfo);
@@ -269,12 +260,6 @@ public class BluetoothSettings extends Activity {
                         inhaler.setChecked(false);
                     }
                 }
-            /*else{
-                Toast.makeText(getApplicationContext(), "Please enable Bluetooth and Connect Devices", Toast.LENGTH_SHORT).show();
-                Intent intentOpenBluetoothSettings = new Intent();
-                intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-                startActivity(intentOpenBluetoothSettings);
-            }*/
                 try {
                     mmSocket.close();
                     mmSocket2.close();
@@ -371,11 +356,9 @@ public class BluetoothSettings extends Activity {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().contains("RNBT")) {
                     if (mmDevice2 == null) {
-                        device2previousconnect = true;
                         mmDevice2 = device;
                     }
                 } else {
-                    device2previousconnect = false;
                 }
             }
         }
@@ -440,11 +423,9 @@ public class BluetoothSettings extends Activity {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().contains("ASMA")) {
                     if (mmDevice == null) {
-                        device1previousconnect = true;
                         mmDevice = device;
                     }
                 } else {
-                    device1previousconnect = false;
                 }
 
             }
