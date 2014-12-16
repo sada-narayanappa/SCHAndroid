@@ -1,8 +1,35 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.robolectric.gradle:gradle-android-test-plugin:0.10.+'
+        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.0.2'
+    }
+}
+
+
 apply plugin: 'com.android.application'
+
 
 android {
     compileSdkVersion 19
     buildToolsVersion '20.0.0'
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+    }
 
     defaultConfig {
         applicationId "org.geospaces.schas"
@@ -20,10 +47,37 @@ android {
 
         }
     }
+
+    sourceSets {
+        main{
+            java.srcDir file('src/test/java')
+        }
+        unitTest {
+            java.srcDir file('src/test/java')
+            resources.srcDir file('src/test/res')
+        }
+        instrumentTest {
+            java.srcDir file('src/test/java')
+            resources.srcDir file('src/test/resources')
+        }
+    }
 }
 
+apply plugin: 'android-unit-test'
+
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    //compile project(':SysLib')
+    compile 'junit:junit:4.12'
+    compile 'org.robolectric:robolectric:2.4'
+    instrumentTestCompile 'junit:junit:4.11'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':SCHASLib')
 }
+

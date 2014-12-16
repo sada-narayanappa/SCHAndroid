@@ -22,8 +22,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PF/INH"
-        android:id="@+id/inhalerbtn"
+        android:text="Server"
+        android:id="@+id/WS"
         android:layout_toEndOf="@+id/CollectData"
         android:gravity="center"
         android:layout_toStartOf="@+id/buttonClear"

@@ -202,7 +202,7 @@
             android:layout_height="wrap_content"
             android:text="New Button"
             android:id="@+id/button4"
-            android:layout_below="@+id/inhalerbtn"
+            android:layout_below="@+id/WS"
             android:layout_alignLeft="@+id/textView2"
             android:layout_alignStart="@+id/textView2" />
 
@@ -212,7 +212,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Inhaler Stuff"
-            android:id="@+id/inhalerbtn" />
+            android:id="@+id/WS" />
     </LinearLayout>
 
     <Space

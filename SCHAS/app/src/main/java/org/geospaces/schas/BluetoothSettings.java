@@ -60,7 +60,6 @@ public class BluetoothSettings extends Activity {
     OutputStream        mmOutputStream = null;
     InputStream         mmInputStream = null;
 
-
     BluetoothSocket     mmSocket = null;
     LocationManager     locationManager;
     private boolean     device1previousconnect = false;
@@ -229,7 +228,7 @@ public class BluetoothSettings extends Activity {
             }
         });
 
-        final Button inhalebutton = (Button) findViewById(R.id.inhalerbtn);
+        final Button inhalebutton = (Button) findViewById(R.id.WS);
         if (inhalebutton != null) {
             inhalebutton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

@@ -198,6 +198,4 @@ public class schasStrings {
         return "Battery level: " + batteryPct + "%";
 
     }
-
-
 }

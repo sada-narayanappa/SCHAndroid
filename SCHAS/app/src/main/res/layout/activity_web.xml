@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Button3"
-        android:id="@+id/inhalerbtn"
+        android:id="@+id/WS"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/webView1"
-        android:layout_alignEnd="@+id/inhalerbtn"
+        android:layout_alignEnd="@+id/WS"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_above="@+id/button1" />
