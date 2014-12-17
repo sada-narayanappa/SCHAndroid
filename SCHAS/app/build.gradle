@@ -32,10 +32,10 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.geospaces.schas"
+        applicationId "org.geospaces.schas01"
         minSdkVersion 15
         targetSdkVersion 20
-        versionCode 11
+        versionCode 12
         versionName "1.09"
     }
     buildTypes {
