@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.geospaces.schas01" >
+    package="org.geospaces.schas" >
 
     <application
         android:allowBackup="true"
@@ -9,7 +9,7 @@
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="stateHidden" >
         <activity
-            android:name="org.geospaces.schas01.Welcome"
+            android:name="org.geospaces.schas.Welcome"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,15 +18,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.geospaces.schas01.Test"
+            android:name="org.geospaces.schas.Test"
             android:label="@string/title_activity_test" >
         </activity>
         <activity
-            android:name="org.geospaces.schas01.Web"
+            android:name="org.geospaces.schas.Web"
             android:label="@string/title_activity_web" >
         </activity>
         <activity
-            android:name="org.geospaces.schas01.BluetoothSettings"
+            android:name="org.geospaces.schas.BluetoothSettings"
             android:label="@string/title_activity_bluetooth_settings" >
         </activity>
     </application>
