@@ -126,6 +126,24 @@ public class BluetoothSettings extends Activity implements EventListener{
         attemptConnection.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
+                /*if(mmSocket != null)
+                {
+                    try {
+                        mmSocket.close();
+                    }
+                    catch(IOException e){
+
+                    }
+                }
+                if(mmSocket2 != null)
+                {
+                    try {
+                        mmSocket2.close();
+                    }
+                    catch(IOException e){
+
+                    }
+                }*/
                 mmDevice = null;
                 mmDevice2 = null;
                 mmSocket = null;
@@ -135,7 +153,8 @@ public class BluetoothSettings extends Activity implements EventListener{
 
                 if (mBluetoothAdapter.isEnabled()) {
                     findBT();
-                    uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+                   uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+                   // uuid = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
                     //Toast.makeText(getApplicationContext(), ""+mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
                     if (mmDevice != null) {
@@ -311,6 +330,14 @@ public class BluetoothSettings extends Activity implements EventListener{
                 onDestroy();
                 button.setText("Collect Data");
                 peakflow.setChecked(false);
+                inhaler.setChecked(false);
+               /* try {
+                    mmSocket.close();
+                    mmSocket2.close();
+                }
+                catch(IOException e){
+                    Log.e("SocketClose",e.getMessage());
+                }*/
             } else {
                 Toast.makeText(getApplicationContext(), "No Device to Collect From", Toast.LENGTH_LONG).show();
             }
