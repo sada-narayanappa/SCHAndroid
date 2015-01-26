@@ -1,6 +1,7 @@
 package org.geospaces.schas;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -10,6 +11,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 public class Web extends Activity {
@@ -40,6 +42,15 @@ public class Web extends Activity {
             public void onClick(View v) {
                 Log.e("Web", "calling geospaces.org");
                 webView.loadUrl("https://www.google.com/");
+            }
+        });
+
+        final Button button2 = (Button) findViewById(R.id.CollectData);
+        button2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
+                startService(new Intent(Web.this, GPService.class));
+
             }
         });
     }
