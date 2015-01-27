@@ -21,14 +21,20 @@ public class Web extends Activity {
 
     WebView webView = null;
     private PendingIntent pendingIntent;
+    private Context context;
+    Intent alarmIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web);
 
-        Intent alarmIntent = new Intent(Web.this, GPSWakfulReciever.class);
+        this.context = this;
+
+
+        alarmIntent = new Intent(Web.this, GPSWakfulReciever.class);
         pendingIntent = PendingIntent.getBroadcast(Web.this, 0, alarmIntent, 0);
+
 
         webView = (WebView) findViewById(R.id.webView1);
 
@@ -55,14 +61,7 @@ public class Web extends Activity {
         final Button button2 = (Button) findViewById(R.id.CollectData);
         button2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
-                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                int interval = 8000;
-
-                manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 2000, interval, pendingIntent);
-                Toast.makeText(Web.this, "Alarm Set", Toast.LENGTH_SHORT).show();
-                //startService(new Intent(Web.this, GPService.class));
-
+               start();
             }
         });
 
@@ -74,6 +73,18 @@ public class Web extends Activity {
                 Toast.makeText(Web.this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void start()
+    {
+        //Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        int interval = 8000;
+            manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 2000, 1000*30, pendingIntent);
+            Toast.makeText(Web.this, "Alarm Set", Toast.LENGTH_SHORT).show();
+
+            //startService(new Intent(Web.this, GPService.class));
+
     }
 
     @Override
