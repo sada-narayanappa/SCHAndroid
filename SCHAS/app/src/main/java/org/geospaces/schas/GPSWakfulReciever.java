@@ -13,10 +13,11 @@ import android.widget.Toast;
 
 
 public class GPSWakfulReciever extends BroadcastReceiver {
-    @Override
 
     PendingIntent launchIntent;
 
+
+    @Override
     public void onReceive(Context context, Intent intent) {
         /*// This is the Intent to deliver to our service.
         Intent service = new Intent(context, GPSWakfulReciever.class);
@@ -29,6 +30,7 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         // locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, launchIntent);
         locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER,launchIntent);
         launchIntent.cancel();
+        launchIntent = null;
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
 

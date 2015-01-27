@@ -80,7 +80,7 @@ public class Web extends Activity {
         //Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         int interval = 8000;
-            manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 2000, 1000*30, pendingIntent);
+            manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 2000, 5000, pendingIntent);
             Toast.makeText(Web.this, "Alarm Set", Toast.LENGTH_SHORT).show();
 
             //startService(new Intent(Web.this, GPService.class));
