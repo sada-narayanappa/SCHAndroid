@@ -29,7 +29,7 @@ public class GPService extends IntentService {
             }
         }
         Log.i("SimpleWakefulReceiver", "Completed service @ " + SystemClock.elapsedRealtime());
-        GPSWakfulReciever.completeWakefulIntent(intent);
+       // GPSWakfulReciever.completeWakefulIntent(intent);
     }
 
 }

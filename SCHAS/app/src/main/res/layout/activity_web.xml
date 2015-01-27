@@ -20,7 +20,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button2"
+        android:text="Begin Collection"
         android:id="@+id/CollectData"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/button1"
@@ -29,7 +29,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button3"
+        android:text="End"
         android:id="@+id/WS"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"

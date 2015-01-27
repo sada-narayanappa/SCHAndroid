@@ -1,6 +1,9 @@
 package org.geospaces.schas;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,11 +20,15 @@ import android.widget.Toast;
 public class Web extends Activity {
 
     WebView webView = null;
+    private PendingIntent pendingIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web);
+
+        Intent alarmIntent = new Intent(Web.this, GPSWakfulReciever.class);
+        pendingIntent = PendingIntent.getBroadcast(Web.this, 0, alarmIntent, 0);
 
         webView = (WebView) findViewById(R.id.webView1);
 
@@ -48,9 +55,23 @@ public class Web extends Activity {
         final Button button2 = (Button) findViewById(R.id.CollectData);
         button2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
-                startService(new Intent(Web.this, GPService.class));
+                //Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
+                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                int interval = 8000;
 
+                manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 2000, interval, pendingIntent);
+                Toast.makeText(Web.this, "Alarm Set", Toast.LENGTH_SHORT).show();
+                //startService(new Intent(Web.this, GPService.class));
+
+            }
+        });
+
+        final Button button3 = (Button) findViewById(R.id.WS);
+        button3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                manager.cancel(pendingIntent);
+                Toast.makeText(Web.this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
             }
         });
     }
