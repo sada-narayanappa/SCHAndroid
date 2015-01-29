@@ -5,8 +5,11 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.widget.Toast;
 
 import java.io.InputStream;
@@ -85,21 +88,23 @@ public class BlueToothHelper {
     }
 
 
-    private static boolean  stopped = false;
-    private static Thread   thread  = null;
+    public static Boolean  threadRunnimg  = false;
+    public static Thread   thread  = null;
 
-    public static void start(String name, final Activity a) {
+    public static void start(String name, final Activity a, final Handler h) {
 
-        if (thread != null) {
-            stopped = true;
+        if (threadRunnimg ) {
+            Toast("Thread running: " + name, h);
             return;
         }
         BluetoothDevice device = findBT(name);
-        if (device == null)
+        if (device == null) {
+            if ( a != null)
+                Toast("Could not find device: " + name, h);
             return;
+        }
 
-        BluetoothSocket socket = null;
-
+        BluetoothSocket socket  = null;
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         try {
             try {
@@ -114,33 +119,45 @@ public class BlueToothHelper {
                                                     new Class[]{int.class}).invoke(device, 1);
                     socket.connect();
                 } catch (Exception f) {
-                    Toast.makeText(a.getApplicationContext(), "" + f, Toast.LENGTH_SHORT).show();
+                    Toast("Exception : " + f, h);
                     socket = null;
                 }
             }
             if ( socket == null ) {
-                Toast.makeText(a.getApplicationContext(), "Socket is Null", Toast.LENGTH_SHORT).show();
+                Toast( "Socket is Null", h);
                 return;
             }
-            final OutputStream outs = socket.getOutputStream();
-            final InputStream inps = socket.getInputStream();
+            final InputStream inps1 = socket.getInputStream();
 
-            final Handler handler = new Handler();
+
             thread = new Thread(new Runnable() {
                 public void run() {
-                    while (!Thread.currentThread().isInterrupted() && !stopped) {
+                    threadRunnimg = true;
+                    while (!Thread.currentThread().isInterrupted() && threadRunnimg ) {
                         try {
-                            String data = "" + inps.read();
-                            Toast.makeText(a.getApplicationContext(), data, Toast.LENGTH_SHORT).show();
-                        } catch (Exception e) {
-                            Toast.makeText(a.getApplicationContext(), "In Read:" + e, Toast.LENGTH_SHORT).show();
+                            Toast("Starting ...", h);
+                            String data = "" + inps1.read();
+                            Toast("Data: " + data, h);
+                        }
+                        catch (Exception e) {
+                            Toast("In Read Thread : " + e, h);
+                            threadRunnimg = false;
                         }
                     }
+                    threadRunnimg = false;
                 }
             });
             thread.start();
         } catch (Exception e) {
-            Toast.makeText(a.getApplicationContext(), ""+e, Toast.LENGTH_SHORT).show();
+            Toast("Exception : " + e, h);
         }
     }
+
+    public static void Toast(Object o, Handler h) {
+        Message msg = h.obtainMessage(0);
+        msg.obj = ""+ o;
+        h.sendMessage(msg);
+    }
+
+
 }

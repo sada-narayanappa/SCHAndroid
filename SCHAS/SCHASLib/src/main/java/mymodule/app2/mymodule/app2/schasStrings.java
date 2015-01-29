@@ -23,9 +23,6 @@ import android.widget.ArrayAdapter;
 
 import java.util.Set;
 
-/**
- * Created by Michael Fleming on 11/2/2014.
- */
 public class schasStrings {
 
     private static float x = 5;

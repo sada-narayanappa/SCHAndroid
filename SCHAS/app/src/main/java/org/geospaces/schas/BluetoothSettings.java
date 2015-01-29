@@ -111,7 +111,6 @@ public class BluetoothSettings extends Activity implements EventListener{
                     TextView t = (TextView) findViewById(R.id.storage);
                     t.setText("" + inhalerinfo);
 
-                    BlueToothHelper.start("Logitech", BluetoothSettings.this );
                 }
             });
 

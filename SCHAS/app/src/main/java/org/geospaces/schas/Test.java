@@ -10,12 +10,17 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -94,12 +99,6 @@ public class Test extends Activity implements SensorEventListener {
 
 
             );
-            tv1.setText(sb.toString());
-        }
-    };
-    private View.OnClickListener button2CB = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
             String list = "";
             List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
             for (int i = 0; i < deviceSensors.size(); i++) {
@@ -108,9 +107,51 @@ public class Test extends Activity implements SensorEventListener {
                     continue;
                 list += name + "\n";
             }
-            tv1.setText(list);
+            tv1.setText(sb.toString() + "\n" + list);
         }
     };
+
+
+    //-------------------------------------------------------------------------
+    // Testing bluetooth Stuff
+    private final class UIHandler extends Handler {
+        public static final int DISPLAY_UI_TOAST = 0;
+        public static final int DISPLAY_UI_DIALOG = 1;
+
+        public UIHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case UIHandler.DISPLAY_UI_TOAST: {
+                    Context context = getApplicationContext();
+                    Toast t = Toast.makeText(context, (String) msg.obj, Toast.LENGTH_LONG);
+                    t.show();
+                }
+                case UIHandler.DISPLAY_UI_DIALOG:
+                    //TBD
+                default:
+                    break;
+            }
+        }
+    }
+
+    private View.OnClickListener button2CB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (BlueToothHelper.threadRunnimg) {
+                Toast.makeText(getApplicationContext(), "Running", Toast.LENGTH_LONG).show();
+                return;
+            }
+            HandlerThread uiThread = new HandlerThread("UIHandler");
+            uiThread.start();
+            UIHandler uiHandler = new UIHandler(uiThread.getLooper());
+            BlueToothHelper.start("RNBT", Test.this, uiHandler);
+        }
+    };
+    //-------------------------------------------------------------------------
 
     private View.OnClickListener webServiceCB = new View.OnClickListener() {
         @Override
@@ -178,5 +219,4 @@ public class Test extends Activity implements SensorEventListener {
         mSensorManager3.unregisterListener(this);
         mSensorManager4.unregisterListener(this);
     }
-
 }
