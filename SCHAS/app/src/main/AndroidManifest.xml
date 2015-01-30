@@ -2,6 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.geospaces.schas" >
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/logo2"
@@ -9,7 +20,7 @@
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="stateHidden" >
         <activity
-            android:name="org.geospaces.schas.Welcome"
+            android:name=".Welcome"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,29 +29,28 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.geospaces.schas.Test"
+            android:name=".Test"
             android:label="@string/title_activity_test" >
         </activity>
         <activity
-            android:name="org.geospaces.schas.Web"
+            android:name=".Web"
             android:label="@string/title_activity_web" >
         </activity>
         <activity
-            android:name="org.geospaces.schas.BluetoothSettings"
+            android:name=".BluetoothSettings"
             android:label="@string/title_activity_bluetooth_settings" >
         </activity>
+
+        <service
+            android:name=".GPService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <receiver
+            android:name=".GPSWakfulReciever">
+        </receiver>
     </application>
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
-
-        />
-
 </manifest>
+
