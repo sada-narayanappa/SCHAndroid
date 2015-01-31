@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in

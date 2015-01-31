@@ -101,6 +101,7 @@
     <orderEntry type="library" exported="" name="junit-4.12" level="project" />
     <orderEntry type="library" exported="" name="robolectric-2.4" level="project" />
     <orderEntry type="library" exported="" name="objenesis-1.3" level="project" />
+    <orderEntry type="module" module-name="locationPoller" exported="" />
     <orderEntry type="module" module-name="SCHASLib" exported="" />
   </component>
 </module>

@@ -5,7 +5,9 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +18,9 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.commonsware.cwac.locpoll.*;
+
+
 
 public class Web extends Activity {
 
@@ -23,6 +28,10 @@ public class Web extends Activity {
     private PendingIntent pendingIntent;
     private Context context;
     Intent alarmIntent;
+
+    private static final int PERIOD=30*1000*60;  // 30 min
+    private PendingIntent pi=null;
+    private AlarmManager mgr=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +41,7 @@ public class Web extends Activity {
         this.context = this;
 
 
-        alarmIntent = new Intent(Web.this, GPSWakfulReciever.class);
+        alarmIntent = new Intent(Web.this, LocationPoller.class);
         pendingIntent = PendingIntent.getBroadcast(Web.this, 0, alarmIntent, 0);
 
 
@@ -68,9 +77,33 @@ public class Web extends Activity {
         final Button button3 = (Button) findViewById(R.id.WS);
         button3.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                /*AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                 manager.cancel(pendingIntent);
-                Toast.makeText(Web.this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Web.this, "Alarm Canceled", Toast.LENGTH_SHORT).show();*/
+                mgr=(AlarmManager)getSystemService(ALARM_SERVICE);
+
+                Intent i=new Intent(Web.this, LocationPoller.class);
+
+                i.putExtra(LocationPoller.EXTRA_INTENT,
+                        new Intent(Web.this, GPSWakfulReciever.class));
+                i.putExtra(LocationPoller.EXTRA_PROVIDER,
+                        LocationManager.GPS_PROVIDER);
+
+                pi=PendingIntent.getBroadcast(Web.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
+              /*  mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime(),
+                        PERIOD,
+                        pi);*/
+                mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime(),
+                        PERIOD,
+                        pi);
+                Toast
+                        .makeText(Web.this,
+                                "Location polling every 30 minutes begun",
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
         });
     }
@@ -79,11 +112,8 @@ public class Web extends Activity {
     {
         //Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval = 8000;
             manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 2000, 5000, pendingIntent);
             Toast.makeText(Web.this, "Alarm Set", Toast.LENGTH_SHORT).show();
-
-            //startService(new Intent(Web.this, GPService.class));
 
     }
 
@@ -101,4 +131,5 @@ public class Web extends Activity {
         }
         return true;
     }
+
 }

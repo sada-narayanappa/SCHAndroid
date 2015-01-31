@@ -46,10 +46,17 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+        <service
+            android:name="com.commonsware.cwac.locpoll.LocationPollerService">
+        </service>
 
         <receiver
             android:name=".GPSWakfulReciever">
         </receiver>
+        <receiver
+            android:name="com.commonsware.cwac.locpoll.LocationPoller">
+        </receiver>
+
     </application>
 
 </manifest>

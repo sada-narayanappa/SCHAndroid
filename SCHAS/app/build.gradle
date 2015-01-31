@@ -77,7 +77,8 @@ dependencies {
     compile 'junit:junit:4.12'
     compile 'org.robolectric:robolectric:2.4'
     instrumentTestCompile 'junit:junit:4.11'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':SCHASLib')
+    compile project(':locationPoller')
 }
 

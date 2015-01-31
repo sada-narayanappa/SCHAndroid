@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/SCHAS.iml" filepath="$PROJECT_DIR$/SCHAS.iml" />
       <module fileurl="file://$PROJECT_DIR$/SCHASLib/SCHASLib.iml" filepath="$PROJECT_DIR$/SCHASLib/SCHASLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/locationPoller/locationPoller.iml" filepath="$PROJECT_DIR$/locationPoller/locationPoller.iml" />
     </modules>
   </component>
 </project>
