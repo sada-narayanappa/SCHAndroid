@@ -29,7 +29,7 @@ public class Web extends Activity {
     private Context context;
     Intent alarmIntent;
 
-    private static final int PERIOD=30*1000*60;  // 30 min
+    private static final int PERIOD=2*1000*60;  // 2 min
     private PendingIntent pi=null;
     private AlarmManager mgr=null;
 
@@ -101,7 +101,7 @@ public class Web extends Activity {
                         pi);
                 Toast
                         .makeText(Web.this,
-                                "Location polling every 30 minutes begun",
+                                "Location polling every 2 minutes begun",
                                 Toast.LENGTH_SHORT)
                         .show();
             }
