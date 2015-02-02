@@ -18,11 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostToServer extends AsyncTask<String, Integer, String>{
-
     List<NameValuePair> nameValuePairs = null;
     String              result = "";
     TextView            tv;
-
 
     public PostToServer() {
     }
@@ -30,7 +28,6 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
         tv = tv1;
         nameValuePairs =nv;
     }
-
     public String postResults(List<NameValuePair> nameValuePairs, String postUrl) {
         HttpClient  httpclient = new DefaultHttpClient();
         HttpPost    httppost = new HttpPost(postUrl);
@@ -38,7 +35,6 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
 
         try {
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
             HttpResponse response = httpclient.execute(httppost);
 
             // Get the response back from the server
@@ -57,7 +53,6 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
         }
         return ret;
     }
-
     @Override
     protected String doInBackground(String... urls) {
         String url = urls[0];
@@ -75,8 +70,6 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
             tv.setText(ret);
         }
     }
-
-
     /**
      * Sample Usage of the API
      */
