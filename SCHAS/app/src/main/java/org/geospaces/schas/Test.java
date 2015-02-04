@@ -67,11 +67,11 @@ public class Test extends Activity implements SensorEventListener {
         mSensorManager4 = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mTemp = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 
-        findViewById(R.id.button1).setOnClickListener(button1CB);
-        findViewById(R.id.CollectData).setOnClickListener(button2CB);
-        findViewById(R.id.WS).setOnClickListener(webServiceCB);
+        findViewById(R.id.readButton).setOnClickListener(button1CB);
+        findViewById(R.id.PostManButton).setOnClickListener(button2CB);
+        findViewById(R.id.ServerButton).setOnClickListener(webServiceCB);
 
-        findViewById(R.id.buttonClear).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.clearButton).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 tv1.setText("");
             }
@@ -156,6 +156,9 @@ public class Test extends Activity implements SensorEventListener {
     private View.OnClickListener webServiceCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            String str = GPSWakfulReciever.read(GPSWakfulReciever.FILE_NAME);
+            tv1.setText(str);
+/*
             String list = "";
             String url = "http://10.0.0.223:8080/aura/webroot/index.jsp?cmd=test&a=b";
 
@@ -164,6 +167,7 @@ public class Test extends Activity implements SensorEventListener {
 
             PostToServer ps = new PostToServer(nv, tv1);
             ps.execute(url);
+*/
         }
     };
 

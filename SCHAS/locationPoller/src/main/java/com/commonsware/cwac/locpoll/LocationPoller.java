@@ -13,32 +13,32 @@ import android.widget.Toast;
  * properly.
  */
 public class LocationPoller extends BroadcastReceiver {
-  public static final String EXTRA_ERROR    =   "com.commonsware.cwac.locpoll.EXTRA_ERROR";
-  public static final String EXTRA_INTENT   =   "com.commonsware.cwac.locpoll.EXTRA_INTENT";
-  public static final String EXTRA_LOCATION =   "com.commonsware.cwac.locpoll.EXTRA_LOCATION";
-  public static final String EXTRA_PROVIDER =   "com.commonsware.cwac.locpoll.EXTRA_PROVIDER";
-  public static final String EXTRA_LASTKNOWN=   "com.commonsware.cwac.locpoll.EXTRA_LASTKNOWN";
-  /**
-   * If this is returned true (defaults to false unless
-   * provider is explicitly NOT enabled), then the provider
-   * could not be enabled.
-   */
-  public static final String EXTRA_ERROR_PROVIDER_DISABLED=
-      "com.commonsware.cwac.locpoll.EXTRA_ERROR_PROV_DISABLED";
-  /**
-   * Optional Timeout. Pass milliseconds as a long. Defaults
-   * to 2 minutes.
-   */
-  public static final String EXTRA_TIMEOUT=
-      "com.commonsware.cwac.locpoll.EXTRA_TIMEOUT";
+    public static final String EXTRA_ERROR = "com.commonsware.cwac.locpoll.EXTRA_ERROR";
+    public static final String EXTRA_INTENT = "com.commonsware.cwac.locpoll.EXTRA_INTENT";
+    public static final String EXTRA_LOCATION = "com.commonsware.cwac.locpoll.EXTRA_LOCATION";
+    public static final String EXTRA_PROVIDER = "com.commonsware.cwac.locpoll.EXTRA_PROVIDER";
+    public static final String EXTRA_LASTKNOWN = "com.commonsware.cwac.locpoll.EXTRA_LASTKNOWN";
+    /**
+     * If this is returned true (defaults to false unless
+     * provider is explicitly NOT enabled), then the provider
+     * could not be enabled.
+     */
+    public static final String EXTRA_ERROR_PROVIDER_DISABLED =
+            "com.commonsware.cwac.locpoll.EXTRA_ERROR_PROV_DISABLED";
+    /**
+     * Optional Timeout. Pass milliseconds as a long. Defaults
+     * to 2 minutes.
+     */
+    public static final String EXTRA_TIMEOUT =
+            "com.commonsware.cwac.locpoll.EXTRA_TIMEOUT";
 
-  /**
-   * Standard entry point for a BroadcastReceiver. Delegates
-   * the event to LocationPollerService for processing.
-   */
-  @Override
-  public void onReceive(Context context, Intent intent) {
-
-    LocationPollerService.requestLocation(context, intent);
-  }
+    /**
+     * Standard entry point for a BroadcastReceiver. Delegates
+     * the event to LocationPollerService for processing.
+     */
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        LocationPollerService.requestLocation(context, intent);
+        Toast.makeText(context, "LocationPoller", Toast.LENGTH_SHORT).show();
+    }
 }

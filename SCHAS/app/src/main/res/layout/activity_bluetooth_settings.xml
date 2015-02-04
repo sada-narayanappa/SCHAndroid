@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:text="Attempt Connection"
             android:id="@+id/attemptConnection"
-            android:layout_below="@+id/CollectData"
+            android:layout_below="@+id/PostManButton"
             android:layout_alignLeft="@+id/text2"
             android:layout_alignStart="@+id/text2" />
 
@@ -191,7 +191,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Collect Data"
-            android:id="@+id/CollectData"
+            android:id="@+id/PostManButton"
             android:layout_toRightOf="@+id/uploaded"
             android:layout_toEndOf="@+id/uploaded" />
 
@@ -202,7 +202,7 @@
             android:layout_height="wrap_content"
             android:text="New Button"
             android:id="@+id/button4"
-            android:layout_below="@+id/WS"
+            android:layout_below="@+id/ServerButton"
             android:layout_alignLeft="@+id/textView2"
             android:layout_alignStart="@+id/textView2" />
 
@@ -212,7 +212,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Inhaler Stuff"
-            android:id="@+id/WS" />
+            android:id="@+id/ServerButton" />
     </LinearLayout>
 
     <Space

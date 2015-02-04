@@ -60,7 +60,7 @@ public class schasStrings {
                     "\nSpeed: " + location.getSpeed() + "\nAltitude: " + location.getAltitude() +
                     "\nBearing: " + location.getBearing() +
                     "\nAccuracy:" + location.getAccuracy();*/
-            loc = "" + location.getLatitude() +", " + location.getLongitude() + ", " + location.getSpeed();
+        loc = "" + location.getLatitude() +", " + location.getLongitude() + ", " + location.getSpeed();
 
         }
         else{

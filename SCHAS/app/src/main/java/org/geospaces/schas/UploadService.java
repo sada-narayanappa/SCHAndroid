@@ -14,19 +14,16 @@ public class UploadService extends Service {
 
     @Override
     public IBinder onBind(Intent arg0) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO Auto-generated method stub
         return START_STICKY;
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        // TODO Auto-generated method stub
         Intent restartService = new Intent(getApplicationContext(),
                 this.getClass());
         restartService.setPackage(getPackageName());
@@ -35,8 +32,6 @@ public class UploadService extends Service {
                 PendingIntent.FLAG_ONE_SHOT);
 
         //Restarts the service once it has been killed android
-
-
         AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 100, restartServicePI);
 
@@ -44,9 +39,7 @@ public class UploadService extends Service {
 
     @Override
     public void onCreate() {
-        // TODO Auto-generated method stub
         super.onCreate();
 
-        //Create thread to be always running waiting for upload service here
     }
 }

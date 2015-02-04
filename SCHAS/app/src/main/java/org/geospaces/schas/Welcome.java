@@ -30,7 +30,7 @@ public class Welcome extends Activity {
         }
 
         //Continue Button
-        final Button button = (Button) findViewById(R.id.button1);
+        final Button button = (Button) findViewById(R.id.readButton);
         if ( button != null) {
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

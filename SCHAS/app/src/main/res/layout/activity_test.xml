@@ -13,29 +13,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="PostMan"
-        android:id="@+id/CollectData"
-        android:layout_toEndOf="@+id/button1"
+        android:id="@+id/PostManButton"
+        android:layout_toEndOf="@+id/readButton"
         android:gravity="center"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/button1" />
+        android:layout_toRightOf="@+id/readButton" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Server"
-        android:id="@+id/WS"
-        android:layout_toEndOf="@+id/CollectData"
+        android:id="@+id/ServerButton"
+        android:layout_toEndOf="@+id/PostManButton"
         android:gravity="center"
-        android:layout_toStartOf="@+id/buttonClear"
-        android:layout_toRightOf="@+id/CollectData"
+        android:layout_toStartOf="@+id/clearButton"
+        android:layout_toRightOf="@+id/PostManButton"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/buttonClear" />
+        android:layout_toLeftOf="@+id/clearButton" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Clear"
-        android:id="@+id/buttonClear"
+        android:id="@+id/clearButton"
         android:gravity="center"
         android:background="@android:color/holo_red_light"
         android:layout_below="@+id/statusText"
@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Read"
-        android:id="@+id/button1"
+        android:id="@+id/readButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -62,7 +62,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:gravity="fill_horizontal|fill_vertical"
-        android:layout_above="@+id/button1"
+        android:layout_above="@+id/readButton"
         android:background="@android:color/holo_orange_light" />
     <!--android:inputType="textMultiLine"
         android:hint="Status Text will be printed Here"
