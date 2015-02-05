@@ -32,7 +32,6 @@ import mymodule.app2.mymodule.app2.schasStrings;
 
 public class Test extends Activity implements SensorEventListener {
     TextView tv1;
-
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private SensorManager mSensorManager2;
@@ -68,50 +67,59 @@ public class Test extends Activity implements SensorEventListener {
         mTemp = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 
         findViewById(R.id.readButton).setOnClickListener(button1CB);
-        findViewById(R.id.PostManButton).setOnClickListener(button2CB);
-        findViewById(R.id.ServerButton).setOnClickListener(webServiceCB);
-
-        findViewById(R.id.clearButton).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                tv1.setText("");
-            }
-        });
+        findViewById(R.id.postManButton).setOnClickListener(button2CB);
+        findViewById(R.id.serverButton).setOnClickListener(webServiceCB);
+        findViewById(R.id.clearButton).setOnClickListener(clearCB);
     }
+
+    private View.OnClickListener clearCB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String url = "http://10.0.0.223:8080/aura/webroot/loc.jsp";
+
+            List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
+            String msg = GPSWakfulReciever.read(GPSWakfulReciever.FILE_NAME);
+
+            nv.add(new BasicNameValuePair("api_key", "123"));
+            nv.add(new BasicNameValuePair("text", msg));
+
+            tv1.setText("Sending: " + url + "\n" + msg.substring(0, 256));
+
+            PostToServer ps = new PostToServer(nv, tv1);
+            ps.execute(url);
+        }
+    };
 
     private View.OnClickListener button1CB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            StringBuilder sb = new StringBuilder(256);
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        StringBuilder sb = new StringBuilder(256);
 
+        sb.append(schasStrings.getTheTime() + "\n" +
+                    schasStrings.getTheGPS(locationManager) + "\n" +
+                    schasStrings.getOrientation(getApplicationContext()) + "\n" +
+                    schasStrings.getGravity(mSensorManager) + "\n" +
+                    schasStrings.getLight(mSensorManager) + "\n" +
+                    schasStrings.getPressure(mSensorManager) + "\n" +
+                    schasStrings.getTemp(mSensorManager) + "\n" +
+                    schasStrings.getDeviceID(Test.this) + "\n" +
+                    schasStrings.getWIFI(connManager, wifiman) + "\n" +
+                    schasStrings.getBluetoothDevices() + "\n" +
+                    schasStrings.getBatteryStatus(getApplicationContext())
 
-            sb.append(schasStrings.getTheTime() + "\n" +
-                            schasStrings.getTheGPS(locationManager) + "\n" +
-                            schasStrings.getOrientation(getApplicationContext()) + "\n" +
-                            schasStrings.getGravity(mSensorManager) + "\n" +
-                            schasStrings.getLight(mSensorManager) + "\n" +
-                            schasStrings.getPressure(mSensorManager) + "\n" +
-                            schasStrings.getTemp(mSensorManager) + "\n" +
-                            schasStrings.getDeviceID(Test.this) + "\n" +
-                            schasStrings.getWIFI(connManager, wifiman) + "\n" +
-                            schasStrings.getBluetoothDevices() + "\n" +
-                            schasStrings.getBatteryStatus(getApplicationContext())
-
-
-            );
-            String list = "";
-            List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-            for (int i = 0; i < deviceSensors.size(); i++) {
-                String name = deviceSensors.get(i).getName();
-                if (name.startsWith("placeholder"))
-                    continue;
-                list += name + "\n";
-            }
-            tv1.setText(sb.toString() + "\n" + list);
+        );
+        String list = "";
+        List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+        for (int i = 0; i < deviceSensors.size(); i++) {
+            String name = deviceSensors.get(i).getName();
+            if (name.startsWith("placeholder"))
+                continue;
+            list += name + "\n";
+        }
+        tv1.setText(sb.toString() + "\n" + list);
         }
     };
-
-
     //-------------------------------------------------------------------------
     // Testing bluetooth Stuff
     private final class UIHandler extends Handler {

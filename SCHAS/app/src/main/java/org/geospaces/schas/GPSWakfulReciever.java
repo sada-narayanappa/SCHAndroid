@@ -4,13 +4,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.text.format.Formatter;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.locpoll.LocationPoller;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,7 +26,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import mymodule.app2.mymodule.app2.schasStrings;
 
 public class GPSWakfulReciever extends BroadcastReceiver {
     public final static String DIRECTORY = "/SCHAS";
@@ -55,17 +68,16 @@ public class GPSWakfulReciever extends BroadcastReceiver {
                     msg = "TIMEOUT, lastKnown=" + loc.toString();
                 }
             } else {
-                msg = loc.toString();
+                //msg = loc.toString();
                 msg = getLocation(loc);
             }
             if (msg == null) {
                 msg = "Invalid broadcast received!";
             }
-
             String wmsg = "id=" + ID + "& " + msg + "\n";
             out.write(wmsg);
             out.close();
-            Toast.makeText(context, "GPSWakfulReceiveer:" + wmsg, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "GPSWakfulReceiveer:" + wmsg, Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             Log.e(getClass().getName(), "Exception appending to log file", e);
         }
@@ -93,13 +105,13 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public static String getLocation(Location loc) {
         StringBuffer sb = new StringBuffer(512);
         StringBuffer append = sb.append(
-                "time=" + loc.getTime() + "&" +
-                        "lat=" + loc.getLatitude() + "&" +
-                        "lon=" + loc.getLongitude() + "&" +
-                        "alt=" + loc.getAltitude() + "&" +
-                        "speed=" + loc.getSpeed() + "&" +
-                        "bearing=" + loc.getBearing() + "&" +
-                        "accuracy=" + loc.getAccuracy() + "&" +
+                "time=" + loc.getTime() + "," +
+                        "lat=" + loc.getLatitude() + "," +
+                        "lon=" + loc.getLongitude() + "," +
+                        "alt=" + loc.getAltitude() + "," +
+                        "speed=" + loc.getSpeed() + "," +
+                        "bearing=" + loc.getBearing() + "," +
+                        "accuracy=" + loc.getAccuracy() + "" +
                         ""
         );
 
@@ -128,6 +140,52 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         File to = new File(directory2, FILE_READY);
         from.delete();
         to.delete();
+    }
+
+    /**
+     * Sample Usage of the API
+     */
+    public static void post() {
+        String url = "http://10.0.0.223:8080/aura/webroot/loc.jsp";
+
+        List<NameValuePair> nv = new ArrayList<NameValuePair>(2);
+        nv.add(new BasicNameValuePair("test1", "A"));
+
+        PostToServer ps = new PostToServer(nv, null);
+        ps.execute(url);
+    }
+
+    public static boolean isWIFIOn(Context ctx) {
+        ConnectivityManager connManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        WifiManager         wifiman     = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+        NetworkInfo         mWifi       = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        HashMap m = new HashMap();
+
+        if (mWifi.isConnected()) {
+            int linkSpeed = wifiman.getConnectionInfo().getLinkSpeed();
+            int ip = wifiman.getConnectionInfo().getIpAddress();
+            String ips = Formatter.formatIpAddress(ip);
+            String str = "SPEED: " + linkSpeed +"Mbps, STRENGTH: " + wifiman.getConnectionInfo().getRssi() + "dBm";
+            return true;
+        }
+        return false;
+    }
+    public static void Post(TextView tv) {
+        String url = "http://10.0.0.223:8080/aura/webroot/loc.jsp";
+
+        List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
+        String msg = GPSWakfulReciever.read(GPSWakfulReciever.FILE_NAME);
+
+        nv.add(new BasicNameValuePair("api_key", "123"));
+        nv.add(new BasicNameValuePair("text", msg));
+
+        if ( tv != null ) {
+            tv.setText("Sending: " + url + "\n" + msg.substring(0, 256));
+        }
+
+        PostToServer ps = new PostToServer(nv, tv);
+        ps.execute(url);
     }
 }
 

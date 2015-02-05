@@ -96,7 +96,7 @@ public class schasStrings {
             return "WIFI_Mbps: " + linkSpeed +"Mbps\n" +
                     "WIFI_strength: " + wifiManager.getConnectionInfo().getRssi() + "dBm";
         }
-        else{return "wifi is not connected";}
+        else{return "NOT CONNECTED: WIFI";}
     }
 
 

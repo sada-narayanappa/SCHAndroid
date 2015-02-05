@@ -74,7 +74,7 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
      * Sample Usage of the API
      */
     public static void post() {
-        String url = "http://10.0.0.223:8080/aura/webroot/index.jsp?cmd=test&a=b";
+        String url = "http://10.0.0.223:8080/aura/webroot/loc.jsp?cmd=test&a=b";
 
         List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
         nv.add(new BasicNameValuePair("test1", "A"));

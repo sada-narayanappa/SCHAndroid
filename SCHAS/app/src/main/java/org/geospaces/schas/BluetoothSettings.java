@@ -102,7 +102,7 @@ public class BluetoothSettings extends Activity implements EventListener{
         storage.setText(this.calculateMem());
         inhaler.setEnabled(false);
 
-        final Button button = (Button) findViewById(R.id.PostManButton);
+        final Button button = (Button) findViewById(R.id.postManButton);
         button.setOnClickListener(collectDataOnClickListener);
 
         final Button button4 = (Button) findViewById(R.id.button4);
@@ -244,7 +244,7 @@ public class BluetoothSettings extends Activity implements EventListener{
             }
         });
 
-        final Button inhalebutton = (Button) findViewById(R.id.ServerButton);
+        final Button inhalebutton = (Button) findViewById(R.id.serverButton);
         if (inhalebutton != null) {
             inhalebutton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -281,7 +281,7 @@ public class BluetoothSettings extends Activity implements EventListener{
      */
     private View.OnClickListener collectDataOnClickListener  = new View.OnClickListener() {
         public void onClick(View v) {
-            final Button button = (Button) findViewById(R.id.PostManButton);
+            final Button button = (Button) findViewById(R.id.postManButton);
 
             if (button.getText().equals("Collect Data")) {
                 //User Information
@@ -411,7 +411,7 @@ public class BluetoothSettings extends Activity implements EventListener{
         mmSocket2.close();
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
-        Button b = (Button) findViewById(R.id.PostManButton);
+        Button b = (Button) findViewById(R.id.postManButton);
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket2.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();
@@ -480,7 +480,7 @@ public class BluetoothSettings extends Activity implements EventListener{
         mmSocket.close();
         //Toast.makeText(getApplicationContext(), "after" + mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
 
-        Button b = (Button) findViewById(R.id.PostManButton);
+        Button b = (Button) findViewById(R.id.postManButton);
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         if (!mmSocket.isConnected()) {
             //Toast.makeText(getApplicationContext(), "Linking", Toast.LENGTH_SHORT).show();

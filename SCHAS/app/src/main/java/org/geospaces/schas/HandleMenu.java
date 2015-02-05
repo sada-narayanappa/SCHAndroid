@@ -55,6 +55,7 @@ public class HandleMenu  {
                 }
                 Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
                 return false;
+
             }
         return false;
     }

@@ -12,4 +12,5 @@
     <string name="title_activity_web1">web1</string>
     <string name="title_activity_bluetooth_settings">Status/Settings</string>
     <string name="info_menu">Bluetooth Help</string>
+
 </resources>

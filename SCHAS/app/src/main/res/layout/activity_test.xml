@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="PostMan"
-        android:id="@+id/PostManButton"
+        android:id="@+id/postManButton"
         android:layout_toEndOf="@+id/readButton"
         android:gravity="center"
         android:layout_alignParentBottom="true"
@@ -23,11 +23,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Server"
-        android:id="@+id/ServerButton"
-        android:layout_toEndOf="@+id/PostManButton"
+        android:id="@+id/serverButton"
+        android:layout_toEndOf="@+id/postManButton"
         android:gravity="center"
         android:layout_toStartOf="@+id/clearButton"
-        android:layout_toRightOf="@+id/PostManButton"
+        android:layout_toRightOf="@+id/postManButton"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/clearButton" />
 
