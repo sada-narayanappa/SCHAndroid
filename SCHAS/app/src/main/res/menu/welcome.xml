@@ -20,4 +20,8 @@ tools:context=".Welcome" >
     android:title="@string/action_web"
     android:orderInCategory="100"
     android:showAsAction="never" />
+<item android:id="@+id/action_UploadData"
+    android:title="Upload Data"
+    android:orderInCategory="100"
+    android:showAsAction="never" />
 </menu>

@@ -5,6 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Bluetooth Status</string>
     <string name="action_test">Test</string>
+    <string name="action_UploadData">Upload Data</string>
     <string name="title_activity_test">Test</string>
     <string name="action_about">About SCHAS</string>
     <string name="title_activity_web">Web</string>
