@@ -60,6 +60,10 @@
             android:exported="true" >
         </service>
 
+        <activity
+            android:name=".UploadData"
+            android:label="@string/title_activity_upload_data" >
+        </activity>
     </application>
 
 </manifest>
