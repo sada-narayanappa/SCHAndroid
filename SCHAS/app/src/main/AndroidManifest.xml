@@ -45,6 +45,10 @@
             android:name=".BluetoothSettings"
             android:label="@string/title_activity_bluetooth_settings" >
         </activity>
+        <activity
+            android:name=".UploadData"
+            android:label="@string/title_activity_upload_data" >
+        </activity>
 
         <service android:name="com.commonsware.cwac.locpoll.LocationPollerService" >
         </service>
@@ -60,10 +64,6 @@
             android:exported="true" >
         </service>
 
-        <activity
-            android:name=".UploadData"
-            android:label="@string/title_activity_upload_data" >
-        </activity>
     </application>
 
 </manifest>

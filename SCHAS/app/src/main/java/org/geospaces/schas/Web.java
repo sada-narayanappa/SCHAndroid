@@ -60,7 +60,7 @@ public class Web extends Activity {
             }
         });
 
-        final Button button2 = (Button) findViewById(R.id.postManButton);
+        final Button button2 = (Button) findViewById(R.id.serviceButton);
         button2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
@@ -70,7 +70,7 @@ public class Web extends Activity {
             }
         });
 
-        final Button button3 = (Button) findViewById(R.id.serverButton);
+        final Button button3 = (Button) findViewById(R.id.uploadButton);
         button3.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 /*AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
