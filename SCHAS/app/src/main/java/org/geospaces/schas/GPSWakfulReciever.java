@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,27 +35,25 @@ import java.util.List;
 import mymodule.app2.mymodule.app2.schasStrings;
 
 public class GPSWakfulReciever extends BroadcastReceiver {
-    public final static String DIRECTORY = "/SCHAS";
-    public final static String FILE_NAME = "LOC.txt";
-    public final static String FILE_READY = "LOC_ready.txt";
-    public final static int FILE_SIZE = 4 * 1024;
+
+    public final static String  DIRECTORY   = "/SCHAS";
+    public final static String  FILE_NAME   = "LOC.txt";
+    public final static String  FILE_READY  = "LOC_ready.txt";
+    public final static int     FILE_SIZE   = 4 * 1024;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        File externalMem2 = Environment.getExternalStorageDirectory();
-        File directory2 = new File(externalMem2.getAbsolutePath() + DIRECTORY);
-        directory2.mkdirs();
-        File log = new File(directory2, FILE_NAME);
+        File file = getFile(FILE_NAME);
 
         String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        if (log.length() > FILE_SIZE) {
+        if (file.length() > FILE_SIZE) {
             if (!rename(false)) {
                 return;                 // File is full and we can't do much now
             }
         }
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), log.exists()));
+            BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
 
             Bundle b = intent.getExtras();
             Location loc = (Location) b.get(LocationPoller.EXTRA_LOCATION);
@@ -84,11 +83,7 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     }
 
     public static String read(String fileName) {
-        File externalMem2 = Environment.getExternalStorageDirectory();
-        File directory2 = new File(externalMem2.getAbsolutePath() + DIRECTORY);
-        directory2.mkdirs();
-        fileName = (fileName == null) ? FILE_READY : fileName;
-        File file = new File(directory2, fileName);
+        File file = getFile(fileName);
 
         String str = "ERROR reading File:  " + fileName;
         char[] bytes = new char[Math.min(5 * 1024, (int) file.length())];
@@ -102,17 +97,27 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         return str;
     }
 
+    public static File getFile(String fileName) {
+        File externalMem2 = Environment.getExternalStorageDirectory();
+        File directory2 = new File(externalMem2.getAbsolutePath() + DIRECTORY);
+        directory2.mkdirs();
+        fileName = (fileName == null) ? FILE_READY : fileName;
+        File file = new File(directory2, fileName);
+
+        return file;
+    }
+
     public static String getLocation(Location loc) {
         StringBuffer sb = new StringBuffer(512);
         StringBuffer append = sb.append(
-                "time=" + loc.getTime() + "," +
-                        "lat=" + loc.getLatitude() + "," +
-                        "lon=" + loc.getLongitude() + "," +
-                        "alt=" + loc.getAltitude() + "," +
-                        "speed=" + loc.getSpeed() + "," +
-                        "bearing=" + loc.getBearing() + "," +
-                        "accuracy=" + loc.getAccuracy() + "" +
-                        ""
+                "time="     + loc.getTime()         + "," +
+                "lat="      + loc.getLatitude()     + "," +
+                "lon="      + loc.getLongitude()    + "," +
+                "alt="      + loc.getAltitude()     + "," +
+                "speed="    + loc.getSpeed()        + "," +
+                "bearing="  + loc.getBearing()      + "," +
+                "accuracy=" + loc.getAccuracy()     + ""  +
+                ""
         );
 
         return sb.toString();
@@ -171,8 +176,29 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         }
         return false;
     }
-    public static void Post(TextView tv) {
-        String url = "http://10.0.0.223:8080/aura/webroot/loc.jsp";
+    public static boolean Post(TextView tv) {
+
+        String host     = "www.geosspaces.org";
+        String host1    = "www.geosspaces.org";
+        String host2    = "10.0.0.3";
+
+        try {
+            boolean r;
+            host = host1;
+            r = InetAddress.getByName(host).isReachable(1*1000);
+            if (!r )  {
+                host = host2;
+                r = InetAddress.getByName(host).isReachable(1*1000);
+            }
+            if (!r) {
+                return false;
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+
+        String url = "http://" + host+"/aura/webroot/loc.jsp";
 
         List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
         String msg = GPSWakfulReciever.read(GPSWakfulReciever.FILE_NAME);
@@ -186,6 +212,8 @@ public class GPSWakfulReciever extends BroadcastReceiver {
 
         PostToServer ps = new PostToServer(nv, tv);
         ps.execute(url);
+
+        return true;
     }
 }
 

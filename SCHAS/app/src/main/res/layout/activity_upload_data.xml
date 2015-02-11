@@ -21,7 +21,9 @@
             android:id="@+id/statusText"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.73"
-            android:background="@android:color/holo_orange_dark" />
+            android:background="@android:color/holo_orange_dark"
+            android:maxLines="1000"
+             />
 
         <LinearLayout
             android:orientation="horizontal"
@@ -41,7 +43,8 @@
                 android:text="Start Service"
                 android:id="@+id/serviceButton"
                 android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded" />
+                android:layout_toEndOf="@+id/uploaded"
+                android:background="#ff00ff00" />
 
             <Button
                 style="?android:attr/buttonStyleSmall"
@@ -63,81 +66,96 @@
                 android:id="@+id/uploadButton" />
         </LinearLayout>
 
-        <GridLayout
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/gridLayout"
+            android:background="#ffebff66"
+            android:id="@+id/linearLayout3">
 
             <Button
-                android:layout_width="130dp"
+                style="@android:style/Animation.Toast"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="MILD\nATTACK"
+                android:id="@+id/attack1"
+                android:layout_toRightOf="@+id/uploaded"
+                android:layout_toEndOf="@+id/uploaded"
+                android:background="@android:drawable/btn_default" />
+
+            <Button
+                style="@android:style/Animation.Toast"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="MEDIUM\nATTACK"
+                android:id="@+id/attack2"
+                android:layout_below="@+id/uploadButton"
+                android:layout_alignLeft="@+id/textView2"
+                android:layout_alignStart="@+id/textView2"
+                android:background="@android:drawable/btn_default" />
+
+            <Button
+                style="@android:style/Animation.Toast"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="SEVERE\nATTACK"
+                android:id="@+id/attack3"
+                android:background="@android:drawable/btn_default" />
+        </LinearLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <Button
+                android:layout_width="175dp"
                 android:layout_height="wrap_content"
                 android:text="Inhaler\nUse"
                 android:id="@+id/inhlaerButton"
                 android:layout_row="0"
                 android:layout_column="0" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:text="Inhaler Used "
-                android:id="@+id/inhalerText"
-                android:layout_row="0"
-                android:layout_column="1"
-                android:layout_columnSpan="2" />
-
             <Button
-                android:layout_width="130dp"
+                android:layout_width="175dp"
                 android:layout_height="wrap_content"
                 android:text="Peak Flow\nUse"
                 android:id="@+id/PFMButton"
-                android:layout_row="1"
-                android:layout_column="0" />
+                android:layout_row="0"
+                android:layout_column="1" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:text="Peak Flow Used "
-                android:id="@+id/PFMtextView"
-                android:layout_row="1"
-                android:layout_column="2" />
 
             <Button
-                android:layout_width="130dp"
+                android:layout_width="175dp"
                 android:layout_height="wrap_content"
                 android:text="Medication\n Use"
                 android:id="@+id/medButton"
-                android:layout_row="2"
-                android:layout_column="0" />
+                android:layout_row="1"
+                android:layout_column="0"
+                android:layout_columnSpan="1" />
 
+            <EditText
+                android:layout_width="175dp"
+                android:layout_height="52dp"
+                android:id="@+id/editText"
+                android:layout_gravity="center_horizontal|fill"
+                style="@android:style/Holo.ButtonBar"
+                android:editable="true"
+                android:autoText="false"
+                android:background="@android:color/holo_orange_dark"
+                android:layout_row="1"
+                android:layout_column="1"
+                android:layout_columnSpan="1"
+            />
 
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:text="medication Used \ntype in medicine name"
-                android:id="@+id/medText"
-                android:layout_row="2"
-                android:layout_column="2" />
-
-            <Button
-                android:layout_width="130dp"
-                android:layout_height="wrap_content"
-                android:text="My Name"
-                android:id="@+id/myNameButton"
-                android:layout_row="3"
-                android:layout_column="0" />
-
-
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="31dp"
-                android:text="your Name"
-                android:id="@+id/myName"
-                android:layout_row="3"
-                android:layout_column="2" />
 
         </GridLayout>
-
 
 
     </LinearLayout>

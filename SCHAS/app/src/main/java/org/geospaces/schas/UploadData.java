@@ -10,53 +10,103 @@ import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.locpoll.LocationPoller;
 
 import org.geospaces.schas.R;
 
+import java.io.File;
+
 public class UploadData extends ActionBarActivity {
 
-    private static final int PERIOD = 2 * 1000 * 60;  // 2 min
+    private static final int PERIOD = 5 * 1000 * 60;  // 2 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
     private String PEF_Text;
     private String FEV_Text;
 
+    TextView tv;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
         setContentView(R.layout.activity_upload_data);
 
         findViewById(R.id.serviceButton).setOnClickListener(start_service_button);
         findViewById(R.id.PFMButton).setOnClickListener(pfm_button);
+        findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
+        findViewById(R.id.uploadButton).setOnClickListener(uploadCB);
+
+        tv = (TextView) findViewById(R.id.statusText);
+        tv.setMovementMethod(new ScrollingMovementMethod());
     }
+
+    private View.OnClickListener updateStatusCB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            StringBuffer sb = new StringBuffer(256);
+            File f;
+            f = GPSWakfulReciever.getFile(GPSWakfulReciever.FILE_NAME);
+            sb.append(f.getName() + " : size=" + f.length() + "\n");
+            f = GPSWakfulReciever.getFile(GPSWakfulReciever.FILE_READY);
+            sb.append(f.getName() + " : size=" + f.length() + "\n");
+
+            tv.setText(sb.toString());
+        }
+    };
+
+    private View.OnClickListener uploadCB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+        }
+    };
 
     private View.OnClickListener start_service_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+            Button b = ((Button) findViewById(R.id.serviceButton));
 
-            Intent i = new Intent(UploadData.this, LocationPoller.class);
+            if (pi == null) {
+                mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-            i.putExtra(LocationPoller.EXTRA_INTENT, new Intent(UploadData.this, GPSWakfulReciever.class));
-            i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
+                Intent i = new Intent(UploadData.this, LocationPoller.class);
 
-            pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+                i.putExtra(LocationPoller.EXTRA_INTENT, new Intent(UploadData.this, GPSWakfulReciever.class));
+                i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
 
-            mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime(),
-                    PERIOD,
-                    pi);
-            Toast.makeText(UploadData.this, "Location polling every 2 minutes begun", Toast.LENGTH_SHORT).show();
+                pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
+                mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime(),
+                        PERIOD,
+                        pi);
+                Toast.makeText(UploadData.this, "Location polling every 2 minutes begun", Toast.LENGTH_SHORT).show();
+
+                b.setText("Stop Service");
+                b.setBackgroundColor(0xffff0000);
+
+            } else {
+                mgr.cancel(pi);
+                pi = null;
+                b.setText("Start Service");
+                b.setBackgroundColor(0xff00ff00);
+                Toast.makeText(UploadData.this, "Location polling STOPPED", Toast.LENGTH_SHORT).show();
+            }
         }
-
     };
 
     private View.OnClickListener pfm_button = new View.OnClickListener() {
@@ -65,12 +115,10 @@ public class UploadData extends ActionBarActivity {
             String PEF = "";
             String FEV = "";
 
-             InputTextPopUpCreator("Record PEF/FEV");
+            InputTextPopUpCreator("Record PEF/FEV");
 
         }
     };
-
-
 
 
     public void InputTextPopUpCreator(String Label) {
@@ -98,7 +146,7 @@ public class UploadData extends ActionBarActivity {
                 PEF_Text = input.getText().toString();
                 FEV_Text = input2.getText().toString();
 
-                writeFile(PEF_Text,FEV_Text);
+                writeFile(PEF_Text, FEV_Text);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -111,8 +159,7 @@ public class UploadData extends ActionBarActivity {
         builder.show();
     }
 
-    public void writeFile(String s1, String s2)
-    {
+    public void writeFile(String s1, String s2) {
         PEF_Text = "";
         FEV_Text = "";
 
