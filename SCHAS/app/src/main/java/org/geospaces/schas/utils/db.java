@@ -50,19 +50,29 @@ public class db {
 
     public static String getUploadableText(Context context) throws Exception {
         File file = getFile(FILE_READY);
-        String str = null;
-        char[] bytes = new char[Math.min(5 * 1024, (int) file.length())];
-        StringBuilder sb = new StringBuilder();
-
-        BufferedReader in = new BufferedReader(new FileReader(file.getAbsolutePath()));
-        String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        String line;
-        while ( null != (line = in.readLine()) ) {
-            String nl = "mobile_id=" + ID + ", api_key=" + ID + "," + line +"\n";
-            sb.append(nl);
+        if ( !file.exists()) {
+            boolean b = db.rename(false);
+            if ( !b ) {
+                throw new Exception("File not found: " + FILE_READY);
+            }
         }
+        String str = db.read(FILE_READY);
+        return str;
 
-        return sb.toString();
+//        file = getFile(FILE_READY);
+//        String str = null;
+//        char[] bytes = new char[ (int) file.length() ];
+//        StringBuilder sb = new StringBuilder();
+//
+//        BufferedReader in = new BufferedReader(new FileReader(file.getAbsolutePath()));
+//        String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+//        String line;
+//        while ( null != (line = in.readLine()) ) {
+//            String nl = "mobile_id=" + ID + ", api_key=" + ID + "," + line +"\n";
+//            sb.append(nl);
+//        }
+//
+//        return sb.toString();
     }
 
 
@@ -99,6 +109,9 @@ public class db {
         File from = new File(directory2, FILE_NAME);
         File to = new File(directory2, FILE_READY);
 
+        if ( !from.exists() ) {
+            return false;
+        }
         if (to.exists() && !force) {
             return false;
         }
@@ -150,9 +163,12 @@ public class db {
         try {
             msg = getUploadableText(context);
         } catch (Exception e) {
-            msg = "" + e;
+            return false;
         }
-        nv.add(new BasicNameValuePair("api_key", "123"));
+        String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        nv.add(new BasicNameValuePair("api_key", ID));
+        nv.add(new BasicNameValuePair("mobile_id", ID));
         nv.add(new BasicNameValuePair("text", msg));
 
         String ns = "Sending: " + url + "\n" + msg.substring(0, Math.min(msg.length() - 1, 256) );

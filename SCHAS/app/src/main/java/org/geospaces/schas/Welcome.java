@@ -10,6 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import org.geospaces.schas.utils.SCHASApplication;
+import org.geospaces.schas.utils.SCHASSettings;
+
 import java.io.File;
 
 
@@ -20,7 +23,7 @@ public class Welcome extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-
+        SCHASApplication.getInstance();
         //Creates a SCHAS directory on the external storage portion of the Device to keep data files
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
             Log.d("SCHAS", "No SDCARD");

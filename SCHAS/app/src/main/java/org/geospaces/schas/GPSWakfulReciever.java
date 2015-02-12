@@ -50,7 +50,7 @@ public class GPSWakfulReciever extends BroadcastReceiver {
                 //msg = loc.toString();
                 msg = db.getLocation(loc);
             }
-            if (msg == null) {
+            if (msg != null) {
                 return;
             }
             String wmsg = msg + "\n";

@@ -23,7 +23,9 @@
         android:icon="@drawable/logo2"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light"
-        android:windowSoftInputMode="stateHidden" >
+        android:windowSoftInputMode="stateHidden"
+        android:name="org.geospaces.schas.utils.SCHASApplication"
+        >
         <activity
             android:name=".Welcome"
             android:label="@string/app_name" >

@@ -39,7 +39,6 @@ public class UploadData extends Activity {
 
     TextView tv;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +73,8 @@ public class UploadData extends Activity {
         String []ls = db.read(db.FILE_NAME).split("\n");
 
         sb.append("DATA:" + ls[ls.length-1] + " ...\n");
-        sb.append("SETTINGS:" + db.read(db.FILE_SETTINGS) + " ...\n");
+        sb.append("SETTINGS:" + SCHASSettings.getSettings() + " ...\n");
+        sb.append("WIFI:" + db.isWIFIOn(this.getApplicationContext()) + " ...\n");
 
         tv.setText(sb.toString());
     }
@@ -102,9 +102,11 @@ public class UploadData extends Activity {
             updateStatus();
 
             Context ctx = UploadData.this.getApplicationContext();
+            boolean d = db.rename(false);
             boolean r = db.Post(UploadData.this, ctx, "/aura/webroot/loc.jsp");
-            if ( !r) {
-                Toast.makeText(UploadData.this, "Redo:" + SCHASSettings.host, Toast.LENGTH_SHORT).show();
+            if ( !d || !r) {
+                String msg = "Redo:" + SCHASSettings.host + " No file to upload";
+                Toast.makeText(UploadData.this, msg , Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -159,10 +161,8 @@ public class UploadData extends Activity {
             String FEV = "";
 
             InputTextPopUpCreator("Record PEF/FEV");
-
         }
     };
-
 
     public void InputTextPopUpCreator(String Label) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
