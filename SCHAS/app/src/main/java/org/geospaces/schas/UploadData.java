@@ -1,13 +1,14 @@
 package org.geospaces.schas;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.SystemClock;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
@@ -23,13 +24,14 @@ import android.widget.Toast;
 
 import com.commonsware.cwac.locpoll.LocationPoller;
 
-import org.geospaces.schas.R;
+import org.geospaces.schas.utils.SCHASSettings;
+import org.geospaces.schas.utils.db;
 
 import java.io.File;
 
-public class UploadData extends ActionBarActivity {
+public class UploadData extends Activity {
 
-    private static final int PERIOD = 5 * 1000 * 60;  // 2 min
+    private static final int PERIOD = 6 * 1000 * 60;  // 2 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
     private String PEF_Text;
@@ -49,31 +51,72 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.PFMButton).setOnClickListener(pfm_button);
         findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
         findViewById(R.id.uploadButton).setOnClickListener(uploadCB);
+        findViewById(R.id.resetButton).setOnClickListener(resetCB);
 
         tv = (TextView) findViewById(R.id.statusText);
         tv.setMovementMethod(new ScrollingMovementMethod());
     }
 
+    protected void updateStatus() {
+        StringBuffer sb = new StringBuffer(256);
+        File f;
+        f = db.getFile(db.FILE_NAME);
+
+        sb.append(f.getName() + " : size=" + f.length() + "\n");
+        f = db.getFile(db.FILE_READY);
+        sb.append(f.getName() + " : size=" + f.length() + "\n");
+
+        if (SCHASSettings.host == null ) {
+            SCHASSettings.Initialize(null);
+        }
+        sb.append("URL: " + SCHASSettings.host + "\n");
+
+        String []ls = db.read(db.FILE_NAME).split("\n");
+
+        sb.append("DATA:" + ls[ls.length-1] + " ...\n");
+        sb.append("SETTINGS:" + db.read(db.FILE_SETTINGS) + " ...\n");
+
+        tv.setText(sb.toString());
+    }
+
     private View.OnClickListener updateStatusCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            StringBuffer sb = new StringBuffer(256);
-            File f;
-            f = GPSWakfulReciever.getFile(GPSWakfulReciever.FILE_NAME);
-            sb.append(f.getName() + " : size=" + f.length() + "\n");
-            f = GPSWakfulReciever.getFile(GPSWakfulReciever.FILE_READY);
-            sb.append(f.getName() + " : size=" + f.length() + "\n");
+            updateStatus();
+        }
+    };
 
-            tv.setText(sb.toString());
+    private View.OnClickListener resetCB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            SCHASSettings.host = null;
+            SCHASSettings.Initialize( null);
+
+            db.delete();
         }
     };
 
     private View.OnClickListener uploadCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            updateStatus();
 
+            Context ctx = UploadData.this.getApplicationContext();
+            boolean r = db.Post(UploadData.this, ctx, "/aura/webroot/loc.jsp");
+            if ( !r) {
+                Toast.makeText(UploadData.this, "Redo:" + SCHASSettings.host, Toast.LENGTH_SHORT).show();
+            }
         }
     };
+
+    public void setIntent( Intent i) {
+        String str = "SetResult: " + i.getStringExtra("result");
+        String url = "SetResult: " + i.getStringExtra("url");
+        tv.setText(str);
+        if (!str.startsWith("ERROR")) {
+            db.delete();
+        }
+    }
 
     private View.OnClickListener start_service_button = new View.OnClickListener() {
         @Override
@@ -162,8 +205,6 @@ public class UploadData extends ActionBarActivity {
     public void writeFile(String s1, String s2) {
         PEF_Text = "";
         FEV_Text = "";
-
-
     }
 
     @Override

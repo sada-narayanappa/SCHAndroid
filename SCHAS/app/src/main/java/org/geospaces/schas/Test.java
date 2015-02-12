@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.geospaces.schas.utils.db;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,14 +79,14 @@ public class Test extends Activity implements SensorEventListener {
             String url = "http://10.0.0.223:8080/aura/webroot/loc.jsp";
 
             List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
-            String msg = GPSWakfulReciever.read(GPSWakfulReciever.FILE_NAME);
+            String msg = db.read(db.FILE_NAME);
 
             nv.add(new BasicNameValuePair("api_key", "123"));
             nv.add(new BasicNameValuePair("text", msg));
 
             tv1.setText("Sending: " + url + "\n" + msg.substring(0, 256));
 
-            PostToServer ps = new PostToServer(nv, tv1);
+            PostToServer ps = new PostToServer(nv, Test.this);
             ps.execute(url);
         }
     };
@@ -164,7 +165,7 @@ public class Test extends Activity implements SensorEventListener {
     private View.OnClickListener webServiceCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String str = GPSWakfulReciever.read(GPSWakfulReciever.FILE_NAME);
+            String str = db.read(db.FILE_NAME);
             tv1.setText(str);
 /*
             String list = "";

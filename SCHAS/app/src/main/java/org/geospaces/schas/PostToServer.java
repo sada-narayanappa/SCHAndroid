@@ -1,5 +1,7 @@
 package org.geospaces.schas;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
@@ -14,18 +16,20 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PostToServer extends AsyncTask<String, Integer, String>{
     List<NameValuePair> nameValuePairs = null;
     String              result = "";
-    TextView            tv;
+    Activity            act;
+    String              url;
 
     public PostToServer() {
     }
-    public PostToServer(List<NameValuePair> nv, TextView tv1) {
-        tv = tv1;
+    public PostToServer(List<NameValuePair> nv, Activity a) {
+        act = a;
         nameValuePairs =nv;
     }
     public String postResults(List<NameValuePair> nameValuePairs, String postUrl) {
@@ -49,13 +53,15 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
             ret = str.toString();
 
         } catch (Exception e) {
-           ret = "Transmission Failed " + e;
+           ret = "ERROR: Transmission Failed " + e;
         }
         return ret;
     }
+
     @Override
     protected String doInBackground(String... urls) {
-        String url = urls[0];
+        //url = whichHost(urls);
+        url = urls[0];
 
         if ( nameValuePairs == null) {
             nameValuePairs = new ArrayList<NameValuePair>(0);
@@ -64,10 +70,15 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
         return ret;
     }
 
+
     protected void onPostExecute(String ret) {
         result = ret;
-        if (tv !=null) {
-            tv.setText(ret);
+        if (act !=null) {
+            Intent i = act.getIntent();
+            ret = ret.replaceAll("(?m)^[ \t]*\r?\n", "");
+            i.putExtra("result", ret + "\n" + url);
+            i.putExtra("url", url);
+            act.setIntent(i);
         }
     }
     /**

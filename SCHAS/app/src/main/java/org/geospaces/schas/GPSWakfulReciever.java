@@ -1,60 +1,40 @@
 package org.geospaces.schas;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.Settings;
-import android.text.format.Formatter;
 import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.commonsware.cwac.locpoll.LocationPoller;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
-import mymodule.app2.mymodule.app2.schasStrings;
+import org.geospaces.schas.utils.*;
 
 public class GPSWakfulReciever extends BroadcastReceiver {
 
-    public final static String  DIRECTORY   = "/SCHAS";
-    public final static String  FILE_NAME   = "LOC.txt";
-    public final static String  FILE_READY  = "LOC_ready.txt";
-    public final static int     FILE_SIZE   = 4 * 1024;
+    public static Activity  act = null;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        File file = getFile(FILE_NAME);
+        File file = db.getFile(db.FILE_NAME);
 
-        String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-
-        if (file.length() > FILE_SIZE) {
-            if (!rename(false)) {
+        if (file.length() > db.FILE_SIZE) {
+            if (!db.rename(false)) {
                 return;                 // File is full and we can't do much now
             }
         }
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
-
             Bundle b = intent.getExtras();
             Location loc = (Location) b.get(LocationPoller.EXTRA_LOCATION);
             String msg;
@@ -64,16 +44,17 @@ public class GPSWakfulReciever extends BroadcastReceiver {
                 if (loc == null) {
                     msg = intent.getStringExtra(LocationPoller.EXTRA_ERROR);
                 } else {
-                    msg = "TIMEOUT, lastKnown=" + loc.toString();
+                    msg = null; // "TIMEOUT, lastKnown=" + loc.toString();
                 }
             } else {
                 //msg = loc.toString();
-                msg = getLocation(loc);
+                msg = db.getLocation(loc);
             }
             if (msg == null) {
-                msg = "Invalid broadcast received!";
+                return;
             }
-            String wmsg = "id=" + ID + "& " + msg + "\n";
+            String wmsg = msg + "\n";
+            BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
             out.write(wmsg);
             out.close();
             //Toast.makeText(context, "GPSWakfulReceiveer:" + wmsg, Toast.LENGTH_SHORT).show();
@@ -82,138 +63,15 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         }
     }
 
-    public static String read(String fileName) {
-        File file = getFile(fileName);
+    public void UploadDataMessage(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+        ComponentName act = taskInfo.get(0).topActivity;
 
-        String str = "ERROR reading File:  " + fileName;
-        char[] bytes = new char[Math.min(5 * 1024, (int) file.length())];
-        try {
-            FileReader in = new FileReader(file);
-            in.read(bytes);
-            str = new String(bytes);
-        } catch (Exception e) {
-            Log.e("ERR", "" + e);
+        if ( act.getClassName().equals("UploadData") ) {
         }
-        return str;
+        Log.d("HI", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName()+"   Package Name :  "+act.getPackageName());
     }
 
-    public static File getFile(String fileName) {
-        File externalMem2 = Environment.getExternalStorageDirectory();
-        File directory2 = new File(externalMem2.getAbsolutePath() + DIRECTORY);
-        directory2.mkdirs();
-        fileName = (fileName == null) ? FILE_READY : fileName;
-        File file = new File(directory2, fileName);
-
-        return file;
-    }
-
-    public static String getLocation(Location loc) {
-        StringBuffer sb = new StringBuffer(512);
-        StringBuffer append = sb.append(
-                "time="     + loc.getTime()         + "," +
-                "lat="      + loc.getLatitude()     + "," +
-                "lon="      + loc.getLongitude()    + "," +
-                "alt="      + loc.getAltitude()     + "," +
-                "speed="    + loc.getSpeed()        + "," +
-                "bearing="  + loc.getBearing()      + "," +
-                "accuracy=" + loc.getAccuracy()     + ""  +
-                ""
-        );
-
-        return sb.toString();
-    }
-
-    public static boolean rename(boolean force) {
-        File externalMem2 = Environment.getExternalStorageDirectory();
-        File directory2 = new File(externalMem2.getAbsolutePath() + DIRECTORY);
-        directory2.mkdirs();
-        File from = new File(directory2, FILE_NAME);
-        File to = new File(directory2, FILE_READY);
-
-        if (to.exists() && !force) {
-            return false;
-        }
-        from.renameTo(to);
-        return true;
-    }
-
-    public static void delete() {
-        File externalMem2 = Environment.getExternalStorageDirectory();
-        File directory2 = new File(externalMem2.getAbsolutePath() + DIRECTORY);
-        directory2.mkdirs();
-        File from = new File(directory2, FILE_NAME);
-        File to = new File(directory2, FILE_READY);
-        from.delete();
-        to.delete();
-    }
-
-    /**
-     * Sample Usage of the API
-     */
-    public static void post() {
-        String url = "http://10.0.0.223:8080/aura/webroot/loc.jsp";
-
-        List<NameValuePair> nv = new ArrayList<NameValuePair>(2);
-        nv.add(new BasicNameValuePair("test1", "A"));
-
-        PostToServer ps = new PostToServer(nv, null);
-        ps.execute(url);
-    }
-
-    public static boolean isWIFIOn(Context ctx) {
-        ConnectivityManager connManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-        WifiManager         wifiman     = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-        NetworkInfo         mWifi       = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-        HashMap m = new HashMap();
-
-        if (mWifi.isConnected()) {
-            int linkSpeed = wifiman.getConnectionInfo().getLinkSpeed();
-            int ip = wifiman.getConnectionInfo().getIpAddress();
-            String ips = Formatter.formatIpAddress(ip);
-            String str = "SPEED: " + linkSpeed +"Mbps, STRENGTH: " + wifiman.getConnectionInfo().getRssi() + "dBm";
-            return true;
-        }
-        return false;
-    }
-    public static boolean Post(TextView tv) {
-
-        String host     = "www.geosspaces.org";
-        String host1    = "www.geosspaces.org";
-        String host2    = "10.0.0.3";
-
-        try {
-            boolean r;
-            host = host1;
-            r = InetAddress.getByName(host).isReachable(1*1000);
-            if (!r )  {
-                host = host2;
-                r = InetAddress.getByName(host).isReachable(1*1000);
-            }
-            if (!r) {
-                return false;
-            }
-
-        } catch (Exception e) {
-            return false;
-        }
-
-        String url = "http://" + host+"/aura/webroot/loc.jsp";
-
-        List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
-        String msg = GPSWakfulReciever.read(GPSWakfulReciever.FILE_NAME);
-
-        nv.add(new BasicNameValuePair("api_key", "123"));
-        nv.add(new BasicNameValuePair("text", msg));
-
-        if ( tv != null ) {
-            tv.setText("Sending: " + url + "\n" + msg.substring(0, 256));
-        }
-
-        PostToServer ps = new PostToServer(nv, tv);
-        ps.execute(url);
-
-        return true;
-    }
 }
 
