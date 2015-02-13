@@ -35,6 +35,9 @@ public class db {
     public static String read(String fileName) {
         File file = getFile(fileName);
 
+        if ( !file.exists()) {
+            return "";
+        }
         String str = "ERROR reading File:  " + fileName;
         char[] bytes = new char[Math.min(5 * 1024, (int) file.length())];
         try {
@@ -89,7 +92,7 @@ public class db {
     public static String getLocation(Location loc) {
         StringBuffer sb = new StringBuffer(512);
         StringBuffer append = sb.append(
-                "measured_at="  + loc.getTime()         + "," +
+                "measured_at="  + (loc.getTime()/1000)  + "," +
                 "lat="          + loc.getLatitude()     + "," +
                 "lon="          + loc.getLongitude()    + "," +
                 "alt="          + loc.getAltitude()     + "," +
@@ -149,15 +152,12 @@ public class db {
     public static boolean Post(Activity act, Context context, String service) {
         String host     = SCHASSettings.host;
 
-        if ( host == null ) {
+        if ( host == null || ! isWIFIOn(context) ) {
             SCHASSettings.Initialize(null);
             return false;
         }
-        String url = "http://" + host+ service; //"/aura/webroot/loc.jsp";
-        //String url2 = "http://" + host2+"/aura/webroot/loc.jsp";
-
+        String url = "http://" + host+ service;
         List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
-        //String msg = read(FILE_NAME);
         String msg = "";
 
         try {

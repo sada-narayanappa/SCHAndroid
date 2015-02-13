@@ -25,6 +25,8 @@
         android:theme="@style/Theme.AppCompat.Light"
         android:windowSoftInputMode="stateHidden"
         android:name="org.geospaces.schas.utils.SCHASApplication"
+        android:versionCode="14"
+        android:versionName="2"
         >
         <activity
             android:name=".Welcome"

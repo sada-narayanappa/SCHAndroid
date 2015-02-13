@@ -9,15 +9,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.geospaces.schas.utils.SCHASApplication;
-import org.geospaces.schas.utils.SCHASSettings;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class Welcome extends Activity {
 
+    static boolean firstTime = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,13 +30,16 @@ public class Welcome extends Activity {
         //Creates a SCHAS directory on the external storage portion of the Device to keep data files
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
             Log.d("SCHAS", "No SDCARD");
+            String msg = "No External Storage";
+            Toast.makeText(Welcome.this, msg, Toast.LENGTH_SHORT).show();
+
         } else {
             File directory = new File(Environment.getExternalStorageDirectory()+File.separator+"SCHAS");
             directory.mkdirs();
         }
 
         //Continue Button
-        final Button button = (Button) findViewById(R.id.readButton);
+        final Button button = (Button) findViewById(R.id.mapButton);
         if ( button != null) {
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -43,6 +49,18 @@ public class Welcome extends Activity {
                     //finish();
                 }
             });
+        }
+        if ( firstTime ) {
+            new Timer().schedule(new TimerTask() {
+                                     @Override
+                                     public void run() {
+                                         Intent intent = new Intent(Welcome.this, UploadData.class);
+                                         startActivity(intent);
+                                         this.cancel();
+                                     }
+                                 }, 5000
+            );
+            firstTime = false;
         }
     }
 

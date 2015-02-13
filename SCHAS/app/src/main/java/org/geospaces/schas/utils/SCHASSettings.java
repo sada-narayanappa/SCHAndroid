@@ -8,9 +8,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SCHASSettings {
-    public static String host       = null;
+    public static String host       = "www.geosspaces.org";
     public static String username   = "None";
     public static String deviceID   = "ID";
     public static String urls       = "www.geosspaces.org;10.0.0.3";
@@ -48,13 +50,31 @@ public class SCHASSettings {
     }
     public static String readSettings() {
         String s = db.read(db.FILE_SETTINGS);
+        if (s.length() <=1 ) {
+            return s;
+        }
+        String [] lines = s.split("\n");
+        HashMap<Object,String> m = new HashMap();
+        for ( String l : lines ) {
+            String[] kv = l.split("=");
+            if ( kv.length <= 1) {
+                continue;
+            }
+            m.put(kv[0].trim(), kv[1].trim());
+        }
+
+        host        = m.get("host");
+        username    = m.get("username");
+        deviceID    = m.get("deviceID");
+        urls        = m.get("urls");
+
+        Initialize(null);
         return s;
     }
 
 
     private static class PickHosts extends AsyncTask<String, Integer, String> {
         protected String doInBackground(String... urls) {
-            String host = null;
 
             for ( String h: urls) {
                 try {
@@ -74,7 +94,7 @@ public class SCHASSettings {
         protected void onProgressUpdate(Integer... progress) {
         }
         protected void onPostExecute(String result) {
-            host = result;
+            host = (result != null) ? result: host;
         }
     }
 

@@ -13,21 +13,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="PostMan"
-        android:id="@+id/serviceButton"
-        android:layout_toEndOf="@+id/readButton"
+        android:id="@+id/homeButton"
+        android:layout_toEndOf="@+id/mapButton"
         android:gravity="center"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/readButton" />
+        android:layout_toRightOf="@+id/mapButton" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Server"
-        android:id="@+id/uploadButton"
-        android:layout_toEndOf="@+id/serviceButton"
+        android:id="@+id/graphButton"
+        android:layout_toEndOf="@+id/homeButton"
         android:gravity="center"
         android:layout_toStartOf="@+id/clearButton"
-        android:layout_toRightOf="@+id/serviceButton"
+        android:layout_toRightOf="@+id/homeButton"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/clearButton" />
 
@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Read"
-        android:id="@+id/readButton"
+        android:id="@+id/mapButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -62,7 +62,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:gravity="fill_horizontal|fill_vertical"
-        android:layout_above="@+id/readButton"
+        android:layout_above="@+id/mapButton"
         android:background="@android:color/holo_orange_light" />
     <!--android:inputType="textMultiLine"
         android:hint="Status Text will be printed Here"

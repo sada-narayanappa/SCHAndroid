@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:src="@drawable/bug"
-        android:layout_above="@+id/readButton"
+        android:layout_above="@+id/mapButton"
         android:layout_centerHorizontal="true" />
 
     <ImageView
@@ -44,7 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="  Continue  "
-        android:id="@+id/readButton"
+        android:id="@+id/mapButton"
         android:background="@android:color/holo_blue_light"
         android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/imageView"

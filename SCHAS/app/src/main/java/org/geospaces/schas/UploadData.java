@@ -7,11 +7,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.SystemClock;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +32,7 @@ import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 
 public class UploadData extends Activity {
 
@@ -37,7 +42,8 @@ public class UploadData extends Activity {
     private String PEF_Text;
     private String FEV_Text;
 
-    TextView tv;
+    TextView statusText;
+    TextView medText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +52,21 @@ public class UploadData extends Activity {
 
         setContentView(R.layout.activity_upload_data);
 
-        findViewById(R.id.serviceButton).setOnClickListener(start_service_button);
+        findViewById(R.id.homeButton).setOnClickListener(start_service_button);
         findViewById(R.id.PFMButton).setOnClickListener(pfm_button);
         findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
-        findViewById(R.id.uploadButton).setOnClickListener(uploadCB);
+        findViewById(R.id.graphButton).setOnClickListener(uploadCB);
         findViewById(R.id.resetButton).setOnClickListener(resetCB);
 
-        tv = (TextView) findViewById(R.id.statusText);
-        tv.setMovementMethod(new ScrollingMovementMethod());
+        medText    = (TextView) findViewById(R.id.medText);
+        statusText = (TextView) findViewById(R.id.statusText);
+        statusText.setMovementMethod(new ScrollingMovementMethod());
+
+        getLocationUpdates();
+        if (pi == null) {
+            startStopService();
+            upLoad();
+        }
     }
 
     protected void updateStatus() {
@@ -76,7 +89,7 @@ public class UploadData extends Activity {
         sb.append("SETTINGS:" + SCHASSettings.getSettings() + " ...\n");
         sb.append("WIFI:" + db.isWIFIOn(this.getApplicationContext()) + " ...\n");
 
-        tv.setText(sb.toString());
+        statusText.setText(sb.toString());
     }
 
     private View.OnClickListener updateStatusCB = new View.OnClickListener() {
@@ -91,66 +104,128 @@ public class UploadData extends Activity {
         public void onClick(View v) {
             SCHASSettings.host = null;
             SCHASSettings.Initialize( null);
+            SCHASSettings.saveSettings();
 
             db.delete();
         }
     };
+
+    protected void upLoad() {
+        updateStatus();
+
+        Context ctx = UploadData.this.getApplicationContext();
+        boolean d = db.rename(false);
+        boolean r = db.Post(UploadData.this, ctx, "/aura/webroot/loc.jsp");
+        if ( !d || !r) {
+            String msg = "Redo:" + SCHASSettings.host + " No file or wireless connection";
+            //Toast.makeText(UploadData.this, msg , Toast.LENGTH_SHORT).show();
+            Log.w("UploadData:", msg);
+        }
+        updateStatus();
+    }
 
     private View.OnClickListener uploadCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            updateStatus();
-
-            Context ctx = UploadData.this.getApplicationContext();
-            boolean d = db.rename(false);
-            boolean r = db.Post(UploadData.this, ctx, "/aura/webroot/loc.jsp");
-            if ( !d || !r) {
-                String msg = "Redo:" + SCHASSettings.host + " No file to upload";
-                Toast.makeText(UploadData.this, msg , Toast.LENGTH_SHORT).show();
-            }
+            upLoad();
         }
     };
 
     public void setIntent( Intent i) {
+        super.setIntent(i);
         String str = "SetResult: " + i.getStringExtra("result");
         String url = "SetResult: " + i.getStringExtra("url");
-        tv.setText(str);
+        statusText.setText(str);
         if (!str.startsWith("ERROR")) {
             db.delete();
+        }
+    }
+
+    private void startStopService() {
+        Button b = ((Button) findViewById(R.id.homeButton));
+        if (pi == null) {
+            mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+            Intent i = new Intent(UploadData.this, LocationPoller.class);
+
+            i.putExtra(LocationPoller.EXTRA_INTENT, new Intent(UploadData.this, GPSWakfulReciever.class));
+            i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
+
+            pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
+            mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime(),
+                    PERIOD,
+                    pi);
+
+            String str = "Location polling every " + PERIOD/1000/60 + " minutes begun";
+            Toast.makeText(UploadData.this, str , Toast.LENGTH_SHORT).show();
+
+            b.setText("Stop");
+            b.setBackgroundColor(0xffff0000);
+
+        } else {
+            mgr.cancel(pi);
+            pi = null;
+            b.setText("Start Service");
+            b.setBackgroundColor(0xff00ff00);
+            Toast.makeText(UploadData.this, "Location polling STOPPED", Toast.LENGTH_SHORT).show();
+        }
+    }
+    LocationManager lm = null;
+    private void getLocationUpdates() {
+        Criteria criteria = new Criteria();
+        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        criteria.setCostAllowed(false);
+        String provider = lm.getBestProvider(criteria, false);
+        MyLocationListener mylistener = new MyLocationListener();
+        lm.requestLocationUpdates(provider, 60000, 10, mylistener); // every 5 seconds or 5 meter
+    }
+
+    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+    private class MyLocationListener implements LocationListener {
+        @Override
+        public void onLocationChanged(Location loc) {
+            String lat  = ""+loc.getLatitude();
+            String lon  = ""+loc.getLongitude();
+            String time = sdf.format(loc.getTime());
+
+            lat = (lat.length() > 8) ? lat.substring(0,8) : lat;
+            lon = (lon.length() > 8) ? lon.substring(0,8) : lon;
+            Toast.makeText(UploadData.this, "Location changed!",Toast.LENGTH_SHORT).show();
+            medText.setText(time + " : " + lat + " : " + lon);
+
+            GPSWakfulReciever.storeLocation(loc);
+            upLoad();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Toast.makeText(UploadData.this, provider + "'s status changed to " + status + "!",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            medText.setText(provider + " is Enabled");
+            Toast.makeText(UploadData.this, "Provider " + provider + " enabled!",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            medText.setText(provider + " is disabled");
+            Toast.makeText(UploadData.this, "Provider " + provider + " disabled!",
+                    Toast.LENGTH_SHORT).show();
+            lm.removeUpdates(this);
+            getLocationUpdates();
         }
     }
 
     private View.OnClickListener start_service_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Button b = ((Button) findViewById(R.id.serviceButton));
-
-            if (pi == null) {
-                mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-                Intent i = new Intent(UploadData.this, LocationPoller.class);
-
-                i.putExtra(LocationPoller.EXTRA_INTENT, new Intent(UploadData.this, GPSWakfulReciever.class));
-                i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
-
-                pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-
-                mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        SystemClock.elapsedRealtime(),
-                        PERIOD,
-                        pi);
-                Toast.makeText(UploadData.this, "Location polling every 2 minutes begun", Toast.LENGTH_SHORT).show();
-
-                b.setText("Stop Service");
-                b.setBackgroundColor(0xffff0000);
-
-            } else {
-                mgr.cancel(pi);
-                pi = null;
-                b.setText("Start Service");
-                b.setBackgroundColor(0xff00ff00);
-                Toast.makeText(UploadData.this, "Location polling STOPPED", Toast.LENGTH_SHORT).show();
-            }
+            startStopService();
         }
     };
 

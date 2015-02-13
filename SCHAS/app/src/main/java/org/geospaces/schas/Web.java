@@ -5,9 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,9 +14,11 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.commonsware.cwac.locpoll.*;
+
+import org.geospaces.schas.utils.SCHASSettings;
+import org.geospaces.schas.utils.db;
 
 public class Web extends Activity {
     WebView webView = null;
@@ -50,50 +50,43 @@ public class Web extends Activity {
         webView.setScrollbarFadingEnabled(false);
 
         webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("http://www.google.com/maps");
 
-        final Button button = (Button) findViewById(R.id.readButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Log.e("Web", "calling geospaces.org");
-                webView.loadUrl("http://www.geospaces.org/");
-            }
-        });
+        String host = SCHASSettings.host;
+        host =   (host == null ) ? "http://www.google.com/maps" : "http://"+host+ "/geodata/";
+        webView.loadUrl(host);
 
-        final Button button2 = (Button) findViewById(R.id.serviceButton);
-        button2.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                //Toast.makeText(getApplicationContext(), "step 1", Toast.LENGTH_SHORT).show();
-                //AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                //manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 2000, 5000, pendingIntent);
-                //Toast.makeText(Web.this, "Alarm Set", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        final Button button3 = (Button) findViewById(R.id.uploadButton);
-        button3.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                /*AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                manager.cancel(pendingIntent);
-                Toast.makeText(Web.this, "Alarm Canceled", Toast.LENGTH_SHORT).show();*/
-                mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-                Intent i = new Intent(Web.this, LocationPoller.class);
-
-                i.putExtra(LocationPoller.EXTRA_INTENT, new Intent(Web.this, GPSWakfulReciever.class));
-                i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
-
-                pi = PendingIntent.getBroadcast(Web.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-
-                mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        SystemClock.elapsedRealtime(),
-                        PERIOD,
-                        pi);
-                Toast.makeText(Web.this, "Location polling every 2 minutes begun", Toast.LENGTH_SHORT).show();
-            }
-        });
+        findViewById(R.id.mapButton).setOnClickListener(mapButtonCB);
+        findViewById(R.id.homeButton).setOnClickListener(homeButtonCB);
+        findViewById(R.id.graphButton).setOnClickListener(graphButtonCB);
     }
-    @Override
+
+    private View.OnClickListener mapButtonCB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String host     = "http://" + SCHASSettings.host + "/SCHAS/html/maps/Openlayers3.html";
+            Log.e("Web", ""+ host);
+            webView.loadUrl(host);
+        }
+    };
+    private View.OnClickListener homeButtonCB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String host     = "http://" + SCHASSettings.host + "/geodata/";
+            Log.e("Web", ""+ host);
+            webView.loadUrl(host);
+        }
+    };
+    private View.OnClickListener graphButtonCB = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String host     = "http://" + SCHASSettings.host + "/SCHAS/html/maps/Openlayers3.html";
+            Log.e("Web", ""+ host);
+            webView.loadUrl(host);
+
+        }
+    };
+
+            @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.welcome, menu);

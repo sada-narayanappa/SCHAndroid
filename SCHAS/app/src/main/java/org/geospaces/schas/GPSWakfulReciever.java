@@ -23,44 +23,49 @@ import org.geospaces.schas.utils.*;
 
 public class GPSWakfulReciever extends BroadcastReceiver {
 
-    public static Activity  act = null;
+    public static Activity  act          = null;
+    public static Location  lastLocation = null;
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
+
+    public static void storeLocation(Location loc) {
         File file = db.getFile(db.FILE_NAME);
+
+        lastLocation = loc;
+        float dist = Spatial.calculateDistance(  loc, lastLocation );
 
         if (file.length() > db.FILE_SIZE) {
             if (!db.rename(false)) {
                 return;                 // File is full and we can't do much now
             }
         }
+        String msg = db.getLocation(loc);
+        String wmsg = msg + "\n";
         try {
-            Bundle b = intent.getExtras();
-            Location loc = (Location) b.get(LocationPoller.EXTRA_LOCATION);
-            String msg;
-
-            if (loc == null) {
-                loc = (Location) b.get(LocationPoller.EXTRA_LASTKNOWN);
-                if (loc == null) {
-                    msg = intent.getStringExtra(LocationPoller.EXTRA_ERROR);
-                } else {
-                    msg = null; // "TIMEOUT, lastKnown=" + loc.toString();
-                }
-            } else {
-                //msg = loc.toString();
-                msg = db.getLocation(loc);
-            }
-            if (msg != null) {
-                return;
-            }
-            String wmsg = msg + "\n";
             BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
             out.write(wmsg);
             out.close();
-            //Toast.makeText(context, "GPSWakfulReceiveer:" + wmsg, Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            Log.e(getClass().getName(), "Exception appending to log file", e);
+            Log.e("ERR", "Exception appending to log file", e);
         }
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Bundle b = intent.getExtras();
+        Location loc = (Location) b.get(LocationPoller.EXTRA_LOCATION);
+        String msg;
+
+        if (loc == null) {
+            loc = (Location) b.get(LocationPoller.EXTRA_LASTKNOWN);
+            if (loc == null) {
+                msg = intent.getStringExtra(LocationPoller.EXTRA_ERROR);
+                Log.e("GPS", msg);
+            } else {
+                msg = null; // "TIMEOUT, lastKnown=" + loc.toString();
+            }
+            return;
+        }
+        storeLocation(loc);
     }
 
     public void UploadDataMessage(Context context) {

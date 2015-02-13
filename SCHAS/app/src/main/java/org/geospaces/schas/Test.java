@@ -67,9 +67,9 @@ public class Test extends Activity implements SensorEventListener {
         mSensorManager4 = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mTemp = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 
-        findViewById(R.id.readButton).setOnClickListener(button1CB);
-        findViewById(R.id.serviceButton).setOnClickListener(button2CB);
-        findViewById(R.id.uploadButton).setOnClickListener(webServiceCB);
+        findViewById(R.id.mapButton).setOnClickListener(button1CB);
+        findViewById(R.id.homeButton).setOnClickListener(button2CB);
+        findViewById(R.id.graphButton).setOnClickListener(webServiceCB);
         findViewById(R.id.clearButton).setOnClickListener(clearCB);
     }
 
