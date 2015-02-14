@@ -27,26 +27,34 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public static Location  lastLocation = null;
 
 
-    public static void storeLocation(Location loc) {
+    public static String storeLocation(Location loc) {
         File file = db.getFile(db.FILE_NAME);
 
+        String msg = db.getLocation(loc);
+        if ( lastLocation != null ) {
+            float dist = Spatial.calculateDistance(  loc, lastLocation );
+            Log.w("DIST", "****** "+ dist);
+            if (dist < .05) {
+                return "WARN: IGNORE: " + msg;
+            }
+        }
         lastLocation = loc;
-        float dist = Spatial.calculateDistance(  loc, lastLocation );
 
         if (file.length() > db.FILE_SIZE) {
             if (!db.rename(false)) {
-                return;                 // File is full and we can't do much now
+                return "ERROR: IGNORE: File Full: " + msg;   // File is full and we can't do much now
             }
         }
-        String msg = db.getLocation(loc);
         String wmsg = msg + "\n";
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
             out.write(wmsg);
             out.close();
         } catch (IOException e) {
-            Log.e("ERR", "Exception appending to log file", e);
+            Log.e("ERROR", "Exception appending to log file", e);
+            msg = "ERROR: Exception appending to log file: " + e;
         }
+        return "SUCCESS: " + msg;
     }
 
     @Override

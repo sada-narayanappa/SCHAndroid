@@ -1,6 +1,8 @@
 package org.geospaces.schas.utils;
 
 import android.app.Application;
+import android.content.Context;
+import android.provider.Settings;
 import android.util.Log;
 
 public class SCHASApplication extends Application {
@@ -22,5 +24,8 @@ public class SCHASApplication extends Application {
     protected void initializeInstance() {
         SCHASSettings.readSettings();
         Log.i("","Application object initialized!!!!");
+        Context context = getApplicationContext();
+        String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        SCHASSettings.deviceID = ID;
     }
 }

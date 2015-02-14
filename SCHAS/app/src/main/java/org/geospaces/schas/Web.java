@@ -29,6 +29,7 @@ public class Web extends Activity {
     private static final int PERIOD = 2 * 1000 * 60;  // 2 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
+    public String mapurl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +53,12 @@ public class Web extends Activity {
         webView.setWebViewClient(new WebViewClient());
 
         String host = SCHASSettings.host;
-        host =   (host == null ) ? "http://www.google.com/maps" : "http://"+host+ "/geodata/";
+        mapurl = "http://"+host+ "/SCHAS/html/maps/Openlayers3.html?mobile_id=" + SCHASSettings.deviceID;
+        host =   (host == null ) ? "http://www.google.com/maps" : mapurl;
+
+        Log.w("****", host);
         webView.loadUrl(host);
+        webView.getSettings().setJavaScriptEnabled(true);
 
         findViewById(R.id.mapButton).setOnClickListener(mapButtonCB);
         findViewById(R.id.homeButton).setOnClickListener(homeButtonCB);
@@ -63,9 +68,10 @@ public class Web extends Activity {
     private View.OnClickListener mapButtonCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String host     = "http://" + SCHASSettings.host + "/SCHAS/html/maps/Openlayers3.html";
+            String host     = mapurl;
             Log.e("Web", ""+ host);
             webView.loadUrl(host);
+            webView.getSettings().setJavaScriptEnabled(true);
         }
     };
     private View.OnClickListener homeButtonCB = new View.OnClickListener() {
@@ -74,14 +80,16 @@ public class Web extends Activity {
             String host     = "http://" + SCHASSettings.host + "/geodata/";
             Log.e("Web", ""+ host);
             webView.loadUrl(host);
+            webView.getSettings().setJavaScriptEnabled(true);
         }
     };
     private View.OnClickListener graphButtonCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String host     = "http://" + SCHASSettings.host + "/SCHAS/html/maps/Openlayers3.html";
+            String host     = mapurl;
             Log.e("Web", ""+ host);
             webView.loadUrl(host);
+            webView.getSettings().setJavaScriptEnabled(true);
 
         }
     };

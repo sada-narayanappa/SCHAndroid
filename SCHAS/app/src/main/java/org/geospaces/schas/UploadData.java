@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.commonsware.cwac.locpoll.LocationPoller;
 
 import org.geospaces.schas.utils.SCHASSettings;
+import org.geospaces.schas.utils.Spatial;
 import org.geospaces.schas.utils.db;
 
 import java.io.File;
@@ -114,12 +115,18 @@ public class UploadData extends Activity {
         updateStatus();
 
         Context ctx = UploadData.this.getApplicationContext();
-        boolean d = db.rename(false);
-        boolean r = db.Post(UploadData.this, ctx, "/aura/webroot/loc.jsp");
-        if ( !d || !r) {
+        if ( !db.fileReady() && ! db.rename(false) ) {
             String msg = "Redo:" + SCHASSettings.host + " No file or wireless connection";
             //Toast.makeText(UploadData.this, msg , Toast.LENGTH_SHORT).show();
             Log.w("UploadData:", msg);
+            return;
+        }
+        boolean r = db.Post(UploadData.this, ctx, "/aura/webroot/loc.jsp");
+        if ( !r ) {
+            String msg = "Redo:" + SCHASSettings.host + " No file or wireless connection";
+            //Toast.makeText(UploadData.this, msg , Toast.LENGTH_SHORT).show();
+            Log.w("UploadData:", msg);
+            return;
         }
         updateStatus();
     }
@@ -179,23 +186,25 @@ public class UploadData extends Activity {
         criteria.setCostAllowed(false);
         String provider = lm.getBestProvider(criteria, false);
         MyLocationListener mylistener = new MyLocationListener();
-        lm.requestLocationUpdates(provider, 60000, 10, mylistener); // every 5 seconds or 5 meter
+        lm.requestLocationUpdates(provider, 30000, 10, mylistener); // every 60 seconds or 10 meter
+
+        //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000, 0, mylistener);
+        if ( !provider.equals(LocationManager.GPS_PROVIDER)) {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 10, mylistener);
+        }
+
+        Log.w("", "******** PROVIDER ***** " + provider);
+
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
     private class MyLocationListener implements LocationListener {
         @Override
         public void onLocationChanged(Location loc) {
-            String lat  = ""+loc.getLatitude();
-            String lon  = ""+loc.getLongitude();
-            String time = sdf.format(loc.getTime());
+            String ret = GPSWakfulReciever.storeLocation(loc);
+            Toast.makeText(UploadData.this, "Location: " + ret,Toast.LENGTH_SHORT).show();
+            medText.setText(ret);
 
-            lat = (lat.length() > 8) ? lat.substring(0,8) : lat;
-            lon = (lon.length() > 8) ? lon.substring(0,8) : lon;
-            Toast.makeText(UploadData.this, "Location changed!",Toast.LENGTH_SHORT).show();
-            medText.setText(time + " : " + lat + " : " + lon);
-
-            GPSWakfulReciever.storeLocation(loc);
             upLoad();
         }
 

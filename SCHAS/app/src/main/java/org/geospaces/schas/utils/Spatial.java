@@ -5,8 +5,8 @@ import android.location.Location;
 public class Spatial {
     private static final int earthRadius = 6371;
 
-    public static float calculateDistance(double lat1, double lon1, double lat2, double lon2)
-    {
+    public static float calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+
         float dLat = (float) Math.toRadians(lat2 - lat1);
         float dLon = (float) Math.toRadians(lon2 - lon1);
         float a =
@@ -17,8 +17,10 @@ public class Spatial {
         return d;
     }
 
-    public static float calculateDistance(Location l1, Location l2)
-    {
+    public static float calculateDistance(Location l1, Location l2) {
+        if ( l1 == null || l2 == null ) {
+            return 0;
+        }
         float dist = Spatial.calculateDistance(l1.getLatitude(), l1.getLongitude(),
                 l2.getLatitude(), l2.getLongitude());
         return dist;

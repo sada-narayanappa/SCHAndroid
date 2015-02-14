@@ -20,7 +20,7 @@
             android:ems="10"
             android:id="@+id/statusText"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="0.73"
+            android:layout_weight="0.5"
             android:background="@android:color/holo_orange_dark"
             android:maxLines="1000"
             android:editable="false"

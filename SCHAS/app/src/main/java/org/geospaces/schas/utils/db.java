@@ -105,12 +105,13 @@ public class db {
         return sb.toString();
     }
 
+    public static boolean fileReady() {
+        File to     = getFile(FILE_READY);
+        return to.exists();
+    }
     public static boolean rename(boolean force) {
-        File externalMem2 = Environment.getExternalStorageDirectory();
-        File directory2 = new File(externalMem2.getAbsolutePath() + DIRECTORY);
-        directory2.mkdirs();
-        File from = new File(directory2, FILE_NAME);
-        File to = new File(directory2, FILE_READY);
+        File from   = getFile(FILE_NAME);
+        File to     = getFile(FILE_READY);
 
         if ( !from.exists() ) {
             return false;
@@ -152,7 +153,7 @@ public class db {
     public static boolean Post(Activity act, Context context, String service) {
         String host     = SCHASSettings.host;
 
-        if ( host == null || ! isWIFIOn(context) ) {
+        if ( host == null || ! isWIFIOn(context) || host.equals("null") ) {
             SCHASSettings.Initialize(null);
             return false;
         }
