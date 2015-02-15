@@ -27,14 +27,17 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public static Location  lastLocation = null;
 
 
-    public static String storeLocation(Location loc) {
+    public static String storeLocation(Location loc, String...args) {
         File file = db.getFile(db.FILE_NAME);
 
         String msg = db.getLocation(loc);
+        String dbg = (args.length > 0) ? args[0]: "";
+        Log.w ("GPSWakful", "+" + dbg + "=>" + lastLocation + " " + loc);
+
         if ( lastLocation != null ) {
             float dist = Spatial.calculateDistance(  loc, lastLocation );
             Log.w("DIST", "****** "+ dist);
-            if (dist < .05) {
+            if (dist < .1) {
                 return "WARN: IGNORE: " + msg;
             }
         }
@@ -73,7 +76,7 @@ public class GPSWakfulReciever extends BroadcastReceiver {
             }
             return;
         }
-        storeLocation(loc);
+        storeLocation(loc, "GPSWakeful:");
     }
 
     public void UploadDataMessage(Context context) {

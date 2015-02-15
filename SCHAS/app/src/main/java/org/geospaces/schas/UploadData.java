@@ -112,10 +112,10 @@ public class UploadData extends Activity {
     };
 
     protected void upLoad() {
-        updateStatus();
 
+        updateStatus();
         Context ctx = UploadData.this.getApplicationContext();
-        if ( !db.fileReady() && ! db.rename(false) ) {
+        if ( !db.isWIFIOn(this.getApplicationContext()) && !db.fileReady() && ! db.rename(false) ) {
             String msg = "Redo:" + SCHASSettings.host + " No file or wireless connection";
             //Toast.makeText(UploadData.this, msg , Toast.LENGTH_SHORT).show();
             Log.w("UploadData:", msg);
@@ -143,7 +143,7 @@ public class UploadData extends Activity {
         String str = "SetResult: " + i.getStringExtra("result");
         String url = "SetResult: " + i.getStringExtra("url");
         statusText.setText(str);
-        if (!str.startsWith("ERROR")) {
+        if (!str.contains("ERROR")) {
             db.delete();
         }
     }
@@ -185,12 +185,13 @@ public class UploadData extends Activity {
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         criteria.setCostAllowed(false);
         String provider = lm.getBestProvider(criteria, false);
-        MyLocationListener mylistener = new MyLocationListener();
+        MyLocationListener mylistener = new MyLocationListener(provider);
         lm.requestLocationUpdates(provider, 30000, 10, mylistener); // every 60 seconds or 10 meter
 
         //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000, 0, mylistener);
         if ( !provider.equals(LocationManager.GPS_PROVIDER)) {
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 10, mylistener);
+            MyLocationListener myl1 = new MyLocationListener(LocationManager.GPS_PROVIDER);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 10, myl1);
         }
 
         Log.w("", "******** PROVIDER ***** " + provider);
@@ -199,33 +200,34 @@ public class UploadData extends Activity {
 
     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
     private class MyLocationListener implements LocationListener {
+        String myProvider;
+
+        public MyLocationListener(String p) {
+            myProvider = p;
+        }
         @Override
         public void onLocationChanged(Location loc) {
-            String ret = GPSWakfulReciever.storeLocation(loc);
+            String ret = GPSWakfulReciever.storeLocation(loc, myProvider);
             Toast.makeText(UploadData.this, "Location: " + ret,Toast.LENGTH_SHORT).show();
             medText.setText(ret);
-
             upLoad();
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            Toast.makeText(UploadData.this, provider + "'s status changed to " + status + "!",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(UploadData.this, provider + "'s status changed to " + status + "!", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onProviderEnabled(String provider) {
             medText.setText(provider + " is Enabled");
-            Toast.makeText(UploadData.this, "Provider " + provider + " enabled!",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(UploadData.this, "Provider " + provider + " enabled!",Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             medText.setText(provider + " is disabled");
-            Toast.makeText(UploadData.this, "Provider " + provider + " disabled!",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(UploadData.this, "Provider " + provider + " disabled!", Toast.LENGTH_SHORT).show();
             lm.removeUpdates(this);
             getLocationUpdates();
         }
@@ -286,6 +288,23 @@ public class UploadData extends Activity {
         builder.show();
     }
 
+    /**
+     * Michael:
+     * Write to the same file as String ret = GPSWakfulReciever.storeLocation(loc);
+     * Get the location information and set
+     *  record_type = "PFM_USE"
+     *  Get the lat= and lon= and
+     *  Store the values in notes=
+     *  So your record would look like:
+     *  measured_at="time", record_type="PFM_USE",lat="letitude -lookup", lon="lon",notes"your values"
+     *  That is all you need to do - the file will be uploaded whenever it gets uploaded
+     *
+     *  Same thing fot Inhaler USE lets use record_type="INHALER"
+     *  ATTACK - record_type="ATTACK_MILD" , "ATTACK_MEDIUM" ATTACK_SEVERE"
+     *
+     * @param s1
+     * @param s2
+     */
     public void writeFile(String s1, String s2) {
         PEF_Text = "";
         FEV_Text = "";

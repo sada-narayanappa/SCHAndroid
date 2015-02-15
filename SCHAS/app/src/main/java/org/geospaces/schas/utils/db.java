@@ -61,21 +61,6 @@ public class db {
         }
         String str = db.read(FILE_READY);
         return str;
-
-//        file = getFile(FILE_READY);
-//        String str = null;
-//        char[] bytes = new char[ (int) file.length() ];
-//        StringBuilder sb = new StringBuilder();
-//
-//        BufferedReader in = new BufferedReader(new FileReader(file.getAbsolutePath()));
-//        String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-//        String line;
-//        while ( null != (line = in.readLine()) ) {
-//            String nl = "mobile_id=" + ID + ", api_key=" + ID + "," + line +"\n";
-//            sb.append(nl);
-//        }
-//
-//        return sb.toString();
     }
 
 
@@ -150,6 +135,7 @@ public class db {
         return false;
     }
 
+    public static boolean uploadStarted = false;
     public static boolean Post(Activity act, Context context, String service) {
         String host     = SCHASSettings.host;
 
@@ -166,6 +152,11 @@ public class db {
         } catch (Exception e) {
             return false;
         }
+        if ( uploadStarted ) {
+            Log.w("DB", "Only one upload at a time...");
+            return false;
+        }
+        uploadStarted = true;
         String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
         nv.add(new BasicNameValuePair("api_key", ID));
@@ -177,6 +168,8 @@ public class db {
 
         PostToServer ps = new PostToServer(nv, act);
         ps.execute(url);
+
+        uploadStarted = false;
 
         return true;
     }

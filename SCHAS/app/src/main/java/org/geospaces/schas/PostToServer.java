@@ -76,7 +76,7 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
         if (act !=null) {
             Intent i = act.getIntent();
             ret = ret.replaceAll("(?m)^[ \t]*\r?\n", "");
-            i.putExtra("result", ret + "\n" + url);
+            i.putExtra("result", ret );
             i.putExtra("url", url);
             act.setIntent(i);
         }
