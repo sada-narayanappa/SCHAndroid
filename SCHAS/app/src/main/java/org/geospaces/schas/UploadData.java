@@ -37,7 +37,7 @@ import java.text.SimpleDateFormat;
 
 public class UploadData extends Activity {
 
-    private static final int PERIOD = 6 * 1000 * 60;  // 2 min
+    private static final int PERIOD = 2 * 1000 * 60;  // 2 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
     private String PEF_Text;
@@ -63,7 +63,6 @@ public class UploadData extends Activity {
         statusText = (TextView) findViewById(R.id.statusText);
         statusText.setMovementMethod(new ScrollingMovementMethod());
 
-        getLocationUpdates();
         if (pi == null) {
             startStopService();
             upLoad();
@@ -115,10 +114,17 @@ public class UploadData extends Activity {
 
         updateStatus();
         Context ctx = UploadData.this.getApplicationContext();
-        if ( !db.isWIFIOn(this.getApplicationContext()) && !db.fileReady() && ! db.rename(false) ) {
-            String msg = "Redo:" + SCHASSettings.host + " No file or wireless connection";
-            //Toast.makeText(UploadData.this, msg , Toast.LENGTH_SHORT).show();
+        if ( !db.isWIFIOn(this.getApplicationContext()) ) {
+            Log.w("UploadData:", "WIFI is not ready!!!");
+        }
+        if ( !db.fileReady() && !db.rename(false) ) {
+            String msg = "Redo:" + SCHASSettings.host +
+                    "file Ready: " + db.fileReady() +
+                    " Rename: "     + db.rename(false)
+                    ;
             Log.w("UploadData:", msg);
+
+
             return;
         }
         boolean r = db.Post(UploadData.this, ctx, "/aura/webroot/loc.jsp");
@@ -151,6 +157,9 @@ public class UploadData extends Activity {
     private void startStopService() {
         Button b = ((Button) findViewById(R.id.homeButton));
         if (pi == null) {
+            STOP_LOCATION_UPDATES = false;
+            getLocationUpdates();
+
             mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
 
             Intent i = new Intent(UploadData.this, LocationPoller.class);
@@ -172,6 +181,7 @@ public class UploadData extends Activity {
             b.setBackgroundColor(0xffff0000);
 
         } else {
+            STOP_LOCATION_UPDATES = true;
             mgr.cancel(pi);
             pi = null;
             b.setText("Start Service");
@@ -198,6 +208,7 @@ public class UploadData extends Activity {
 
     }
 
+    private boolean STOP_LOCATION_UPDATES = false;
     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
     private class MyLocationListener implements LocationListener {
         String myProvider;
@@ -208,28 +219,32 @@ public class UploadData extends Activity {
         @Override
         public void onLocationChanged(Location loc) {
             String ret = GPSWakfulReciever.storeLocation(loc, myProvider);
-            Toast.makeText(UploadData.this, "Location: " + ret,Toast.LENGTH_SHORT).show();
+            //Toast.makeText(UploadData.this, "Location: " + ret,Toast.LENGTH_SHORT).show();
+            Log.w("onLocationChanged", ret);
             medText.setText(ret);
             upLoad();
+            if ( STOP_LOCATION_UPDATES ) {
+                lm.removeUpdates(this);
+            }
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            Toast.makeText(UploadData.this, provider + "'s status changed to " + status + "!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(UploadData.this, provider + "'s status changed to " + status + "!", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onProviderEnabled(String provider) {
             medText.setText(provider + " is Enabled");
-            Toast.makeText(UploadData.this, "Provider " + provider + " enabled!",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(UploadData.this, "Provider " + provider + " enabled!",Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             medText.setText(provider + " is disabled");
-            Toast.makeText(UploadData.this, "Provider " + provider + " disabled!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(UploadData.this, "Provider " + provider + " disabled!", Toast.LENGTH_SHORT).show();
             lm.removeUpdates(this);
-            getLocationUpdates();
+            //getLocationUpdates();
         }
     }
 

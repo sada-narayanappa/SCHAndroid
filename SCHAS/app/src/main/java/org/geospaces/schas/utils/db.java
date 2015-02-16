@@ -63,7 +63,6 @@ public class db {
         return str;
     }
 
-
     public static File getFile(String fileName) {
         File externalMem2 = Environment.getExternalStorageDirectory();
         File directory2 = new File(externalMem2.getAbsolutePath() + DIRECTORY);
@@ -74,8 +73,11 @@ public class db {
         return file;
     }
 
-    public static String getLocation(Location loc) {
+    public static String getLocation(Location loc, String sessionNum, String...args) {
         StringBuffer sb = new StringBuffer(512);
+        String source = (args.length > 0 ) ? args[0] : "";
+        source = source.substring(0, Math.min(4, source.length()));
+
         StringBuffer append = sb.append(
                 "measured_at="  + (loc.getTime()/1000)  + "," +
                 "lat="          + loc.getLatitude()     + "," +
@@ -83,7 +85,9 @@ public class db {
                 "alt="          + loc.getAltitude()     + "," +
                 "speed="        + loc.getSpeed()        + "," +
                 "bearing="      + loc.getBearing()      + "," +
-                "accuracy="     + loc.getAccuracy()     + ""  +
+                "accuracy="     + loc.getAccuracy()     + "," +
+                "record_type="  + "GPS_"+source         + "," +
+                "session_num="  + sessionNum            + ""  +
                 ""
         );
 
@@ -94,7 +98,7 @@ public class db {
         File to     = getFile(FILE_READY);
         return to.exists();
     }
-    public static boolean rename(boolean force) {
+    public synchronized static boolean rename(boolean force) {
         File from   = getFile(FILE_NAME);
         File to     = getFile(FILE_READY);
 

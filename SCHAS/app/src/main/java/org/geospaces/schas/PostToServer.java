@@ -55,6 +55,7 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
         } catch (Exception e) {
            ret = "ERROR: Transmission Failed " + e;
         }
+        ret = ret.replaceAll("(?m)^[ \t]*\r?\n", "");
         return ret;
     }
 

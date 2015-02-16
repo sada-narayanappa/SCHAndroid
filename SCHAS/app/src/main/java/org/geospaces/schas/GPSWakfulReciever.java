@@ -25,12 +25,12 @@ public class GPSWakfulReciever extends BroadcastReceiver {
 
     public static Activity  act          = null;
     public static Location  lastLocation = null;
+    public static long      lastRecorded = -1;
+    public static long      sessionNum    = 0;
 
-
-    public static String storeLocation(Location loc, String...args) {
+    public static synchronized String storeLocation(Location loc, String... args) {
         File file = db.getFile(db.FILE_NAME);
 
-        String msg = db.getLocation(loc);
         String dbg = (args.length > 0) ? args[0]: "";
         Log.w ("GPSWakful", "+" + dbg + "=>" + lastLocation + " " + loc);
 
@@ -38,20 +38,29 @@ public class GPSWakfulReciever extends BroadcastReceiver {
             float dist = Spatial.calculateDistance(  loc, lastLocation );
             Log.w("DIST", "****** "+ dist);
             if (dist < .1) {
-                return "WARN: IGNORE: " + msg;
+                return "WARN: IGNORE: " + dist + " distance too short!";
             }
         }
-        lastLocation = loc;
-
         if (file.length() > db.FILE_SIZE) {
             if (!db.rename(false)) {
-                return "ERROR: IGNORE: File Full: " + msg;   // File is full and we can't do much now
+                return "ERROR: IGNORE: File Full: ";   // File is full and we can't do much now
             }
         }
-        String wmsg = msg + "\n";
+
+        long curMinutes = loc.getTime()/1000000 * 60;
+
+        if (lastLocation == null || (lastRecorded - curMinutes) > 10) {
+            sessionNum = curMinutes;
+        }
+        lastLocation = loc;
+        lastRecorded = loc.getTime()/1000000 * 60;
+        Log.w("STORING:", " ===> "+ loc.getLatitude() + ":" + loc.getLongitude());
+
+        String msg = db.getLocation(loc, ""+sessionNum,  args);
+
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
-            out.write(wmsg);
+            out.write(msg + "\n");
             out.close();
         } catch (IOException e) {
             Log.e("ERROR", "Exception appending to log file", e);
