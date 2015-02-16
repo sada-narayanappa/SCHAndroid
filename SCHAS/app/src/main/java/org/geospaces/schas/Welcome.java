@@ -2,6 +2,7 @@ package org.geospaces.schas;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -9,11 +10,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.geospaces.schas.utils.SCHASApplication;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -61,6 +64,16 @@ public class Welcome extends Activity {
                                  }, 5000
             );
             firstTime = false;
+        }
+        try {
+            PackageInfo pInfo = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0);
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+
+            String version = pInfo.versionName + " Code:" + pInfo.versionCode + "\n"+
+                    sdf.format( pInfo.lastUpdateTime);
+            ((TextView)findViewById(R.id.version)).setText(version);
+        } catch(Exception e){
+            Log.e("Welcome", e.toString());
         }
     }
 

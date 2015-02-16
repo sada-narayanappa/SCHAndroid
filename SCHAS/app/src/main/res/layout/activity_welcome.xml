@@ -52,4 +52,14 @@
         android:layout_alignRight="@+id/imageView"
         android:layout_alignEnd="@+id/imageView" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Version\nLast Updated"
+        android:id="@+id/version"
+        android:layout_below="@+id/imageView2"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal" />
+
 </RelativeLayout>
