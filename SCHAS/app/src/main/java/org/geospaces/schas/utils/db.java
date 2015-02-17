@@ -139,8 +139,34 @@ public class db {
         return false;
     }
 
-    public static boolean uploadStarted = false;
-    public static boolean Post(Activity act, Context context, String service) {
+    public static synchronized boolean Upload(Context ctx, Activity act) {
+        if ( !db.isWIFIOn(ctx) ) {
+            Log.w("DB:Upload", "WIFI is not ready!!!");
+            return false;
+        }
+        db.rename(false);
+        if ( !db.fileReady() ) {
+            String msg = "Redo:" + SCHASSettings.host + " File not ready";
+            Log.w("DB:Upload:", msg);
+            return false;
+        }
+        boolean r = db.Post( act, ctx, "/aura/webroot/loc.jsp");
+        if ( !r ) {
+            String msg = "Redo:" + SCHASSettings.host + " Post failed";
+            Log.w("DB:post:", msg);
+            return false;
+        }
+        Log.w("DB:post:", " Post succeeded");
+        return true;
+    }
+
+    private static PostToServer POST_TO_SERVER = null;
+    private static synchronized boolean Post(Activity act, Context context, String service) {
+
+        if ( POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {
+            Log.e("DB", "One posting going on, please retry ....");
+        }
+
         String host     = SCHASSettings.host;
 
         if ( host == null || ! isWIFIOn(context) || host.equals("null") ) {
@@ -156,11 +182,6 @@ public class db {
         } catch (Exception e) {
             return false;
         }
-        if ( uploadStarted ) {
-            Log.w("DB", "Only one upload at a time...");
-            return false;
-        }
-        uploadStarted = true;
         String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
         nv.add(new BasicNameValuePair("api_key", ID));
@@ -170,10 +191,8 @@ public class db {
         String ns = "Sending: " + url + "\n" + msg.substring(0, Math.min(msg.length() - 1, 256) );
         Log.i("",ns);
 
-        PostToServer ps = new PostToServer(nv, act);
-        ps.execute(url);
-
-        uploadStarted = false;
+        POST_TO_SERVER = new PostToServer(nv, act, true);
+        POST_TO_SERVER.execute(url);
 
         return true;
     }

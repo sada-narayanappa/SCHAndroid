@@ -12,8 +12,10 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.geospaces.schas.utils.db;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -25,12 +27,16 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
     String              result = "";
     Activity            act;
     String              url;
+    boolean             callDBDelete = false;
+
+    public boolean      COMPLETED = false;
 
     public PostToServer() {
     }
-    public PostToServer(List<NameValuePair> nv, Activity a) {
+    public PostToServer(List<NameValuePair> nv, Activity a, boolean dbDelete) {
         act = a;
         nameValuePairs =nv;
+        callDBDelete = dbDelete;
     }
     public String postResults(List<NameValuePair> nameValuePairs, String postUrl) {
         HttpClient  httpclient = new DefaultHttpClient();
@@ -51,6 +57,9 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
             }
             in.close();
             ret = str.toString();
+            if ( callDBDelete  ) {
+                db.delete();
+            }
 
         } catch (Exception e) {
            ret = "ERROR: Transmission Failed " + e;
@@ -81,6 +90,7 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
             i.putExtra("url", url);
             act.setIntent(i);
         }
+        COMPLETED = true;
     }
     /**
      * Sample Usage of the API
@@ -91,7 +101,7 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
         List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
         nv.add(new BasicNameValuePair("test1", "A"));
 
-        PostToServer ps = new PostToServer(nv, null);
+        PostToServer ps = new PostToServer(nv, null, false);
         ps.execute(url);
     }
 }

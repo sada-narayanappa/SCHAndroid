@@ -76,18 +76,6 @@ public class Test extends Activity implements SensorEventListener {
     private View.OnClickListener clearCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String url = "http://10.0.0.223:8080/aura/webroot/loc.jsp";
-
-            List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
-            String msg = db.read(db.FILE_NAME);
-
-            nv.add(new BasicNameValuePair("api_key", "123"));
-            nv.add(new BasicNameValuePair("text", msg));
-
-            tv1.setText("Sending: " + url + "\n" + msg.substring(0, 256));
-
-            PostToServer ps = new PostToServer(nv, Test.this);
-            ps.execute(url);
         }
     };
 

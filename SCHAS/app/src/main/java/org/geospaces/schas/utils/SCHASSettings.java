@@ -1,5 +1,6 @@
 package org.geospaces.schas.utils;
 
+import android.location.Location;
 import android.os.AsyncTask;
 import android.provider.Settings;
 
@@ -12,10 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SCHASSettings {
-    public static String host       = "www.geosspaces.org";
-    public static String username   = "None";
-    public static String deviceID   = "ID";
-    public static String urls       = "www.geosspaces.org;10.0.0.3";
+    public static String    host            = "www.geosspaces.org";
+    public static String    username        = "None";
+    public static String    deviceID        = "ID";
+    public static String    urls            = "www.geosspaces.org;10.0.0.3";
+    public static String    lastLoc         = "";
+    public static Location  location        = new Location("LAST");
 
     public static void Initialize(String ...args) {
         if ( args == null ) {
@@ -28,10 +31,12 @@ public class SCHASSettings {
     public static String getSettings() {
         StringBuilder sb = new StringBuilder(512);
 
+        lastLoc = location.getLongitude() + ", "  + location.getLatitude();
         sb.append(  "host="     +   host        + "\n"  +
                     "username=" +   username    + "\n"  +
                     "deviceID=" +   deviceID    + "\n"  +
                     "urls="     +   urls        + "\n"  +
+                    "lastLoc="  +   lastLoc     + "\n"  +
                      ""
         );
         return sb.toString();
@@ -51,6 +56,7 @@ public class SCHASSettings {
     public static String readSettings() {
         String s = db.read(db.FILE_SETTINGS);
         if (s.length() <=1 ) {
+            s = saveSettings();
             return s;
         }
         String [] lines = s.split("\n");
@@ -67,7 +73,17 @@ public class SCHASSettings {
         username    = m.get("username");
         deviceID    = m.get("deviceID");
         urls        = m.get("urls");
+        lastLoc     = m.get("lastLoc");
 
+        if ( lastLoc != null ) {
+            String[] ll = lastLoc.split(",");
+            if ( ll.length == 2) {
+                Float lon = Float.parseFloat(ll[0]);
+                Float lat = Float.parseFloat(ll[1]);
+                location.setLatitude (lat);
+                location.setLongitude(lon);
+            }
+        }
         Initialize(null);
         return s;
     }

@@ -17,6 +17,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.geospaces.schas.utils.*;
@@ -28,35 +29,49 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public static long      lastRecorded = -1;
     public static long      sessionNum    = 0;
 
+    static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+
     public static synchronized String storeLocation(Location loc, String... args) {
+        if ( lastLocation == null && SCHASSettings.location.getLatitude() != 0) {
+            lastLocation = loc;
+            sessionNum  = loc.getTime();
+            return "GOT FIRST LOCATION";
+        }
         File file = db.getFile(db.FILE_NAME);
-
         String dbg = (args.length > 0) ? args[0]: "";
-        Log.w ("GPSWakful", "+" + dbg + "=>" + lastLocation + " " + loc);
 
+        float dist = Spatial.calculateDistance(  loc, lastLocation );
         if ( lastLocation != null ) {
-            float dist = Spatial.calculateDistance(  loc, lastLocation );
-            Log.w("DIST", "****** "+ dist);
-            if (dist < .1) {
-                return "WARN: IGNORE: " + dist + " distance too short!";
+            if (dist < .1 ) {
+                String msg = "WARN: " + dist + " !" + sdf.format(loc.getTime()) + ": ACC:" + loc.getAccuracy();
+                Log.w("IGNORING:", "**** "+ msg + " Dist:" +dist + " ACC:" + loc.getAccuracy());
+                return msg;
             }
         }
         if (file.length() > db.FILE_SIZE) {
             if (!db.rename(false)) {
                 return "ERROR: IGNORE: File Full: ";   // File is full and we can't do much now
+                // Actually we can append FILE to FILE_READY if FILE_READY size is small
+                // Also - since we are interested in most recent data - we could remove old file
             }
         }
+        long curTime = loc.getTime();
 
-        long curMinutes = loc.getTime()/1000000 * 60;
-
-        if (lastLocation == null || (lastRecorded - curMinutes) > 10) {
-            sessionNum = curMinutes;
+        if (lastLocation == null || (lastRecorded - curTime) > (10 * 60 * 60 * 1000)) {
+            sessionNum = curTime;
         }
+        if ( SCHASSettings.location.getLatitude() == 0) {
+            SCHASSettings.location = loc;
+            SCHASSettings.saveSettings();
+        }
+        Location l = (lastLocation == null) ? loc:lastLocation;
+        String msg = loc.getLatitude() + "," + loc.getLongitude() + "-" +l.getLatitude() +
+                "," + l.getLongitude();
+        Log.w("STORING:", " ===> "+ msg + " Dist:" +dist);
         lastLocation = loc;
-        lastRecorded = loc.getTime()/1000000 * 60;
-        Log.w("STORING:", " ===> "+ loc.getLatitude() + ":" + loc.getLongitude());
+        lastRecorded = loc.getTime();
 
-        String msg = db.getLocation(loc, ""+sessionNum,  args);
+        msg = db.getLocation(loc, ""+ (sessionNum/1000),  args);
 
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
@@ -75,8 +90,9 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         Location loc = (Location) b.get(LocationPoller.EXTRA_LOCATION);
         String msg;
 
+        db.Upload(context, null);
         if (loc == null) {
-            loc = (Location) b.get(LocationPoller.EXTRA_LASTKNOWN);
+            //loc = (Location) b.get(LocationPoller.EXTRA_LASTKNOWN);
             if (loc == null) {
                 msg = intent.getStringExtra(LocationPoller.EXTRA_ERROR);
                 Log.e("GPS", msg);
@@ -87,16 +103,5 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         }
         storeLocation(loc, "GPSWakeful:");
     }
-
-    public void UploadDataMessage(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-        ComponentName act = taskInfo.get(0).topActivity;
-
-        if ( act.getClassName().equals("UploadData") ) {
-        }
-        Log.d("HI", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName()+"   Package Name :  "+act.getPackageName());
-    }
-
 }
 

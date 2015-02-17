@@ -29,7 +29,6 @@ import android.widget.Toast;
 import com.commonsware.cwac.locpoll.LocationPoller;
 
 import org.geospaces.schas.utils.SCHASSettings;
-import org.geospaces.schas.utils.Spatial;
 import org.geospaces.schas.utils.db;
 
 import java.io.File;
@@ -37,7 +36,7 @@ import java.text.SimpleDateFormat;
 
 public class UploadData extends Activity {
 
-    private static final int PERIOD = 2 * 1000 * 60;  // 2 min
+    private static final int PERIOD = 1 * 1000 * 60;  // 2 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
     private String PEF_Text;
@@ -65,7 +64,6 @@ public class UploadData extends Activity {
 
         if (pi == null) {
             startStopService();
-            upLoad();
         }
     }
 
@@ -110,37 +108,12 @@ public class UploadData extends Activity {
         }
     };
 
-    protected void upLoad() {
-
-        updateStatus();
-        Context ctx = UploadData.this.getApplicationContext();
-        if ( !db.isWIFIOn(this.getApplicationContext()) ) {
-            Log.w("UploadData:", "WIFI is not ready!!!");
-        }
-        if ( !db.fileReady() && !db.rename(false) ) {
-            String msg = "Redo:" + SCHASSettings.host +
-                    "file Ready: " + db.fileReady() +
-                    " Rename: "     + db.rename(false)
-                    ;
-            Log.w("UploadData:", msg);
-
-
-            return;
-        }
-        boolean r = db.Post(UploadData.this, ctx, "/aura/webroot/loc.jsp");
-        if ( !r ) {
-            String msg = "Redo:" + SCHASSettings.host + " No file or wireless connection";
-            //Toast.makeText(UploadData.this, msg , Toast.LENGTH_SHORT).show();
-            Log.w("UploadData:", msg);
-            return;
-        }
-        updateStatus();
-    }
-
     private View.OnClickListener uploadCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            upLoad();
+            Context ctx = UploadData.this.getApplicationContext();
+            db.Upload(ctx, UploadData.this);
+            updateStatus();
         }
     };
 
@@ -150,7 +123,7 @@ public class UploadData extends Activity {
         String url = "SetResult: " + i.getStringExtra("url");
         statusText.setText(str);
         if (!str.contains("ERROR")) {
-            db.delete();
+            //db.delete();
         }
     }
 
@@ -201,7 +174,7 @@ public class UploadData extends Activity {
         //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000, 0, mylistener);
         if ( !provider.equals(LocationManager.GPS_PROVIDER)) {
             MyLocationListener myl1 = new MyLocationListener(LocationManager.GPS_PROVIDER);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 10, myl1);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 15, myl1);
         }
 
         Log.w("", "******** PROVIDER ***** " + provider);
@@ -221,8 +194,8 @@ public class UploadData extends Activity {
             String ret = GPSWakfulReciever.storeLocation(loc, myProvider);
             //Toast.makeText(UploadData.this, "Location: " + ret,Toast.LENGTH_SHORT).show();
             Log.w("onLocationChanged", ret);
+            updateStatus();
             medText.setText(ret);
-            upLoad();
             if ( STOP_LOCATION_UPDATES ) {
                 lm.removeUpdates(this);
             }
