@@ -76,6 +76,8 @@ public class Test extends Activity implements SensorEventListener {
     private View.OnClickListener clearCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+
+
         }
     };
 
