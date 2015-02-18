@@ -18,6 +18,7 @@ public class SCHASSettings {
     public static String    deviceID        = "ID";
     public static String    urls            = "www.geosspaces.org;10.0.0.3";
     public static String    lastLoc         = "";
+    public static long      lastRecorded    = -1;
     public static Location  location        = new Location("LAST");
 
     public static void Initialize(String ...args) {

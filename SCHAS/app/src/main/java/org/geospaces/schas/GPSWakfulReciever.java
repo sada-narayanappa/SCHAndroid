@@ -28,21 +28,31 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public static Location  lastLocation = null;
     public static long      lastRecorded = -1;
     public static long      sessionNum    = 0;
+    public static double    minDistance   = 100;   // 150 meters
 
     static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
 
-    public static synchronized String storeLocation(Location loc, String... args) {
+    public static synchronized String storeLocation(Location loc, String source) {
         if ( lastLocation == null && SCHASSettings.location.getLatitude() != 0) {
             lastLocation = loc;
+            lastRecorded = loc.getTime();
             sessionNum  = loc.getTime();
             return "GOT FIRST LOCATION";
         }
         File file = db.getFile(db.FILE_NAME);
-        String dbg = (args.length > 0) ? args[0]: "";
+        long curTime = loc.getTime();
+        long timeFromLastReading = (curTime - lastRecorded);
+        if (timeFromLastReading  <= 1000) {  // lets have at least a second
+            String msg = "WARN: " + timeFromLastReading + " !" + sdf.format(loc.getTime()) + ": ACC:" + loc.getAccuracy();
+            Log.w("IGNORING:", "**** "+ msg + " time:" + timeFromLastReading + " ACC:" + loc.getAccuracy());
+            return msg;
+        }
 
-        float dist = Spatial.calculateDistance(  loc, lastLocation );
+        double dist  = 1000 * Spatial.calculateDistance(  loc, lastLocation ); // meters
+        double speed = (dist/timeFromLastReading) * 1000 * 60 * 60;
+
         if ( lastLocation != null ) {
-            if (dist < .1 ) {
+            if (dist < minDistance) {
                 String msg = "WARN: " + dist + " !" + sdf.format(loc.getTime()) + ": ACC:" + loc.getAccuracy();
                 Log.w("IGNORING:", "**** "+ msg + " Dist:" +dist + " ACC:" + loc.getAccuracy());
                 return msg;
@@ -55,13 +65,15 @@ public class GPSWakfulReciever extends BroadcastReceiver {
                 // Also - since we are interested in most recent data - we could remove old file
             }
         }
-        long curTime = loc.getTime();
 
-        if (lastLocation == null || (lastRecorded - curTime) > (10 * 60 * 1000)) {
+        if (lastLocation == null || (timeFromLastReading) > (1 * 60 * 1000)) {
             sessionNum = curTime;
+            Log.w("GPSW", "Chosen a new Session Number: " + sessionNum);
         }
         if ( SCHASSettings.location.getLatitude() == 0) {
             SCHASSettings.location = loc;
+            SCHASSettings.lastRecorded = lastRecorded;
+
             SCHASSettings.saveSettings();
         }
         Location l = (lastLocation == null) ? loc:lastLocation;
@@ -71,7 +83,8 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         lastLocation = loc;
         lastRecorded = loc.getTime();
 
-        msg = db.getLocation(loc, ""+ (sessionNum/1000),  args);
+        String[] s = new String[2];
+        msg = db.getLocation(loc, ""+ (sessionNum/1000),  source, speed);
 
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));

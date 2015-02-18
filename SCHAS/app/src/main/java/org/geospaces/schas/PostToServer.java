@@ -3,6 +3,7 @@ package org.geospaces.schas;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.TextView;
 
 import org.apache.http.HttpResponse;
@@ -62,7 +63,9 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
             }
 
         } catch (Exception e) {
-           ret = "ERROR: Transmission Failed " + e;
+            ret = "ERROR: Transmission Failed " + e;
+            Log.e("PostToServer", e.toString());
+            Log.e("PostToServer", ret);
         }
         ret = ret.replaceAll("(?m)^[ \t]*\r?\n", "");
         return ret;

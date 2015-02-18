@@ -73,17 +73,24 @@ public class db {
         return file;
     }
 
-    public static String getLocation(Location loc, String sessionNum, String...args) {
+    public static String getLocation(Location loc, Object...args) {
         StringBuffer sb = new StringBuffer(512);
-        String source = (args.length > 0 ) ? args[0] : "";
+        String sessionNum = (args.length > 0 ) ? ""+args[0] : "";
+        String source     = (args.length > 1 ) ? ""+args[1] : "";
         source = source.substring(0, Math.min(4, source.length()));
+
+        double speed      = (args.length > 2 ) ? Double.parseDouble(""+args[1]) : 0.0;
+
+        if (loc.getSpeed() > 0) {
+            speed = loc.getSpeed();
+        }
 
         StringBuffer append = sb.append(
                 "measured_at="  + (loc.getTime()/1000)  + "," +
                 "lat="          + loc.getLatitude()     + "," +
                 "lon="          + loc.getLongitude()    + "," +
                 "alt="          + loc.getAltitude()     + "," +
-                "speed="        + loc.getSpeed()        + "," +
+                "speed="        + speed                 + "," +
                 "bearing="      + loc.getBearing()      + "," +
                 "accuracy="     + loc.getAccuracy()     + "," +
                 "record_type="  + "GPS_"+source         + "," +
@@ -163,8 +170,9 @@ public class db {
     private static PostToServer POST_TO_SERVER = null;
     private static synchronized boolean Post(Activity act, Context context, String service) {
 
-        if ( POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {
+        if ( POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {   // Avoid race condition
             Log.e("DB", "One posting going on, please retry ....");
+            return false;
         }
 
         String host     = SCHASSettings.host;
@@ -191,6 +199,7 @@ public class db {
         String ns = "Sending: " + url + "\n" + msg.substring(0, Math.min(msg.length() - 1, 256) );
         Log.i("",ns);
 
+        POST_TO_SERVER = null;
         POST_TO_SERVER = new PostToServer(nv, act, true);
         POST_TO_SERVER.execute(url);
 
