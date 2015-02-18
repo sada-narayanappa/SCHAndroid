@@ -79,7 +79,7 @@ public class db {
         String source     = (args.length > 1 ) ? ""+args[1] : "";
         source = source.substring(0, Math.min(4, source.length()));
 
-        double speed      = (args.length > 2 ) ? Double.parseDouble(""+args[1]) : 0.0;
+        double speed      = (args.length > 2 ) ? ((Double)args[2]) : 0.0;
 
         if (loc.getSpeed() > 0) {
             speed = loc.getSpeed();

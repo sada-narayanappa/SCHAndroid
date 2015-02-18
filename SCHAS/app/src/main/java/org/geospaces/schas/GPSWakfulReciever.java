@@ -60,13 +60,14 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         }
         if (file.length() > db.FILE_SIZE) {
             if (!db.rename(false)) {
+                Log.w("IGNORING:", "Log file is FULL ======");
                 return "ERROR: IGNORE: File Full: ";   // File is full and we can't do much now
                 // Actually we can append FILE to FILE_READY if FILE_READY size is small
                 // Also - since we are interested in most recent data - we could remove old file
             }
         }
 
-        if (lastLocation == null || (timeFromLastReading) > (1 * 60 * 1000)) {
+        if (lastLocation == null || (timeFromLastReading) > (10 * 60 * 1000)) {
             sessionNum = curTime;
             Log.w("GPSW", "Chosen a new Session Number: " + sessionNum);
         }
