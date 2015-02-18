@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="D:\GitRepo\1192014\SCHAndroid\SCHAndroid\SCHAS\locationPoller\src\main\assets"/></dataSet><dataSet config="release"><source path="D:\GitRepo\1192014\SCHAndroid\SCHAndroid\SCHAS\locationPoller\src\release\assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="/Users/snarayan/dev/geospaces/git/SCHAndroid/SCHAS/locationPoller/src/main/assets"/></dataSet><dataSet config="release"><source path="/Users/snarayan/dev/geospaces/git/SCHAndroid/SCHAS/locationPoller/src/release/assets"/></dataSet></merger>
