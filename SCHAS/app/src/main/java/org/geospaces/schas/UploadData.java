@@ -31,7 +31,10 @@ import com.commonsware.cwac.locpoll.LocationPoller;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 public class UploadData extends Activity {
@@ -57,6 +60,9 @@ public class UploadData extends Activity {
         findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
         findViewById(R.id.graphButton).setOnClickListener(uploadCB);
         findViewById(R.id.resetButton).setOnClickListener(resetCB);
+        findViewById(R.id.attack1).setOnClickListener(mild_attack_button);
+        findViewById(R.id.attack2).setOnClickListener(medium_attack_button);
+        findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
 
         medText    = (TextView) findViewById(R.id.medText);
         statusText = (TextView) findViewById(R.id.statusText);
@@ -71,6 +77,8 @@ public class UploadData extends Activity {
         StringBuffer sb = new StringBuffer(256);
         File f;
         f = db.getFile(db.FILE_NAME);
+
+
 
         sb.append(f.getName() + " : size=" + f.length() + "\n");
         f = db.getFile(db.FILE_READY);
@@ -103,6 +111,7 @@ public class UploadData extends Activity {
             SCHASSettings.host = null;
             SCHASSettings.Initialize( null);
             SCHASSettings.saveSettings();
+
 
             db.delete();
         }
@@ -275,6 +284,59 @@ public class UploadData extends Activity {
 
         builder.show();
     }
+
+    public void AttackConfirmPopUpCreator(String label,final String severity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(label);
+
+        builder.setPositiveButton("Confirm Attack", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                File file = db.getFile(db.FILE_NAME);
+
+                String msg = db.getAttack(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER),severity);
+                try {
+                    BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
+                    out.write(msg + "\n");
+                    out.close();
+                } catch (IOException e) {
+                    Log.e("ERROR", "Exception appending to log file", e);
+                    msg = "ERROR: Exception appending to log file: " + e;
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    private View.OnClickListener mild_attack_button = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            AttackConfirmPopUpCreator("Confirm Mild Attack","MILD_ATTACK");
+        }
+    };
+
+    private View.OnClickListener medium_attack_button = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            AttackConfirmPopUpCreator("Confirm Medium Attack","MEDIUM_ATTACK");
+
+        }
+    };
+
+    private View.OnClickListener severe_attack_button = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            AttackConfirmPopUpCreator("Confirm Severe Attack","SEVERE_ATTACK");
+
+        }
+    };
 
     /**
      * Michael:

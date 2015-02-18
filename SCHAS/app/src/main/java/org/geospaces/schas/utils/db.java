@@ -94,6 +94,26 @@ public class db {
         return sb.toString();
     }
 
+    public static String getAttack(Location loc, String severity) {
+        StringBuffer sb = new StringBuffer(512);
+        long sessionNum = System.currentTimeMillis()/1000000 * 60;
+
+        StringBuffer append = sb.append(
+                "measured_at="  + (loc.getTime()/1000)  + "," +
+                        "lat="          + loc.getLatitude()     + "," +
+                        "lon="          + loc.getLongitude()    + "," +
+                        "alt="          + loc.getAltitude()     + "," +
+                        "speed="        + loc.getSpeed()        + "," +
+                        "bearing="      + loc.getBearing()      + "," +
+                        "accuracy="     + loc.getAccuracy()     + "," +
+                        "record_type="  + severity              + "," +
+                        "session_num="  + sessionNum            + ""  +
+                        ""
+        );
+
+        return sb.toString();
+    }
+
     public static boolean fileReady() {
         File to     = getFile(FILE_READY);
         return to.exists();
