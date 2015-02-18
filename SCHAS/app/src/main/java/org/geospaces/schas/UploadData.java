@@ -36,7 +36,7 @@ import java.text.SimpleDateFormat;
 
 public class UploadData extends Activity {
 
-    private static final int PERIOD = 1 * 1000 * 60;  // 2 min
+    private static final int PERIOD = 2 * 1000 * 60;  // 2 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
     private String PEF_Text;
@@ -131,7 +131,7 @@ public class UploadData extends Activity {
         Button b = ((Button) findViewById(R.id.homeButton));
         if (pi == null) {
             STOP_LOCATION_UPDATES = false;
-            getLocationUpdates();
+            //getLocationUpdates();
 
             mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
 
