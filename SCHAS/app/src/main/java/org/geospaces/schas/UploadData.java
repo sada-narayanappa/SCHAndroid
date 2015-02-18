@@ -36,7 +36,7 @@ import java.text.SimpleDateFormat;
 
 public class UploadData extends Activity {
 
-    private static final int PERIOD = 2 * 1000 * 60;  // 2 min
+    private static final int PERIOD = 1 * 1000 * 60;  // 2 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
     private String PEF_Text;
@@ -131,7 +131,7 @@ public class UploadData extends Activity {
         Button b = ((Button) findViewById(R.id.homeButton));
         if (pi == null) {
             STOP_LOCATION_UPDATES = false;
-            //getLocationUpdates();
+            getLocationUpdates();
 
             mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
 
@@ -169,7 +169,7 @@ public class UploadData extends Activity {
         criteria.setCostAllowed(false);
         String provider = lm.getBestProvider(criteria, false);
         MyLocationListener mylistener = new MyLocationListener(provider);
-        lm.requestLocationUpdates(provider, 30000, 10, mylistener); // every 60 seconds or 10 meter
+        lm.requestLocationUpdates(provider, 5 * 60 * 1000, 200, mylistener); // every 60 seconds or 10 meter
 
         //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000, 0, mylistener);
         if ( !provider.equals(LocationManager.GPS_PROVIDER)) {
@@ -217,7 +217,7 @@ public class UploadData extends Activity {
             medText.setText(provider + " is disabled");
             //Toast.makeText(UploadData.this, "Provider " + provider + " disabled!", Toast.LENGTH_SHORT).show();
             lm.removeUpdates(this);
-            //getLocationUpdates();
+            getLocationUpdates();
         }
     }
 

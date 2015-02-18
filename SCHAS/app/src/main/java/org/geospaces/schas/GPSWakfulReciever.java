@@ -57,7 +57,7 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         }
         long curTime = loc.getTime();
 
-        if (lastLocation == null || (lastRecorded - curTime) > (10 * 60 * 60 * 1000)) {
+        if (lastLocation == null || (lastRecorded - curTime) > (10 * 60 * 1000)) {
             sessionNum = curTime;
         }
         if ( SCHASSettings.location.getLatitude() == 0) {
