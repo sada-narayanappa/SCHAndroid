@@ -74,6 +74,10 @@ public class UploadData extends Activity {
         updateStatus();
     }
 
+    private void Toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
     protected void updateStatus() {
         StringBuffer sb = new StringBuffer(256);
         File f;
@@ -113,7 +117,6 @@ public class UploadData extends Activity {
             SCHASSettings.Initialize( null);
             SCHASSettings.saveSettings();
 
-
             db.delete();
         }
     };
@@ -122,7 +125,10 @@ public class UploadData extends Activity {
         @Override
         public void onClick(View v) {
             Context ctx = UploadData.this.getApplicationContext();
-            db.Upload(ctx, UploadData.this);
+            boolean r = db.Upload(ctx, UploadData.this);
+            if ( !r) {
+                Toast( "Upload failed: check Wireless");
+            }
             updateStatus();
         }
     };
@@ -158,7 +164,7 @@ public class UploadData extends Activity {
                     pi);
 
             String str = "Location polling every " + PERIOD/1000/60 + " minutes begun";
-            Toast.makeText(UploadData.this, str , Toast.LENGTH_SHORT).show();
+            Toast( str);
 
             b.setText("Stop");
             b.setBackgroundColor(0xffff0000);
@@ -169,7 +175,7 @@ public class UploadData extends Activity {
             pi = null;
             b.setText("Start Service");
             b.setBackgroundColor(0xff00ff00);
-            Toast.makeText(UploadData.this, "Location polling STOPPED", Toast.LENGTH_SHORT).show();
+            Toast( "Location polling STOPPED");
         }
     }
     LocationManager lm = null;
@@ -202,7 +208,7 @@ public class UploadData extends Activity {
         @Override
         public void onLocationChanged(Location loc) {
             String ret = GPSWakfulReciever.storeLocation(loc, myProvider);
-            //Toast.makeText(UploadData.this, "Location: " + ret,Toast.LENGTH_SHORT).show();
+            //Toast ("Location: " );
             Log.w("onLocationChanged", ret);
             updateStatus();
             medText.setText(ret);
@@ -213,19 +219,19 @@ public class UploadData extends Activity {
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            //Toast.makeText(UploadData.this, provider + "'s status changed to " + status + "!", Toast.LENGTH_SHORT).show();
+            //Toast(provider + "'s status changed to " );
         }
 
         @Override
         public void onProviderEnabled(String provider) {
             medText.setText(provider + " is Enabled");
-            //Toast.makeText(UploadData.this, "Provider " + provider + " enabled!",Toast.LENGTH_SHORT).show();
+            //Toast( "Provider " + provider );
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             medText.setText(provider + " is disabled");
-            //Toast.makeText(UploadData.this, "Provider " + provider + " disabled!", Toast.LENGTH_SHORT).show();
+            //Toast( "Provider " + provider + " disabled!");
             lm.removeUpdates(this);
             getLocationUpdates();
         }
@@ -295,7 +301,13 @@ public class UploadData extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 File file = db.getFile(db.FILE_NAME);
 
-                String msg = db.getAttack(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER),severity);
+                Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if ( loc == null ){
+                    Toast("Can't get Location");
+                    return;
+                }
+
+                String msg = db.getAttack( loc,severity);
                 try {
                     BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
                     out.write(msg + "\n");

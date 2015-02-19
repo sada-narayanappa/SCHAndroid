@@ -74,6 +74,9 @@ public class db {
     }
 
     public static String getLocation(Location loc, Object...args) {
+        if ( loc == null ) {
+            return "";
+        }
         StringBuffer sb = new StringBuffer(512);
         String sessionNum = (args.length > 0 ) ? ""+args[0] : "";
         String source     = (args.length > 1 ) ? ""+args[1] : "";
@@ -102,6 +105,9 @@ public class db {
     }
 
     public static String getAttack(Location loc, String severity) {
+        if ( loc == null ) {
+            return "";
+        }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis()/1000000 * 60;
 
