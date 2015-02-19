@@ -13,6 +13,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
 import java.io.BufferedReader;
@@ -66,6 +67,7 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
             ret = "ERROR: Transmission Failed " + e;
             Log.e("PostToServer", e.toString());
             Log.e("PostToServer", ret);
+            SCHASSettings.host = null;
         }
         ret = ret.replaceAll("(?m)^[ \t]*\r?\n", "");
         return ret;
