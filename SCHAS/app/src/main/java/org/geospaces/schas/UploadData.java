@@ -71,6 +71,7 @@ public class UploadData extends Activity {
         if (pi == null) {
             startStopService();
         }
+        updateStatus();
     }
 
     protected void updateStatus() {
