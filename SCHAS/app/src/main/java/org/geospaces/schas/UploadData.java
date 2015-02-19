@@ -75,7 +75,8 @@ public class UploadData extends Activity {
     }
 
     private void Toast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        Context ctx = getApplicationContext();
+        Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show();
     }
 
     protected void updateStatus() {
@@ -116,8 +117,6 @@ public class UploadData extends Activity {
             SCHASSettings.host = null;
             SCHASSettings.Initialize( null);
             SCHASSettings.saveSettings();
-
-            db.delete();
         }
     };
 
