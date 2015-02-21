@@ -28,7 +28,7 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public static Location  lastLocation = null;
     public static long      lastRecorded = -1;
     public static long      sessionNum    = 0;
-    public static double    minDistance   = 100;   // 150 meters
+    public static double    minDistance   = 100;   // 100 meters
 
     static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
 
@@ -49,7 +49,7 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         }
 
         double dist  = 1000 * Spatial.calculateDistance(  loc, lastLocation ); // meters
-        double speed = (dist/timeFromLastReading) * 1000 * 60 * 60;
+        double speed = (dist/timeFromLastReading) * 1000 ;
 
         if ( lastLocation != null ) {
             if (dist < minDistance) {
