@@ -124,9 +124,14 @@ public class UploadData extends Activity {
         @Override
         public void onClick(View v) {
             Context ctx = UploadData.this.getApplicationContext();
+            String str;
+            if ( null == (str = db.isWIFIOn(ctx))) {
+                Toast( "NO Wireless Connection! Please check");
+            }
+
             boolean r = db.Upload(ctx, UploadData.this);
             if ( !r) {
-                Toast( "Upload failed: check Wireless");
+                Toast( str + " Upload failed: file not ready");
             }
             updateStatus();
         }

@@ -155,7 +155,7 @@ public class db {
         //from.delete();
     }
 
-    public static boolean isWIFIOn(Context ctx) {
+    public static String isWIFIOn(Context ctx) {
         ConnectivityManager connManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
         WifiManager wifiman     = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
         NetworkInfo mWifi       = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -167,14 +167,15 @@ public class db {
             int ip = wifiman.getConnectionInfo().getIpAddress();
             String ips = Formatter.formatIpAddress(ip);
             String str = "SPEED: " + linkSpeed +"Mbps, STRENGTH: " + wifiman.getConnectionInfo().getRssi() + "dBm";
-            return true;
+            return str;
         }
-        return false;
+        return null;
     }
 
     public static synchronized boolean Upload(Context ctx, Activity act) {
-        if ( !db.isWIFIOn(ctx) ) {
-            Log.w("DB:Upload", "WIFI is not ready!!!");
+        String str;
+        if ( null == (str = db.isWIFIOn(ctx)) ) {
+            Log.w("DB:Upload", str + " WIFI is not ready!!!");
             return false;
         }
         db.rename(false);
@@ -203,7 +204,7 @@ public class db {
 
         String host     = SCHASSettings.host;
 
-        if ( host == null || ! isWIFIOn(context) || host.equals("null") ) {
+        if ( host == null || null == isWIFIOn(context) || host.equals("null") ) {
             SCHASSettings.Initialize(null);
             return false;
         }
