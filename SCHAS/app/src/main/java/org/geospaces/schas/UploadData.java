@@ -126,12 +126,12 @@ public class UploadData extends Activity {
             Context ctx = UploadData.this.getApplicationContext();
             String str;
             if ( null == (str = db.isWIFIOn(ctx))) {
-                Toast( "NO Wireless Connection! Please check");
+                Toast( "NO Wireless Connection! Please check back");
             }
 
-            boolean r = db.Upload(ctx, UploadData.this);
-            if ( !r) {
-                Toast( str + " Upload failed: file not ready");
+            str = db.Upload(ctx, UploadData.this);
+            if ( str != null) {
+                Toast( str + " retry");
             }
             updateStatus();
         }
@@ -303,8 +303,6 @@ public class UploadData extends Activity {
         builder.setPositiveButton("Confirm Attack", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                File file = db.getFile(db.FILE_NAME);
-
                 Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if ( loc == null ){
                     Toast("Can't get Location");
@@ -313,13 +311,11 @@ public class UploadData extends Activity {
 
                 String msg = db.getAttack( loc,severity);
                 try {
-                    BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
-                    out.write(msg + "\n");
-                    out.close();
+                    db.Write(msg + "\n");
                 } catch (IOException e) {
                     Log.e("ERROR", "Exception appending to log file", e);
-                    msg = "ERROR: Exception appending to log file: " + e;
                 }
+                updateStatus();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

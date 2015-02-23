@@ -17,8 +17,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.geospaces.schas.PostToServer;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +31,7 @@ public class db {
     public final static String  DIRECTORY   = "/SCHAS";
     public final static String  FILE_NAME   = "LOC.txt";
     public final static String  FILE_READY  = "LOC_ready.txt";
-    public final static int     FILE_SIZE   = 4 * 1024;
+    public final static int     FILE_SIZE   = 8 * 1024;
 
     public final static String  FILE_SETTINGS = "Settings.txt";
 
@@ -39,7 +42,7 @@ public class db {
             return "";
         }
         String str = "ERROR reading File:  " + fileName;
-        char[] bytes = new char[Math.min(5 * 1024, (int) file.length())];
+        char[] bytes = new char[Math.min(FILE_SIZE, (int) file.length())];
         try {
             FileReader in = new FileReader(file);
             in.read(bytes);
@@ -49,6 +52,18 @@ public class db {
             Log.e("ERR", "" + e);
         }
         return str;
+    }
+
+    public static void Write(String msg) throws IOException {
+        File file = db.getFile(db.FILE_NAME);
+        BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
+
+        if ( msg.endsWith("\n"))
+            out.write(msg);
+        else
+            out.write(msg + "\n");
+
+        out.close();
     }
 
     public static String getUploadableText(Context context) throws Exception {
@@ -113,15 +128,15 @@ public class db {
 
         StringBuffer append = sb.append(
                 "measured_at="  + (loc.getTime()/1000)  + "," +
-                        "lat="          + loc.getLatitude()     + "," +
-                        "lon="          + loc.getLongitude()    + "," +
-                        "alt="          + loc.getAltitude()     + "," +
-                        "speed="        + loc.getSpeed()        + "," +
-                        "bearing="      + loc.getBearing()      + "," +
-                        "accuracy="     + loc.getAccuracy()     + "," +
-                        "record_type="  + severity              + "," +
-                        "session_num="  + sessionNum            + ""  +
-                        ""
+                "lat="          + loc.getLatitude()     + "," +
+                "lon="          + loc.getLongitude()    + "," +
+                "alt="          + loc.getAltitude()     + "," +
+                "speed="        + loc.getSpeed()        + "," +
+                "bearing="      + loc.getBearing()      + "," +
+                "accuracy="     + loc.getAccuracy()     + "," +
+                "record_type="  + severity              + "," +
+                "session_num="  + sessionNum            + ""  +
+                ""
         );
 
         return sb.toString();
@@ -172,42 +187,37 @@ public class db {
         return null;
     }
 
-    public static synchronized boolean Upload(Context ctx, Activity act) {
+    public static synchronized String Upload(Context ctx, Activity act) {
         String str;
         if ( null == (str = db.isWIFIOn(ctx)) ) {
-            Log.w("DB:Upload", str + " WIFI is not ready!!!");
-            return false;
+            return "NO Wireless Connection! Please check back";
         }
-        db.rename(false);
-        if ( !db.fileReady() ) {
-            String msg = "Redo:" + SCHASSettings.host + " File not ready";
-            Log.w("DB:Upload:", msg);
-            return false;
-        }
-        boolean r = db.Post( act, ctx, "/aura/webroot/loc.jsp");
-        if ( !r ) {
-            String msg = "Redo:" + SCHASSettings.host + " Post failed";
-            Log.w("DB:post:", msg);
-            return false;
+        str = db.Post( act, ctx, "/aura/webroot/loc.jsp");
+        if ( null != str ) {
+            return str;
         }
         Log.w("DB:post:", " Post succeeded");
-        return true;
+        return null;
     }
 
     private static PostToServer POST_TO_SERVER = null;
-    private static synchronized boolean Post(Activity act, Context context, String service) {
+    private static synchronized String Post(Activity act, Context context, String service) {
 
         if ( POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {   // Avoid race condition
-            Log.e("DB", "One posting going on, please retry ....");
-            return false;
+            return "ERROR: One upload in progress, please retry ...";
         }
 
         String host     = SCHASSettings.host;
 
         if ( host == null || null == isWIFIOn(context) || host.equals("null") ) {
             SCHASSettings.Initialize(null);
-            return false;
+            return "ERROR: Host name is null: resetting hosts ";
         }
+        db.rename(false);
+        if ( !db.fileReady() ) {
+            return "ERROR: " + SCHASSettings.host + " No files to upload!!";
+        }
+
         String url = "http://" + host+ service;
         List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
         String msg = "";
@@ -215,7 +225,7 @@ public class db {
         try {
             msg = getUploadableText(context);
         } catch (Exception e) {
-            return false;
+            return "ERROR: exception while reading input file " + e;
         }
         String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
@@ -230,6 +240,6 @@ public class db {
         POST_TO_SERVER = new PostToServer(nv, act, true);
         POST_TO_SERVER.execute(url);
 
-        return true;
+        return null;
     }
 }

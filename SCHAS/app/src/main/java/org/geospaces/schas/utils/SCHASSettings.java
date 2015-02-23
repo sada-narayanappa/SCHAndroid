@@ -7,6 +7,7 @@ import android.provider.Settings;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ public class SCHASSettings {
     public static String    host            = "www.geospaces.org";
     public static String    username        = "None";
     public static String    deviceID        = "ID";
-    public static String    urls            = "www.geospaces.org;10.0.0.3";
+    private static String    urls            = "www.geospaces.org;10.0.0.3";
     public static String    lastLoc         = "";
     public static long      lastRecorded    = -1;
     public static Location  location        = new Location("LAST");
@@ -73,7 +74,7 @@ public class SCHASSettings {
         host        = m.get("host");
         username    = m.get("username");
         deviceID    = m.get("deviceID");
-        urls        = m.get("urls");
+        //urls        = m.get("urls");
         lastLoc     = m.get("lastLoc");
 
         if ( lastLoc != null ) {
@@ -91,19 +92,37 @@ public class SCHASSettings {
 
 
     private static class PickHosts extends AsyncTask<String, Integer, String> {
+
+        private boolean isReachable(String h) {
+
+            boolean ret = false;
+            try {
+                ret = InetAddress.getByName(h).isReachable(2000);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return ret;
+        }
+
+        public static boolean isInternetReachable(String h){
+            String host = h.startsWith("http:") ? h : "http://"+h;
+            try {
+                URL url = new URL(host);
+                HttpURLConnection urlConnect = (HttpURLConnection)url.openConnection();
+                Object objData = urlConnect.getContent();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
         protected String doInBackground(String... urls) {
 
             for ( String h: urls) {
-                try {
-                    boolean r;
-                    r = InetAddress.getByName(h).isReachable(1000);
-                    if (r) {
-                        host = h;
-                        break;
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(isInternetReachable(h)) {
+                    host = h;
+                    break;
                 }
             }
             return host;

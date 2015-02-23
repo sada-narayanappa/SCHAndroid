@@ -88,12 +88,11 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         msg = db.getLocation(loc, ""+ (sessionNum/1000),  source, speed);
 
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
-            out.write(msg + "\n");
-            out.close();
+            db.Write(msg + "\n");
         } catch (IOException e) {
             Log.e("ERROR", "Exception appending to log file", e);
             msg = "ERROR: Exception appending to log file: " + e;
+            return "ERROR: " + msg;
         }
         return "SUCCESS: " + msg;
     }
@@ -102,20 +101,18 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Bundle b = intent.getExtras();
         Location loc = (Location) b.get(LocationPoller.EXTRA_LOCATION);
-        String msg;
 
-        db.Upload(context, null);
         if (loc == null) {
             //loc = (Location) b.get(LocationPoller.EXTRA_LASTKNOWN);
-            if (loc == null) {
-                msg = intent.getStringExtra(LocationPoller.EXTRA_ERROR);
-                Log.e("GPS", msg);
-            } else {
-                msg = null; // "TIMEOUT, lastKnown=" + loc.toString();
-            }
+//            if (loc == null) {
+//                String msg = intent.getStringExtra(LocationPoller.EXTRA_ERROR);
+//                Log.e("GPS", msg);
+//            }
+            db.Upload(context, null);
             return;
         }
         storeLocation(loc, "GPSWakeful:");
+        db.Upload(context, null);
     }
 }
 
