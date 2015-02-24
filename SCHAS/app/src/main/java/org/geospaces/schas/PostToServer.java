@@ -59,7 +59,7 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
             }
             in.close();
             ret = str.toString();
-            if ( callDBDelete  ) {
+            if ( response.getStatusLine().getStatusCode() == 200 && callDBDelete  ) {
                 db.delete();
             }
 

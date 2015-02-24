@@ -110,6 +110,8 @@ public class SCHASSettings {
             try {
                 URL url = new URL(host);
                 HttpURLConnection urlConnect = (HttpURLConnection)url.openConnection();
+                urlConnect.setConnectTimeout(5000);
+                urlConnect.setReadTimeout(5000);
                 Object objData = urlConnect.getContent();
             } catch (Exception e) {
                 e.printStackTrace();
