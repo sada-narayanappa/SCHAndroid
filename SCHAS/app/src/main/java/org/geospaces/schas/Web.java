@@ -70,6 +70,10 @@ public class Web extends Activity {
         public void onClick(View v) {
             String host     = mapurl;
             Log.e("Web", ""+ host);
+            webView.clearCache(true);
+            webView.clearView();
+            webView.reload();
+            webView.loadUrl("about:blank");
             webView.loadUrl(host);
             webView.getSettings().setJavaScriptEnabled(true);
         }
@@ -77,6 +81,10 @@ public class Web extends Activity {
     private View.OnClickListener homeButtonCB = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            webView.clearCache(true);
+            webView.clearView();
+            webView.reload();
+            webView.loadUrl("about:blank");
             String host     = "http://" + SCHASSettings.host + "/geodata/";
             Log.e("Web", ""+ host);
             webView.loadUrl(host);

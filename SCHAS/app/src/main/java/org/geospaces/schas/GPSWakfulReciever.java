@@ -47,7 +47,6 @@ public class GPSWakfulReciever extends BroadcastReceiver {
             Log.w("IGNORING:", "**** "+ msg + " time:" + timeFromLastReading + " ACC:" + loc.getAccuracy());
             return msg;
         }
-
         double dist  = 1000 * Spatial.calculateDistance(  loc, lastLocation ); // meters
         double speed = (dist/timeFromLastReading) * 1000 ;
 

@@ -13,6 +13,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -41,7 +44,10 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
         callDBDelete = dbDelete;
     }
     public String postResults(List<NameValuePair> nameValuePairs, String postUrl) {
-        HttpClient  httpclient = new DefaultHttpClient();
+        final HttpParams httpParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParams, 10000);
+
+        HttpClient  httpclient = new DefaultHttpClient(httpParams);
         HttpPost    httppost = new HttpPost(postUrl);
         String ret;
 
