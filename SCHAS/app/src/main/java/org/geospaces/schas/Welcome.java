@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +22,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class Welcome extends Activity {
+public class Welcome extends ActionBarActivity {
 
     static boolean firstTime = true;
     @Override

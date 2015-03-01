@@ -13,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.SystemClock;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -37,7 +38,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-public class UploadData extends Activity {
+public class UploadData extends ActionBarActivity {
 
     private static final int PERIOD = 1 * 1000 * 60;  // 1 min
     private PendingIntent pi = null;

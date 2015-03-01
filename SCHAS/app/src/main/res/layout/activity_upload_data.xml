@@ -87,8 +87,7 @@
                 android:text="MILD\nATTACK"
                 android:id="@+id/attack1"
                 android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded"
-                android:background="@android:drawable/btn_default" />
+                android:layout_toEndOf="@+id/uploaded" />
 
             <Button
                 style="@android:style/Animation.Toast"
@@ -99,8 +98,7 @@
                 android:id="@+id/attack2"
                 android:layout_below="@+id/graphButton"
                 android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2"
-                android:background="@android:drawable/btn_default" />
+                android:layout_alignStart="@+id/textView2" />
 
             <Button
                 style="@android:style/Animation.Toast"
@@ -108,8 +106,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="SEVERE\nATTACK"
-                android:id="@+id/attack3"
-                android:background="@android:drawable/btn_default" />
+                android:id="@+id/attack3" />
         </LinearLayout>
 
         <LinearLayout
@@ -130,10 +127,10 @@
                 android:text="I USED\nInhaler"
                 android:id="@+id/inhlaerButton"
                 android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded"
-                android:background="@android:drawable/btn_default" />
+                android:layout_toEndOf="@+id/uploaded" />
 
             <Button
+
                 style="@android:style/Animation.Toast"
                 android:layout_width="0dip"
                 android:layout_weight="1"
@@ -142,8 +139,7 @@
                 android:id="@+id/PFMButton"
                 android:layout_below="@+id/graphButton"
                 android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2"
-                android:background="@android:drawable/btn_default" />
+                android:layout_alignStart="@+id/textView2" />
 
             <Button
                 android:layout_width="0dip"

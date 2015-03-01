@@ -3,16 +3,16 @@
 
     <string name="app_name">SCHAS</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Bluetooth Status</string>
+    <string name="action_settings">Settings</string>
     <string name="action_test">Test</string>
-    <string name="action_UploadData">Upload Data</string>
+    <string name="action_UploadData">Dashboard</string>
     <string name="title_activity_test">Test</string>
-    <string name="action_about">About SCHAS</string>
-    <string name="title_activity_web">Web</string>
-    <string name="action_web">WEb</string>
+    <string name="action_about">Welcome Screen</string>
+    <string name="title_activity_web">Usage Statistics</string>
+    <string name="action_web">Usage Statistics</string>
     <string name="title_activity_web1">web1</string>
-    <string name="title_activity_bluetooth_settings">Status/Settings</string>
+    <string name="title_activity_bluetooth_settings">Settings</string>
     <string name="info_menu">Bluetooth Help</string>
-    <string name="title_activity_upload_data">UploadData</string>
+    <string name="title_activity_upload_data">Dashboard</string>
 
 </resources>

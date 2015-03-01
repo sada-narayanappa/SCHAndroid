@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +32,7 @@ import java.util.List;
 
 import mymodule.app2.mymodule.app2.schasStrings;
 
-public class Test extends Activity implements SensorEventListener {
+public class Test extends ActionBarActivity implements SensorEventListener {
     TextView tv1;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;

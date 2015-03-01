@@ -14,13 +14,14 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.support.v7.app.ActionBarActivity;
 
 import com.commonsware.cwac.locpoll.*;
 
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
-public class Web extends Activity {
+public class Web extends ActionBarActivity {
     WebView webView = null;
     private PendingIntent pendingIntent;
     private Context context;

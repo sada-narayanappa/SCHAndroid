@@ -46,9 +46,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import mymodule.app2.mymodule.app2.schasStrings;
+import android.support.v7.app.ActionBarActivity;
 
 
-public class BluetoothSettings extends Activity implements EventListener{
+
+public class BluetoothSettings extends ActionBarActivity implements EventListener{
 
     UUID                uuid;
     BluetoothAdapter    mBluetoothAdapter = null;
