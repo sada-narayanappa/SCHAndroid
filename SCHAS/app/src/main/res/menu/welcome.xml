@@ -1,27 +1,34 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-tools:context=".Welcome" >
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:a="http://schemas.android.com/apk/res-auto"
+    tools:context=".Welcome">
+<item android:id="@+id/action_UploadData"
+        android:title="Dashboard"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
+<item android:id="@+id/action_web"
+        android:title="@string/action_web"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
 <item android:id="@+id/action_settings"
     android:title="@string/action_settings"
     android:orderInCategory="100"
     android:showAsAction="never" />
+
+<item android:id="@+id/action_about"
+        android:title="@string/action_about"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 
 <item android:id="@+id/action_test"
     android:title="@string/action_test"
     android:orderInCategory="100"
     android:showAsAction="never" />
 
-<item android:id="@+id/action_about"
-    android:title="@string/action_about"
-    android:orderInCategory="100"
-    android:showAsAction="never" />
 
-<item android:id="@+id/action_web"
-    android:title="@string/action_web"
-    android:orderInCategory="100"
-    android:showAsAction="never" />
-<item android:id="@+id/action_UploadData"
-    android:title="Upload Data"
-    android:orderInCategory="100"
-    android:showAsAction="never" />
+
+
+
 </menu>

@@ -1,6 +1,5 @@
 package org.geospaces.schas;
 
-import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -22,17 +21,17 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.geospaces.schas.R;
+import android.support.v4.app.*;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.geospaces.schas.fragment_resources.InfoBarFragment;
 import org.geospaces.schas.utils.db;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import mymodule.app2.mymodule.app2.schasStrings;
 
-public class Test extends ActionBarActivity implements SensorEventListener {
+public class Test extends ActionBarActivity implements SensorEventListener, InfoBarFragment.OnFragmentInteractionListener {
     TextView tv1;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -45,6 +44,12 @@ public class Test extends ActionBarActivity implements SensorEventListener {
     private TelephonyManager telephonyManager;
     private ConnectivityManager connManager;
     private WifiManager wifiman;
+
+
+    @Override
+    public void onFragmentInteraction(String id){
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +77,15 @@ public class Test extends ActionBarActivity implements SensorEventListener {
         findViewById(R.id.homeButton).setOnClickListener(button2CB);
         findViewById(R.id.graphButton).setOnClickListener(webServiceCB);
         findViewById(R.id.clearButton).setOnClickListener(clearCB);
+
+        //fragment attempt
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.action_test, new InfoBarFragment())
+                    .commit();
+        }
     }
+
 
     private View.OnClickListener clearCB = new View.OnClickListener() {
         @Override
