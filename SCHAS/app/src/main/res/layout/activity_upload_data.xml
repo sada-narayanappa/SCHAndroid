@@ -1,9 +1,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_height="match_parent"
+    android:paddingLeft="2dp"
+    android:paddingRight="2dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
     tools:context="org.geospaces.schas.UploadData">
 
     <LinearLayout
@@ -14,6 +15,7 @@
         android:id="@+id/uploaded">
 
         <EditText
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
@@ -77,20 +79,25 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/gridLayout"
             android:background="#ffebff66"
-            android:id="@+id/linearLayout3">
+            android:id="@+id/linearLayout3"
+            >
 
             <Button
-                style="@android:style/Animation.Toast"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="MILD\nATTACK"
                 android:id="@+id/attack1"
                 android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded" />
+                android:layout_toEndOf="@+id/uploaded"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                />
 
             <Button
-                style="@android:style/Animation.Toast"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -98,15 +105,23 @@
                 android:id="@+id/attack2"
                 android:layout_below="@+id/graphButton"
                 android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2" />
+                android:layout_alignStart="@+id/textView2"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                />
 
             <Button
-                style="@android:style/Animation.Toast"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="SEVERE\nATTACK"
-                android:id="@+id/attack3" />
+                android:id="@+id/attack3"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                />
         </LinearLayout>
 
         <LinearLayout
@@ -120,18 +135,22 @@
             android:id="@+id/linearLayout4">
 
             <Button
-                style="@android:style/Animation.Toast"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="I USED\nInhaler"
                 android:id="@+id/inhlaerButton"
                 android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded" />
+                android:layout_toEndOf="@+id/uploaded"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                />
 
             <Button
 
-                style="@android:style/Animation.Toast"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -139,14 +158,23 @@
                 android:id="@+id/PFMButton"
                 android:layout_below="@+id/graphButton"
                 android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2" />
+                android:layout_alignStart="@+id/textView2"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                />
 
             <Button
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="RESET\nALL"
-                android:id="@+id/resetButton" />
+                android:id="@+id/resetButton"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                />
         </LinearLayout>
 
         <GridLayout
@@ -155,6 +183,7 @@
             android:layout_gravity="center">
 
             <Button
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="175dp"
                 android:layout_height="wrap_content"
                 android:text="I TOOK\nMEDICATION"
@@ -164,6 +193,7 @@
                 android:layout_columnSpan="1" />
 
             <EditText
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="175dp"
                 android:layout_height="52dp"
                 android:id="@+id/medText"
