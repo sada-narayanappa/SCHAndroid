@@ -361,7 +361,7 @@ public class BluetoothSettings extends ActionBarActivity implements EventListene
 
     @Override
     protected void onPause() {
-        onDestroy();
+        //onDestroy();
         //inhaler.setChecked(false);
         // peakflow.setChecked(false);
         super.onPause();
@@ -370,18 +370,6 @@ public class BluetoothSettings extends ActionBarActivity implements EventListene
     @Override
     protected void onResume() {
         super.onResume();
-    }
-
-    public void onDestroy() {
-
-        super.onDestroy();
-        //stopWorker=true;
-        // stopWorker2=true;
-       /* try {
-            //this.closeBT();
-        } catch (IOException e) {
-            //e.printStackTrace();
-        }*/
     }
 
 
@@ -873,7 +861,7 @@ public class BluetoothSettings extends ActionBarActivity implements EventListene
 
             } catch (Exception e1) {
                 // TODO Auto-generated catch block
-                Log.e("Error Reading InhalerUse Text File", "Error Reading InhalerUse Text File");
+                Log.e("Error Reading InhalerUse", "Error Reading Inhaler");
             }
             file.delete();
 
