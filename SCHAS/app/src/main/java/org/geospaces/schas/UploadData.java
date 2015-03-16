@@ -64,6 +64,8 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.attack1).setOnClickListener(mild_attack_button);
         findViewById(R.id.attack2).setOnClickListener(medium_attack_button);
         findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
+        findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
+        findViewById(R.id.medButton).setOnClickListener(medicine_button);
 
         medText    = (TextView) findViewById(R.id.medText);
         statusText = (TextView) findViewById(R.id.statusText);
@@ -281,10 +283,18 @@ public class UploadData extends ActionBarActivity {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                PEF_Text = input.getText().toString();
-                FEV_Text = input2.getText().toString();
-
-                writeFile(PEF_Text, FEV_Text);
+                Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (loc == null) {
+                    Toast("Can't get Location");
+                    return;
+                }
+               String msg = db.getPeakFlow(loc,input.getText().toString(),input2.getText().toString());
+                try {
+                    db.Write(msg + "\n");
+                } catch (IOException e) {
+                    Log.e("ERROR", "Exception appending to log file", e);
+                }
+                updateStatus();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -297,20 +307,78 @@ public class UploadData extends ActionBarActivity {
         builder.show();
     }
 
-    public void AttackConfirmPopUpCreator(String label,final String severity) {
+    public void AttackConfirmPopUpCreator(String label,final String severity,boolean inhal) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(label);
 
-        builder.setPositiveButton("Confirm Attack", new DialogInterface.OnClickListener() {
+        if(inhal == false) {
+            builder.setPositiveButton("Confirm Attack", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (loc == null) {
+                        Toast("Can't get Location");
+                        return;
+                    }
+
+                    String msg = db.getAttack(loc, severity);
+                    try {
+                        db.Write(msg + "\n");
+                    } catch (IOException e) {
+                        Log.e("ERROR", "Exception appending to log file", e);
+                    }
+                    updateStatus();
+                }
+            });
+        }
+        else{
+            builder.setPositiveButton("Confirm Usage", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (loc == null) {
+                        Toast("Can't get Location");
+                        return;
+                    }
+
+                    String msg = db.getAttack(loc, severity);
+                    try {
+                        db.Write(msg + "\n");
+                    } catch (IOException e) {
+                        Log.e("ERROR", "Exception appending to log file", e);
+                    }
+                    updateStatus();
+                }
+            });
+        }
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void MedicineTakenPopUp (String label) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(label);
+        final EditText input = new EditText(this);
+        builder.setView(input);
+
+        builder.setPositiveButton("Confirm Medicine Used", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String value = input.getText().toString();
                 Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if ( loc == null ){
                     Toast("Can't get Location");
                     return;
                 }
 
-                String msg = db.getAttack( loc,severity);
+                String msg = db.getMedicine(loc,value);
                 try {
                     db.Write(msg + "\n");
                 } catch (IOException e) {
@@ -332,14 +400,14 @@ public class UploadData extends ActionBarActivity {
     private View.OnClickListener mild_attack_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AttackConfirmPopUpCreator("Confirm Mild Attack","MILD_ATTACK");
+            AttackConfirmPopUpCreator("Confirm Mild Attack","MILD_ATTACK",false);
         }
     };
 
     private View.OnClickListener medium_attack_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AttackConfirmPopUpCreator("Confirm Medium Attack","MEDIUM_ATTACK");
+            AttackConfirmPopUpCreator("Confirm Medium Attack","MEDIUM_ATTACK",false);
 
         }
     };
@@ -347,7 +415,23 @@ public class UploadData extends ActionBarActivity {
     private View.OnClickListener severe_attack_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AttackConfirmPopUpCreator("Confirm Severe Attack","SEVERE_ATTACK");
+            AttackConfirmPopUpCreator("Confirm Severe Attack","SEVERE_ATTACK",false);
+
+        }
+    };
+
+    private View.OnClickListener inhaler_button = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            AttackConfirmPopUpCreator("Confirm Inhaler Used","INHALER",true);
+
+        }
+    };
+
+    private View.OnClickListener medicine_button = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            MedicineTakenPopUp("Medicine Used");
 
         }
     };
