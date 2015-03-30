@@ -49,7 +49,7 @@ android {
     }
 
     sourceSets {
-        main{
+        main {
             java.srcDir file('src/test/java')
         }
         unitTest {
@@ -74,12 +74,14 @@ allprojects {
 
 
 dependencies {
-    compile 'junit:junit:4.12'
-    compile 'org.robolectric:robolectric:2.4'
     instrumentTestCompile 'junit:junit:4.11'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':SCHASLib')
     compile project(':locationPoller')
+    compile 'junit:junit:4.12'
+    compile 'org.robolectric:robolectric:2.4'
     compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:support-v4:21.0.3'
 }
+
 

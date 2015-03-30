@@ -48,6 +48,10 @@
             android:name=".Web"
             android:label="@string/title_activity_web" >
         </activity>
+        <activity android:name=".SettingsActivity"
+            android:label="Settings Menu">
+
+        </activity>
         <activity
             android:name=".BluetoothSettings"
             android:label="@string/title_activity_bluetooth_settings" >

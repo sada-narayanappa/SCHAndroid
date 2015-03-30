@@ -7,12 +7,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.SystemClock;
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
@@ -40,11 +43,14 @@ import java.text.SimpleDateFormat;
 
 public class UploadData extends ActionBarActivity {
 
-    private static final int PERIOD = 1 * 1000 * 60;  // 1 min
+    private int PERIOD = 1 * 1000 * 60;  // 1 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
     private String PEF_Text;
     private String FEV_Text;
+    private int intT;
+
+    SharedPreferences SP;
 
     TextView statusText;
     TextView medText;
@@ -53,6 +59,13 @@ public class UploadData extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        SP = PreferenceManager.getDefaultSharedPreferences(this);
+        String stringT = SP.getString("frequency", "no selection :(");
+        intT = Integer.parseInt(stringT);
+
+        PERIOD = 1000*60*intT;
+        //Toast("onCreate() "+PERIOD/1000/60);
 
         setContentView(R.layout.activity_upload_data);
 
@@ -150,6 +163,27 @@ public class UploadData extends ActionBarActivity {
         }
     }
 
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        //Toast("On Resume");
+
+        SP = PreferenceManager.getDefaultSharedPreferences(this);
+        String stringT = SP.getString("frequency", "no selection :(");
+        int temp = Integer.parseInt(stringT);
+
+        if(temp != intT){
+            PERIOD = 1000*60*temp;
+            startStopService(); //restart service with new time interval
+            startStopService();
+            //Toast(""+PERIOD/1000/60);
+        }
+
+
+
+    }
+
     private void startStopService() {
         Button b = ((Button) findViewById(R.id.homeButton));
         if (pi == null) {
@@ -164,6 +198,8 @@ public class UploadData extends ActionBarActivity {
             i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
 
             pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
+            Toast("" + PERIOD);
 
             mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime(),

@@ -27,6 +27,11 @@
     android:orderInCategory="100"
     android:showAsAction="never" />
 
+<item android:id="@+id/action_settings_menu"
+    android:title="Settings Menu"
+    android:orderInCategory="100"
+    android:showAsAction="never" />
+
 
 
 

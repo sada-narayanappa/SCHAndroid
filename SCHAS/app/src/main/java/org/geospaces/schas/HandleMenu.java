@@ -38,6 +38,15 @@ public class HandleMenu  {
                 Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
                 return false;
 
+            case R.id.action_settings_menu:
+                if(a.getClass() != SettingsActivity.class) {
+                    intent = new Intent(a, SettingsActivity.class);
+                    a.startActivity(intent);
+                    return true;
+                }
+                Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
+                return false;
+
             case R.id.action_about:
                 if(a.getClass() != Welcome.class){
                     intent = new Intent(a, Welcome.class);
