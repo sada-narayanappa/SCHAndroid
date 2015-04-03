@@ -61,7 +61,7 @@ public class UploadData extends ActionBarActivity {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         SP = PreferenceManager.getDefaultSharedPreferences(this);
-        String stringT = SP.getString("frequency", "no selection :(");
+        String stringT = SP.getString("frequency", "2");
         intT = Integer.parseInt(stringT);
 
         PERIOD = 1000*60*intT;
@@ -170,7 +170,7 @@ public class UploadData extends ActionBarActivity {
         //Toast("On Resume");
 
         SP = PreferenceManager.getDefaultSharedPreferences(this);
-        String stringT = SP.getString("frequency", "no selection :(");
+        String stringT = SP.getString("frequency", "2");
         int temp = Integer.parseInt(stringT);
 
         if(temp != intT){
