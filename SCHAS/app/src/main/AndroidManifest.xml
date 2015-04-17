@@ -65,8 +65,14 @@
         </service>
 
         <receiver android:name=".GPSWakfulReciever" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
         <receiver android:name="com.commonsware.cwac.locpoll.LocationPoller" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
 
         <service

@@ -3,14 +3,14 @@
     <EditTextPreference android:title="Your Name"
         android:key="username"
         android:summary="Please provide your username"></EditTextPreference>
-    <CheckBoxPreference android:title="Application Updates"
+    <CheckBoxPreference android:title="Manually Set Frequency"
         android:defaultValue="false"
-        android:summary="This option if selected will allow the application to check for latest versions."
-        android:key="applicationUpdates" />
-        <ListPreference     android:title="Update Frequency"
-            android:summary="Select the interval you want to update location information"
-            android:key="frequency"
-            android:defaultValue="3"
-            android:entries="@array/listArray"
-            android:entryValues="@array/listValues" />
+        android:summary="This will enable the ability to manually set the time interval for GPS data capture"
+        android:key="autoupdate" />
+    <ListPreference     android:title="Update Frequency"
+        android:summary="Select the interval you want to update location information"
+        android:key="frequency"
+        android:defaultValue="3"
+        android:entries="@array/listArray"
+        android:entryValues="@array/listValues" />
 </PreferenceScreen>

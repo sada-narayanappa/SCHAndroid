@@ -6,8 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -28,7 +30,9 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public static Location  lastLocation = null;
     public static long      lastRecorded = -1;
     public static long      sessionNum    = 0;
-    public static double    minDistance   = 100;   // 100 meters
+    public static double    minDistance   = 100;   // 100 meter
+
+    SharedPreferences SP;
 
     static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
 
@@ -98,8 +102,50 @@ public class GPSWakfulReciever extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        
         Bundle b = intent.getExtras();
         Location loc = (Location) b.get(LocationPoller.EXTRA_LOCATION);
+
+        long tempLat = (long) loc.getLatitude();
+        long tempLon = (long) loc.getLongitude();
+
+
+
+        SP = PreferenceManager.getDefaultSharedPreferences(context);
+
+        if(SP.getBoolean("autoupdate",true) == false){
+            if(0 == SP.getLong("CurrentLatitude",0) || 0 == SP.getLong("CurrentLongitude",0)){
+                SharedPreferences.Editor editor = SP.edit();
+                editor.putLong("CurrentLatitude",tempLat);
+                editor.putLong("CurrentLongitude",tempLon);
+                editor.commit();
+            }
+            if(SP.getLong("CurrentLatitude",0) == tempLat){
+                SharedPreferences.Editor editor = SP.edit();
+                editor.putString("frequency","5");
+                if(SP.getLong("CurrentLongitude",0) == tempLon){
+                    editor.putString("frequency","10");
+                    editor.commit();
+                }
+            }
+            else if(SP.getLong("CurrentLongitude",0) == tempLon){
+                SharedPreferences.Editor editor = SP.edit();
+                editor.putString("frequency","5");
+                if(SP.getLong("CurrentLatitude",0) == tempLat) {
+                    editor.putString("frequency", "10");
+                    editor.commit();
+                }
+            }
+            else{
+                SharedPreferences.Editor editor = SP.edit();
+                editor.putString("frequency","1");
+                editor.commit();
+            }
+        }
+
+
+
+
 
         if (loc == null) {
             //loc = (Location) b.get(LocationPoller.EXTRA_LASTKNOWN);

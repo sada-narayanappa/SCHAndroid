@@ -61,11 +61,16 @@ public class UploadData extends ActionBarActivity {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         SP = PreferenceManager.getDefaultSharedPreferences(this);
-        String stringT = SP.getString("frequency", "2");
-        intT = Integer.parseInt(stringT);
+        if(SP.getBoolean("autoupdate",false) == true) {
+            String stringT = SP.getString("frequency", "2");
+            intT = Integer.parseInt(stringT);
 
-        PERIOD = 1000*60*intT;
-        //Toast("onCreate() "+PERIOD/1000/60);
+            PERIOD = 1000 * 60 * intT;
+            //Toast("onCreate() "+PERIOD/1000/60);
+        }
+        else{
+            autoUpdate();
+        }
 
         setContentView(R.layout.activity_upload_data);
 
@@ -88,6 +93,14 @@ public class UploadData extends ActionBarActivity {
             startStopService();
         }
         updateStatus();
+    }
+
+    //NOT IMPLEMENTED YET SIMPLY TO KEEP APP WORKING FOR NOW
+    public void autoUpdate(){
+        String stringT = SP.getString("frequency", "2");
+        intT = Integer.parseInt(stringT);
+
+        PERIOD = 1000 * 60 * intT;
     }
 
     private void Toast(String msg) {
@@ -171,15 +184,19 @@ public class UploadData extends ActionBarActivity {
 
         SP = PreferenceManager.getDefaultSharedPreferences(this);
         String stringT = SP.getString("frequency", "2");
-        int temp = Integer.parseInt(stringT);
+        if(SP.getBoolean("autoupdate",false) == true) {
+            int temp = Integer.parseInt(stringT);
 
-        if(temp != intT){
-            PERIOD = 1000*60*temp;
-            startStopService(); //restart service with new time interval
-            startStopService();
-            //Toast(""+PERIOD/1000/60);
+            if (temp != intT) {
+                PERIOD = 1000 * 60 * temp;
+                startStopService(); //restart service with new time interval
+                startStopService();
+                //Toast(""+PERIOD/1000/60);
+            }
         }
-
+        else{
+            autoUpdate();
+        }
 
 
     }
@@ -221,6 +238,7 @@ public class UploadData extends ActionBarActivity {
             Toast( "Location polling STOPPED");
         }
     }
+
     LocationManager lm = null;
     private void getLocationUpdates() {
         Criteria criteria = new Criteria();
@@ -235,9 +253,7 @@ public class UploadData extends ActionBarActivity {
             MyLocationListener myl1 = new MyLocationListener(LocationManager.GPS_PROVIDER);
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 15, myl1);
         }
-
         Log.w("", "******** PROVIDER ***** " + provider);
-
     }
 
     private boolean STOP_LOCATION_UPDATES = false;

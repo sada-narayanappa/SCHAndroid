@@ -1,6 +1,7 @@
 package org.geospaces.schas;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
@@ -16,4 +17,5 @@ public class SettingsActivity extends PreferenceActivity {
                 .replace(android.R.id.content, new SettingsFragment())
                 .commit();
     }
+
 }
