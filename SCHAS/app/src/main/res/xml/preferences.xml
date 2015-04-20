@@ -3,9 +3,9 @@
     <EditTextPreference android:title="Your Name"
         android:key="username"
         android:summary="Please provide your username"></EditTextPreference>
-    <CheckBoxPreference android:title="Manually Set Frequency"
+    <CheckBoxPreference android:title="Use Cellular Data"
         android:defaultValue="false"
-        android:summary="This will enable the ability to manually set the time interval for GPS data capture"
+        android:summary="Allow phone to upload over carrier data network (data rates may apply)"
         android:key="autoupdate" />
     <ListPreference     android:title="Update Frequency"
         android:summary="Select the interval you want to update location information"

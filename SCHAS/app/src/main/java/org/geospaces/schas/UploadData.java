@@ -12,6 +12,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.SystemClock;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -49,6 +50,7 @@ public class UploadData extends ActionBarActivity {
     private String PEF_Text;
     private String FEV_Text;
     private int intT;
+    private ConnectivityManager cm;
 
     SharedPreferences SP;
 
@@ -59,6 +61,9 @@ public class UploadData extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        cm.
 
         SP = PreferenceManager.getDefaultSharedPreferences(this);
         if(SP.getBoolean("autoupdate",false) == true) {

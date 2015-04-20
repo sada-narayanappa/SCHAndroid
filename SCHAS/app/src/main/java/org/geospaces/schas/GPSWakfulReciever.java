@@ -31,6 +31,8 @@ public class GPSWakfulReciever extends BroadcastReceiver {
     public static long      lastRecorded = -1;
     public static long      sessionNum    = 0;
     public static double    minDistance   = 100;   // 100 meter
+    public long tempLat = 0;
+    public long tempLon = 0;
 
     SharedPreferences SP;
 
@@ -106,40 +108,40 @@ public class GPSWakfulReciever extends BroadcastReceiver {
         Bundle b = intent.getExtras();
         Location loc = (Location) b.get(LocationPoller.EXTRA_LOCATION);
 
-        long tempLat = (long) loc.getLatitude();
-        long tempLon = (long) loc.getLongitude();
+        if(loc != null ) {
+            tempLat = (long) loc.getLatitude();
+            tempLon = (long) loc.getLongitude();
 
 
+            SP = PreferenceManager.getDefaultSharedPreferences(context);
 
-        SP = PreferenceManager.getDefaultSharedPreferences(context);
-
-        if(SP.getBoolean("autoupdate",true) == false){
-            if(0 == SP.getLong("CurrentLatitude",0) || 0 == SP.getLong("CurrentLongitude",0)){
+            if (0 == SP.getLong("CurrentLatitude", 0) || 0 == SP.getLong("CurrentLongitude", 0)) {
                 SharedPreferences.Editor editor = SP.edit();
-                editor.putLong("CurrentLatitude",tempLat);
-                editor.putLong("CurrentLongitude",tempLon);
+                editor.putLong("CurrentLatitude", tempLat);
+                editor.putLong("CurrentLongitude", tempLon);
                 editor.commit();
             }
-            if(SP.getLong("CurrentLatitude",0) == tempLat){
-                SharedPreferences.Editor editor = SP.edit();
-                editor.putString("frequency","5");
-                if(SP.getLong("CurrentLongitude",0) == tempLon){
-                    editor.putString("frequency","10");
+
+            if (SP.getString("frequency", "0").equals("0")) {
+                if (SP.getLong("CurrentLatitude", 0) == tempLat) {
+                    SharedPreferences.Editor editor = SP.edit();
+                    editor.putString("frequency", "5");
+                    if (SP.getLong("CurrentLongitude", 0) == tempLon) {
+                        editor.putString("frequency", "10");
+                        editor.commit();
+                    }
+                } else if (SP.getLong("CurrentLongitude", 0) == tempLon) {
+                    SharedPreferences.Editor editor = SP.edit();
+                    editor.putString("frequency", "5");
+                    if (SP.getLong("CurrentLatitude", 0) == tempLat) {
+                        editor.putString("frequency", "10");
+                        editor.commit();
+                    }
+                } else {
+                    SharedPreferences.Editor editor = SP.edit();
+                    editor.putString("frequency", "1");
                     editor.commit();
                 }
-            }
-            else if(SP.getLong("CurrentLongitude",0) == tempLon){
-                SharedPreferences.Editor editor = SP.edit();
-                editor.putString("frequency","5");
-                if(SP.getLong("CurrentLatitude",0) == tempLat) {
-                    editor.putString("frequency", "10");
-                    editor.commit();
-                }
-            }
-            else{
-                SharedPreferences.Editor editor = SP.edit();
-                editor.putString("frequency","1");
-                editor.commit();
             }
         }
 
