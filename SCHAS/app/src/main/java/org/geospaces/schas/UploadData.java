@@ -40,6 +40,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 
 public class UploadData extends ActionBarActivity {
@@ -62,11 +64,10 @@ public class UploadData extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
-        cm.
+
 
         SP = PreferenceManager.getDefaultSharedPreferences(this);
-        if(SP.getBoolean("autoupdate",false) == true) {
+        if(!SP.getString("frequency","2").equals("0")) {
             String stringT = SP.getString("frequency", "2");
             intT = Integer.parseInt(stringT);
 
@@ -76,6 +77,22 @@ public class UploadData extends ActionBarActivity {
         else{
             autoUpdate();
         }
+
+        SharedPreferences.OnSharedPreferenceChangeListener listener =
+                new SharedPreferences.OnSharedPreferenceChangeListener() {
+                    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                        if(prefs.getBoolean("CellularData",false) == true) {
+                            mobiledataenable(true);
+                           // Toast("mobile true");
+                        }
+                        else if(prefs.getBoolean("CellularData",true) == false){
+                            mobiledataenable(false);
+                           // Toast("mobile false");
+                        }
+                    }
+                };
+        SP.registerOnSharedPreferenceChangeListener(listener);
+
 
         setContentView(R.layout.activity_upload_data);
 
@@ -99,6 +116,26 @@ public class UploadData extends ActionBarActivity {
         }
         updateStatus();
     }
+
+
+
+
+    public void mobiledataenable(boolean enabled) {
+        try {
+            final ConnectivityManager conman = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            final Class<?> conmanClass = Class.forName(conman.getClass().getName());
+            final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
+            iConnectivityManagerField.setAccessible(true);
+            final Object iConnectivityManager = iConnectivityManagerField.get(conman);
+            final Class<?> iConnectivityManagerClass = Class.forName(iConnectivityManager.getClass().getName());
+            final Method setMobileDataEnabledMethod = iConnectivityManagerClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
+            setMobileDataEnabledMethod.setAccessible(true);
+            setMobileDataEnabledMethod.invoke(iConnectivityManager, enabled);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     //NOT IMPLEMENTED YET SIMPLY TO KEEP APP WORKING FOR NOW
     public void autoUpdate(){
@@ -189,15 +226,11 @@ public class UploadData extends ActionBarActivity {
 
         SP = PreferenceManager.getDefaultSharedPreferences(this);
         String stringT = SP.getString("frequency", "2");
-        if(SP.getBoolean("autoupdate",false) == true) {
-            int temp = Integer.parseInt(stringT);
+        if(!SP.getString("frequency","2").equals("0")){
+            intT = Integer.parseInt(stringT);
 
-            if (temp != intT) {
-                PERIOD = 1000 * 60 * temp;
-                startStopService(); //restart service with new time interval
-                startStopService();
-                //Toast(""+PERIOD/1000/60);
-            }
+            PERIOD = 1000 * 60 * intT;
+            //Toast("onCreate() "+PERIOD/1000/60);
         }
         else{
             autoUpdate();
@@ -529,4 +562,5 @@ public class UploadData extends ActionBarActivity {
         }
         return true;
     }
+
 }

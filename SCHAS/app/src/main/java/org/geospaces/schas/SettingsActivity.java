@@ -7,7 +7,7 @@ import android.preference.PreferenceActivity;
 
 import org.geospaces.schas.Settings.SettingsFragment;
 
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,4 +18,8 @@ public class SettingsActivity extends PreferenceActivity {
                 .commit();
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+    }
 }
