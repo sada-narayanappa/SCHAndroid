@@ -145,10 +145,6 @@ public class GPSWakfulReciever extends BroadcastReceiver {
             }
         }
 
-
-
-
-
         if (loc == null) {
             //loc = (Location) b.get(LocationPoller.EXTRA_LASTKNOWN);
 //            if (loc == null) {
