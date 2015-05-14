@@ -4,7 +4,7 @@
 
     <uses-sdk
         android:minSdkVersion="12"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="21" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -18,6 +18,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEDGE"/>
+
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
 
     <uses-permission

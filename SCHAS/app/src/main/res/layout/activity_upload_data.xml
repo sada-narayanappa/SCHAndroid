@@ -209,6 +209,14 @@
 
         </GridLayout>
 
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bluetooth"
+            android:id="@+id/bleButton"
+            android:layout_gravity="center_horizontal" />
+
 
     </LinearLayout>
 

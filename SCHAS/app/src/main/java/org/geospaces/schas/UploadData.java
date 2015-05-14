@@ -1,18 +1,33 @@
 package org.geospaces.schas;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -21,18 +36,25 @@ import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.locpoll.LocationPoller;
 
+import org.geospaces.schas.BluetoothLE.InhalerCap;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -43,7 +65,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class UploadData extends ActionBarActivity {
 
     private int PERIOD = 1 * 1000 * 60;  // 1 min
@@ -54,14 +80,34 @@ public class UploadData extends ActionBarActivity {
     private int intT;
     private ConnectivityManager cm;
 
+
+
+
+
     SharedPreferences SP;
 
     TextView statusText;
     TextView medText;
 
+    //Bluetooth Variables below
+    private BluetoothAdapter mBluetoothAdapter;
+    private ProgressDialog mProgress;
+    private HashMap<String, BluetoothDevice> mDevices;
+    private BluetoothLeScanner bleScan;
+    private List<ScanFilter> filters;
+    private ScanSettings settings;
+    private HashMap<String, InhalerCap> mCaps;
+    private CapAdapter mCapAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
+        // temp
+
+        setProgressBarIndeterminate(true);
+        // ^^ temp
+
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
@@ -106,6 +152,7 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
         findViewById(R.id.medButton).setOnClickListener(medicine_button);
+        findViewById(R.id.bleButton).setOnClickListener(ble_button);
 
         medText    = (TextView) findViewById(R.id.medText);
         statusText = (TextView) findViewById(R.id.statusText);
@@ -115,6 +162,175 @@ public class UploadData extends ActionBarActivity {
             startStopService();
         }
         updateStatus();
+
+        // Bluetooth implementation Below
+
+
+        /*
+         * We are going to display all the device beacons that we discover
+         * in a list, using a custom adapter implementation
+         *
+        ListView list = new ListView(this);
+        mCapAdapter = new CapAdapter(this);
+        list.setAdapter(mCapAdapter);
+        setContentView(list);
+*/
+
+        mCapAdapter = new CapAdapter(this);
+        bluetoothInit();
+        bluetoothLEScan();
+
+
+    }
+
+
+
+
+
+    public void bluetoothInit(){
+        BluetoothManager blemanager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
+        mBluetoothAdapter = blemanager.getAdapter();
+
+        bleScan = mBluetoothAdapter.getBluetoothLeScanner();
+
+
+
+        mCaps = new HashMap<String, InhalerCap>();
+        /*
+         *
+         * Progress dialog while connection in progress
+         */
+
+        mProgress = new ProgressDialog(this);
+        mProgress.setIndeterminate(true);
+        mProgress.setCancelable(false);
+    }
+
+    public void bluetoothLEScan(){
+        //mDevices.clear();
+        startTheScan();
+    }
+
+    public void startTheScan(){
+
+        ScanFilter bluegiga = new ScanFilter.Builder()
+                    .setServiceUuid(InhalerCap.genericAccessService).build();
+
+        ArrayList<ScanFilter> filters = new ArrayList<ScanFilter>();
+        filters.add(bluegiga);
+
+
+        ScanSettings settings = new ScanSettings.Builder()
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .build();
+
+       bleScan.startScan(filters,settings,callback);
+      //  bleScan.startScan(filters,settings,callback);
+
+    }
+    private String TAG = "BLE";
+    private ScanCallback callback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            Log.d(TAG, "onScanResult");
+            processResult(result);
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            Log.d(TAG, "onBatchScanResults: "+results.size()+" results");
+            for (ScanResult result : results) {
+                processResult(result);
+            }
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            Log.w(TAG, "LE Scan Failed: "+errorCode);
+        }
+
+        private void processResult(ScanResult result) {
+            Log.i(TAG, "New LE Device: " + result.getDevice().getName() + " @ " + result.getRssi());
+
+            /*
+             * Create a new beacon from the list of obtains AD structures
+             * and pass it up to the main thread
+             */
+            InhalerCap cap = new InhalerCap(result.getScanRecord(),
+                    result.getDevice().getAddress(),
+                    result.getRssi());
+            mHandler.sendMessage(Message.obtain(null, 0, cap));
+        }
+    };
+
+    /*
+ * We have a Handler to process scan results on the main thread,
+ * add them to our list adapter, and update the view
+ */
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            InhalerCap cap = (InhalerCap) msg.obj;
+            mCaps.put(cap.getName(), cap);
+
+            mCapAdapter.setNotifyOnChange(false);
+            mCapAdapter.clear();
+            mCapAdapter.addAll(mCaps.values());
+            mCapAdapter.notifyDataSetChanged();
+        }
+    };
+
+    /*
+     * A custom adapter implementation that displays the TemperatureBeacon
+     * element data in columns, and also varies the text color of each row
+     * by the temperature values of the beacon
+     */
+    private static class CapAdapter extends ArrayAdapter<InhalerCap> {
+
+        public CapAdapter(Context context) {
+            super(context, 0);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext())
+                        .inflate(R.layout.item_inhaler_list, parent, false);
+            }
+
+            InhalerCap cap = getItem(position);
+            //Set color based on temperature
+            final int textColor = getTemperatureColor(cap.getCurrentTemp());
+
+            TextView nameView = (TextView) convertView.findViewById(R.id.text_name);
+            nameView.setText(cap.getName());
+            nameView.setTextColor(textColor);
+
+            TextView tempView = (TextView) convertView.findViewById(R.id.text_temperature);
+            tempView.setText(String.format("%.1f\u00B0C", cap.getCurrentTemp()));
+            tempView.setTextColor(textColor);
+
+            TextView addressView = (TextView) convertView.findViewById(R.id.text_address);
+            addressView.setText(cap.getAddress());
+            addressView.setTextColor(textColor);
+
+            TextView rssiView = (TextView) convertView.findViewById(R.id.text_rssi);
+            rssiView.setText(String.format("%ddBm", cap.getSignal()));
+            rssiView.setTextColor(textColor);
+
+            return convertView;
+        }
+
+        private int getTemperatureColor(float temperature) {
+            //Color range from 0 - 40 degC
+            float clipped = Math.max(0f, Math.min(40f, temperature));
+
+            float scaled = ((40f - clipped) / 40f) * 255f;
+            int blue = Math.round(scaled);
+            int red = 255 - blue;
+
+            return Color.rgb(red, 0, blue);
+        }
     }
 
 
@@ -235,6 +451,22 @@ public class UploadData extends ActionBarActivity {
         else{
             autoUpdate();
         }
+
+        //Bluetooth Portion Below
+/*
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()){
+            //Bluetooth is disabled
+
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivity(enableBtIntent);
+            finish();
+
+        }
+        //check for low energy support
+        if(!getPackageManager().hasSystemFeature((PackageManager.FEATURE_BLUETOOTH_LE))){
+        Toast("No LE Support.");
+            finish();
+        }*/
 
 
     }
@@ -521,28 +753,22 @@ public class UploadData extends ActionBarActivity {
     private View.OnClickListener medicine_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            MedicineTakenPopUp("Medicine Used");
+
+
+        }
+    };
+    private View.OnClickListener ble_button = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            bleScan.stopScan(callback);
+            bluetoothInit();
+            bluetoothLEScan();
+
 
         }
     };
 
-    /**
-     * Michael:
-     * Write to the same file as String ret = GPSWakfulReciever.storeLocation(loc);
-     * Get the location information and set
-     *  record_type = "PFM_USE"
-     *  Get the lat= and lon= and
-     *  Store the values in notes=
-     *  So your record would look like:
-     *  measured_at="time", record_type="PFM_USE",lat="letitude -lookup", lon="lon",notes"your values"
-     *  That is all you need to do - the file will be uploaded whenever it gets uploaded
-     *
-     *  Same thing fot Inhaler USE lets use record_type="INHALER"
-     *  ATTACK - record_type="ATTACK_MILD" , "ATTACK_MEDIUM" ATTACK_SEVERE"
-     *
-     * @param s1
-     * @param s2
-     */
+
     public void writeFile(String s1, String s2) {
         PEF_Text = "";
         FEV_Text = "";
@@ -561,6 +787,13 @@ public class UploadData extends ActionBarActivity {
             return super.onOptionsItemSelected(item);
         }
         return true;
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //Cancel scan in progress
+        bleScan.stopScan(callback);
+
     }
 
 }
