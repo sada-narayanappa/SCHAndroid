@@ -6,7 +6,11 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -146,6 +150,7 @@ public class UploadData extends ActionBarActivity {
         btDeviceList = new ArrayList<BluetoothDevice>();
 
         BTinit();
+        BleGattConnect();
 
 
 
@@ -183,10 +188,14 @@ public class UploadData extends ActionBarActivity {
                     //The code here is executed on main thread
                     if(!btDeviceList.contains(device)) {
                         btDeviceList.add(device);
+                        Log.e("LeScanCallback", Thread.currentThread().getName());//Prints main
+                        device.connectGatt(getApplicationContext(), true, mGattCallback);
                     }
-                    Log.e("LeScanCallback", Thread.currentThread().getName());//Prints main
+
                 }
             };
+
+
 
     private static final long SCAN_PERIOD = 20000;
 
@@ -207,6 +216,41 @@ public class UploadData extends ActionBarActivity {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
+    }
+    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                System.out.println(gatt.getDevice() + ": Connected.. ");
+                gatt.readRemoteRssi();
+            }
+            if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                System.out.println(gatt.getDevice() + ": Disconnected.. ");
+            }
+        }
+
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+           System.out.println(gatt.getDevice() + " RSSI:" + rssi + "db ");
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            gatt.readRemoteRssi();
+
+        }
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            System.out.println(gatt.readCharacteristic(characteristic));
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    private void BleGattConnect(){
+
     }
 
 
@@ -637,7 +681,8 @@ public class UploadData extends ActionBarActivity {
     private View.OnClickListener test_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Toast("btdevices " + btDeviceList.get(0).getName());
+            btDeviceList.get(0).connectGatt(getApplicationContext(), false, mGattCallback);
+            Toast("btdevice: " + btDeviceList.get(0).getName() + "\n size:" + btDeviceList.size());
         }
     };
 
