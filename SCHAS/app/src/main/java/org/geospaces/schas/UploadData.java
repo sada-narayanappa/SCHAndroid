@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -21,10 +25,13 @@ import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -43,6 +50,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.os.Handler;
 
 public class UploadData extends ActionBarActivity {
 
@@ -58,6 +69,19 @@ public class UploadData extends ActionBarActivity {
 
     TextView statusText;
     TextView medText;
+
+
+    //Bluetooth Variables
+
+    private BluetoothAdapter mBluetoothAdapter;
+    private final static int REQUEST_ENABLE_BT = 1;
+    private BluetoothDevice mBTdev;
+    private int mBTint;
+    private byte[] mBTbyte;
+    private boolean mScanning;
+    private Handler mHandler;
+    private List<BluetoothDevice> btDeviceList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +130,7 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
         findViewById(R.id.medButton).setOnClickListener(medicine_button);
+        findViewById(R.id.Test123).setOnClickListener(test_button);
 
         medText    = (TextView) findViewById(R.id.medText);
         statusText = (TextView) findViewById(R.id.statusText);
@@ -115,8 +140,91 @@ public class UploadData extends ActionBarActivity {
             startStopService();
         }
         updateStatus();
+
+
+        mHandler = new Handler();
+        btDeviceList = new ArrayList<BluetoothDevice>();
+
+        BTinit();
+
+
+
     }
 
+    //BT LE section
+
+
+
+    private void BTinit(){
+        // Use this check to determine whether BLE is supported on the device. Then
+// you can selectively disable BLE-related features.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "Bluetooth LE not supported", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent,REQUEST_ENABLE_BT);
+        }
+
+        scanLeDevice(true);
+    }
+
+
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
+                    //The code here is executed on main thread
+                    if(!btDeviceList.contains(device)) {
+                        btDeviceList.add(device);
+                    }
+                    Log.e("LeScanCallback", Thread.currentThread().getName());//Prints main
+                }
+            };
+
+    private static final long SCAN_PERIOD = 20000;
+
+    private void scanLeDevice(final boolean enable) {
+        if (enable) {
+            // Stops scanning after a pre-defined scan period.
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScanning = false;
+                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                }
+            }, SCAN_PERIOD);
+
+            mScanning = true;
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+        } else {
+            mScanning = false;
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        }
+    }
+
+
+
+   /* private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //The code here is executed on on new thread everytime
+                            Toast("LeScan");
+                            Log.e("LeScanCallback", Thread.currentThread().getName());//Prints Thread-xxxx
+                        }
+                    }).start();
+                }
+            };*/
 
 
 
@@ -523,6 +631,13 @@ public class UploadData extends ActionBarActivity {
         public void onClick(View v) {
             MedicineTakenPopUp("Medicine Used");
 
+        }
+    };
+
+    private View.OnClickListener test_button = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Toast("btdevices " + btDeviceList.get(0).getName());
         }
     };
 

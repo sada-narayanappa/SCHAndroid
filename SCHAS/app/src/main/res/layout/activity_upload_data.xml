@@ -209,6 +209,14 @@
 
         </GridLayout>
 
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:text="Test"
+            android:id="@+id/Test123"
+            android:layout_gravity="center_horizontal" />
+
 
     </LinearLayout>
 
