@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
@@ -85,6 +86,7 @@ public class UploadData extends ActionBarActivity {
     private boolean mScanning;
     private Handler mHandler;
     private List<BluetoothDevice> btDeviceList;
+    private boolean btInitConnect = false;
 
 
     @Override
@@ -174,7 +176,7 @@ public class UploadData extends ActionBarActivity {
 
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent,REQUEST_ENABLE_BT);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
         scanLeDevice(true);
@@ -188,8 +190,12 @@ public class UploadData extends ActionBarActivity {
                     //The code here is executed on main thread
                     if(!btDeviceList.contains(device)) {
                         btDeviceList.add(device);
-                        Log.e("LeScanCallback", Thread.currentThread().getName());//Prints main
+                    }
+                    Log.e("LeScanCallback", Thread.currentThread().getName());//Prints main
+                    String BTname = device.getName();
+                    if(BTname != null && BTname.contains("Bluegiga") && btInitConnect == false){
                         device.connectGatt(getApplicationContext(), true, mGattCallback);
+                        btInitConnect = true;
                     }
 
                 }
@@ -217,11 +223,19 @@ public class UploadData extends ActionBarActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
     }
+
+
+
+
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                System.out.println(gatt.getDevice() + ": Connected.. ");
+                //System.out.println(gatt.getDevice() + ": Connected.. ");
                 gatt.readRemoteRssi();
+               // Log.e("BTGATT", "Connecting to gatt");
+                gatt.discoverServices();
+                mScanning = false;
+
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 System.out.println(gatt.getDevice() + ": Disconnected.. ");
@@ -229,46 +243,48 @@ public class UploadData extends ActionBarActivity {
         }
 
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-           System.out.println(gatt.getDevice() + " RSSI:" + rssi + "db ");
+           //Log.d("OnReadRemoteRssi",gatt.getDevice() + " RSSI:" + rssi + "db ");
             try {
                 Thread.sleep(300);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            gatt.readRemoteRssi();
+            //gatt.readRemoteRssi();
 
         }
-        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            System.out.println(gatt.readCharacteristic(characteristic));
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            List<BluetoothGattService> services = gatt.getServices();
+            Log.i("onServicesDiscovered", services.toString());
+            Log.i("Characteristics: ", services.get(2).getCharacteristics().toString());
+
+            //Battery Level Characteristic
+            gatt.readCharacteristic(services.get(2).getCharacteristics().get(4));
+
+            //Button Count Characteristic
+            gatt.readCharacteristic(services.get(2).getCharacteristics().get(3));
+
+            //List<BluetoothGattCharacteristic> characteristics = gatt.getService().getCharacteristics();
+        }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt,
+                                         BluetoothGattCharacteristic
+                                                 characteristic, int status) {
+            //Battery Level Characteristic
+            Log.i("onCharacteristicRead","Byte: " + characteristic.getFloatValue(
+                    BluetoothGattCharacteristic.FORMAT_SFLOAT,0));
+
+          //  gatt.connect();
+           // gatt.disconnect();
+           // btInitConnect = false;
         }
     };
 
     private void BleGattConnect(){
 
     }
-
-
-
-   /* private BluetoothAdapter.LeScanCallback mLeScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
-                @Override
-                public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //The code here is executed on on new thread everytime
-                            Toast("LeScan");
-                            Log.e("LeScanCallback", Thread.currentThread().getName());//Prints Thread-xxxx
-                        }
-                    }).start();
-                }
-            };*/
 
 
 
@@ -681,8 +697,16 @@ public class UploadData extends ActionBarActivity {
     private View.OnClickListener test_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            btDeviceList.get(0).connectGatt(getApplicationContext(), false, mGattCallback);
-            Toast("btdevice: " + btDeviceList.get(0).getName() + "\n size:" + btDeviceList.size());
+            int devCount = btDeviceList.size() - 1;
+            if(btDeviceList.size() != 0) {
+                for(int i = 0; i<devCount;i++){
+                    if(btDeviceList.get(i).getName().contains("Bluegiga")){
+                         btDeviceList.get(i).connectGatt(getApplicationContext(), false, mGattCallback);
+                         Toast("btdevice: " + btDeviceList.get(i).getName() + "\n size:" + btDeviceList.size());
+                    }
+                }
+            }
+            else{scanLeDevice(true);}
         }
     };
 
