@@ -12,61 +12,46 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PostMan"
-        android:id="@+id/homeButton"
-        android:layout_toEndOf="@+id/mapButton"
-        android:gravity="center"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/mapButton" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Server"
-        android:id="@+id/graphButton"
-        android:layout_toEndOf="@+id/homeButton"
-        android:gravity="center"
-        android:layout_toStartOf="@+id/clearButton"
-        android:layout_toRightOf="@+id/homeButton"
-        android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/clearButton" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Clear"
-        android:id="@+id/clearButton"
-        android:gravity="center"
-        android:background="@android:color/holo_red_light"
-        android:layout_below="@+id/statusText"
-        android:layout_alignRight="@+id/statusText"
-        android:layout_alignEnd="@+id/statusText" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Read"
-        android:id="@+id/mapButton"
+        android:text="Search"
+        android:id="@+id/searchBtn"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:gravity="center" />
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:id="@+id/cancelBtn"
+        android:layout_alignTop="@+id/searchBtn"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/statusText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:gravity="fill_horizontal|fill_vertical"
-        android:layout_above="@+id/mapButton"
-        android:background="@android:color/holo_orange_light"
-        android:layout_alignParentTop="true" />
-    <!--android:inputType="textMultiLine"
-        android:hint="Status Text will be printed Here"
-        android:linksClickable="true"
-        android:autoText="false"
-        android:editable="false" />-->
+        android:text="Bluetooth Low Energy POC"
+        android:id="@+id/title"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btdeviceListView"
+        android:layout_below="@+id/title"
+        android:layout_above="@+id/searchBtn"
+        android:layout_alignRight="@+id/cancelBtn"
+        android:layout_alignEnd="@+id/cancelBtn" />
+    <ProgressBar
+        android:id="@+id/btProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/btdeviceListView"
+        android:visibility="gone" />
 </RelativeLayout>
+
+

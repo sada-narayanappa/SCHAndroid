@@ -3,7 +3,7 @@
     package="org.geospaces.schas" >
 
     <uses-sdk
-        android:minSdkVersion="12"
+        android:minSdkVersion="18"
         android:targetSdkVersion="21" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

@@ -2,23 +2,23 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    buildToolsVersion "21.0.1"
 
     defaultConfig {
         //applicationId "mymodule.app2.mymodule.app2"
         minSdkVersion 10
         targetSdkVersion 10
-        versionCode 1
-        versionName "1.0"
+    versionCode 1
+    versionName "1.0"
+}
+buildTypes {
+    release {
+        //runProguard false
+        //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        minifyEnabled false // new version
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
-    buildTypes {
-        release {
-            //runProguard false
-            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            minifyEnabled false // new version
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+}
 }
 
 dependencies {

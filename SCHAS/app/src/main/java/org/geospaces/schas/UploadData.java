@@ -177,8 +177,8 @@ public class UploadData extends ActionBarActivity {
 */
 
         mCapAdapter = new CapAdapter(this);
-        bluetoothInit();
-        bluetoothLEScan();
+       // bluetoothInit();
+      //  bluetoothLEScan();
 
 
     }
