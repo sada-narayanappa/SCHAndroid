@@ -80,6 +80,10 @@ public class Test extends ActionBarActivity {
             public void onClick(View v) {
                 checkBluetoothActive();
 
+                    btDeviceList.clear();
+                    itemsAdapter.clear();
+                    itemsAdapter.notifyDataSetChanged();
+
                 btAdapter.startLeScan(leScanCallback);
                 Log.d("btSearch", "Device search began");
                 Toast.makeText(Test.this, "Bluetooth Scanning Began", Toast.LENGTH_SHORT).show();
@@ -139,6 +143,7 @@ public class Test extends ActionBarActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        btAdapter.stopLeScan(leScanCallback);
 
     }
 }

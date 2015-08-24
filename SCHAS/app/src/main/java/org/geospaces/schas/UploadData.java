@@ -176,7 +176,7 @@ public class UploadData extends ActionBarActivity {
         setContentView(list);
 */
 
-        mCapAdapter = new CapAdapter(this);
+      //  mCapAdapter = new CapAdapter(this);
        // bluetoothInit();
       //  bluetoothLEScan();
 
@@ -792,7 +792,7 @@ public class UploadData extends ActionBarActivity {
     protected void onPause() {
         super.onPause();
         //Cancel scan in progress
-        bleScan.stopScan(callback);
+        //bleScan.stopScan(callback);
 
     }
 
