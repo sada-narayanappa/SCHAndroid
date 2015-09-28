@@ -46,24 +46,6 @@ public class HandleMenu  {
                 }
                 Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
                 return false;
-
-            case R.id.action_about:
-                if(a.getClass() != Welcome.class){
-                    intent = new Intent(a, Welcome.class);
-                    a.startActivity(intent);
-                    return true;
-                }
-                Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
-                return false;
-            case R.id.action_web:
-                if(a.getClass() != Web.class) {
-                    intent = new Intent(a, Web.class);
-                    a.startActivity(intent);
-                    //a.setContentView(R.layout.activity_web);
-                    return true;
-                }
-                Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
-                return false;
             case R.id.action_UploadData:
                 if(a.getClass() != UploadData.class) {
                     intent = new Intent(a, UploadData.class);

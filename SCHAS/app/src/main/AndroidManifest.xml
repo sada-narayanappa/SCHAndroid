@@ -17,11 +17,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEDGE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEDGE" />
 
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
-
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
 
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -53,9 +54,9 @@
             android:name=".Web"
             android:label="@string/title_activity_web" >
         </activity>
-        <activity android:name=".SettingsActivity"
-            android:label="Settings Menu">
-
+        <activity
+            android:name=".SettingsActivity"
+            android:label="Settings Menu" >
         </activity>
         <activity
             android:name=".BluetoothSettings"
@@ -82,6 +83,18 @@
 
         <service
             android:name=".UploadService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <receiver
+            android:name=".Broadcast_Receivers.heartBeatReceiver"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
+
+        <service
+            android:name=".Services.bleService"
             android:enabled="true"
             android:exported="true" >
         </service>

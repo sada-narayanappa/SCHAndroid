@@ -5,8 +5,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">BluetoothSettings</string>
     <string name="title_activity_bluetooth_settings">BluetoothSettings</string>
-    <string name="action_test">Test</string>
-    <string name="title_activity_test">Test</string>
+    <string name="action_test">Bluetooth</string>
+    <string name="title_activity_test">Scan for inhaler</string>
     <string name="action_UploadData">Dashboard</string>
     <string name="title_activity_upload_data">Dashboard</string>
     <string name="action_about">Welcome Screen</string>
@@ -17,6 +17,7 @@
     <string name="titleTextView">TextView</string>
     <string name="action_settings_menu">Settings Menu</string>
     <string name="title_settings_menu">Settings Menu</string>
-
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
 
 </resources>

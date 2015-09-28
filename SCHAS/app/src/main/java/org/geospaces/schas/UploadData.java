@@ -1,7 +1,6 @@
 package org.geospaces.schas;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -18,7 +17,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -30,13 +28,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,7 +44,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -152,7 +147,6 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
         findViewById(R.id.medButton).setOnClickListener(medicine_button);
-        findViewById(R.id.bleButton).setOnClickListener(ble_button);
 
         medText    = (TextView) findViewById(R.id.medText);
         statusText = (TextView) findViewById(R.id.statusText);
@@ -186,7 +180,10 @@ public class UploadData extends ActionBarActivity {
 
 
 
-
+    /*
+     TO-DO DELETE FROM HERE TO HANDLER TO REMOVE UNUSED BLE CODE
+     ALL BLE CODE MOVED TO TEST ACTIVITY
+     */
     public void bluetoothInit(){
         BluetoothManager blemanager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = blemanager.getAdapter();
@@ -206,10 +203,6 @@ public class UploadData extends ActionBarActivity {
         mProgress.setCancelable(false);
     }
 
-    public void bluetoothLEScan(){
-        //mDevices.clear();
-        startTheScan();
-    }
 
     public void startTheScan(){
 
@@ -753,16 +746,6 @@ public class UploadData extends ActionBarActivity {
     private View.OnClickListener medicine_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
-
-        }
-    };
-    private View.OnClickListener ble_button = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            bleScan.stopScan(callback);
-            bluetoothInit();
-            bluetoothLEScan();
 
 
         }

@@ -1,6 +1,8 @@
 package org.geospaces.schas;
 
-import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
 import org.geospaces.schas.utils.SCHASApplication;
 
 import java.io.File;
@@ -25,10 +28,16 @@ import java.util.TimerTask;
 public class Welcome extends ActionBarActivity {
 
     static boolean firstTime = true;
+    private PendingIntent pendingIntent;
+    private AlarmManager manager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        Intent alarmIntent = new Intent(this,heartBeatReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,0);
 
         SCHASApplication.getInstance();
         //Creates a SCHAS directory on the external storage portion of the Device to keep data files
@@ -64,6 +73,10 @@ public class Welcome extends ActionBarActivity {
                                      }
                                  }, 5000
             );
+
+            //TO-DO uncomment to activate heartbeat when upload service is complete
+            //startAlarm();
+
             firstTime = false;
         }
         try {
@@ -78,6 +91,13 @@ public class Welcome extends ActionBarActivity {
         }
     }
 
+    public void startAlarm(){
+        manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        int interval = 10000;
+
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        Toast.makeText(this,"Alarm Set", Toast.LENGTH_SHORT).show();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

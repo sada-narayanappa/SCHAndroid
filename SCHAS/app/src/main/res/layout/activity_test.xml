@@ -27,22 +27,14 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bluetooth Low Energy POC"
-        android:id="@+id/title"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btdeviceListView"
-        android:layout_below="@+id/title"
         android:layout_above="@+id/searchBtn"
         android:layout_alignRight="@+id/cancelBtn"
-        android:layout_alignEnd="@+id/cancelBtn" />
+        android:layout_alignEnd="@+id/cancelBtn"
+        android:layout_below="@+id/connection_state" />
     <ProgressBar
         android:id="@+id/btProgressBar"
         style="?android:attr/progressBarStyleLarge"
@@ -52,6 +44,15 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/btdeviceListView"
         android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Null"
+        android:id="@+id/connection_state"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
 
 

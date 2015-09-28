@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,13 +16,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.geospaces.schas.Adapters.bluetoothDevicesAdapter;
+import org.geospaces.schas.Services.bleService;
 
 import java.util.ArrayList;
 
@@ -34,6 +38,8 @@ public class Test extends ActionBarActivity {
     private ListView listview;
     private ProgressBar btSpinner;
     private ArrayAdapter<BluetoothDevice> itemsAdapter;
+    private bleService mBluetoothLeService;
+    protected TextView mConnectionState;
 
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
@@ -63,6 +69,36 @@ public class Test extends ActionBarActivity {
         }
     };
 
+    private boolean mConnected = false;
+    // Handles various events fired by the Service.
+    // ACTION_GATT_CONNECTED: connected to a GATT server.
+    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
+    // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
+    // ACTION_DATA_AVAILABLE: received data from the device. This can be a
+    // result of read or notification operations.
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (bleService.ACTION_GATT_CONNECTED.equals(action)) {
+                mConnected = true;
+                updateConnectionState(R.string.connected);
+                invalidateOptionsMenu();
+            } else if (bleService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                mConnected = false;
+                updateConnectionState(R.string.disconnected);
+                invalidateOptionsMenu();
+            } else if (bleService.
+                    ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                // Show all the supported services and characteristics on the
+                // user interface.
+                //displayGattServices(mBluetoothLeService.getSupportedGattServices());
+            } else if (bleService.ACTION_DATA_AVAILABLE.equals(action)) {
+                //displayData(intent.getStringExtra(bleService.EXTRA_DATA));
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +109,7 @@ public class Test extends ActionBarActivity {
         itemsAdapter = new bluetoothDevicesAdapter(this.getApplicationContext(), btDeviceList);
         listview = (ListView) findViewById(R.id.btdeviceListView);
         btSpinner = (ProgressBar)findViewById(R.id.btProgressBar);
+        mConnectionState = (TextView) findViewById(R.id.connection_state);
 
         //Set up button listeners
         final Button searchButton = (Button) findViewById(R.id.searchBtn);
@@ -105,8 +142,17 @@ public class Test extends ActionBarActivity {
 
         //Link the list view to the adapter
         listview.setAdapter(itemsAdapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+            @Override
+            public void onItemClick(AdapterView<?> parent,
+                                    View view, int position, long id) {
+                Log.d("My POSITION",""+position);
 
+            }
+        });
+
+        updateConnectionState(R.string.disconnected);
     }
 
     // Checks if the phone has bluetooth enabled
@@ -118,6 +164,29 @@ public class Test extends ActionBarActivity {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent,REQUEST_ENABLE_BT);
         }
+    }
+    private void updateConnectionState(final int resourceId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int colourId;
+
+                switch (resourceId) {
+                    case R.string.connected:
+                        colourId = android.R.color.holo_green_dark;
+                        break;
+                    case R.string.disconnected:
+                        colourId = android.R.color.holo_red_dark;
+                        break;
+                    default:
+                        colourId = android.R.color.black;
+                        break;
+                }
+
+                mConnectionState.setText(resourceId);
+                mConnectionState.setTextColor(getResources().getColor(colourId));
+            }
+        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,7 +212,10 @@ public class Test extends ActionBarActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        btAdapter.stopLeScan(leScanCallback);
+        if(btAdapter != null && btAdapter.isDiscovering()) {
+            btAdapter.stopLeScan(leScanCallback);
+        }
+
 
     }
 }
