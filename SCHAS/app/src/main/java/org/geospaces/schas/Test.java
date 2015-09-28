@@ -40,6 +40,8 @@ public class Test extends ActionBarActivity {
     private ArrayAdapter<BluetoothDevice> itemsAdapter;
     private bleService mBluetoothLeService;
     protected TextView mConnectionState;
+    private Button searchButton;
+    private Button cancelButton;
 
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
@@ -112,7 +114,7 @@ public class Test extends ActionBarActivity {
         mConnectionState = (TextView) findViewById(R.id.connection_state);
 
         //Set up button listeners
-        final Button searchButton = (Button) findViewById(R.id.searchBtn);
+        searchButton = (Button) findViewById(R.id.searchBtn);
         searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 checkBluetoothActive();
@@ -125,10 +127,13 @@ public class Test extends ActionBarActivity {
                 Log.d("btSearch", "Device search began");
                 Toast.makeText(Test.this, "Bluetooth Scanning Began", Toast.LENGTH_SHORT).show();
                 btSpinner.setVisibility(View.VISIBLE);
+                cancelButton.setEnabled(true);
+                searchButton.setEnabled(false);
             }
         });
 
-        final Button cancelButton = (Button) findViewById(R.id.cancelBtn);
+        cancelButton = (Button) findViewById(R.id.cancelBtn);
+        cancelButton.setEnabled(false);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 checkBluetoothActive();
@@ -137,6 +142,8 @@ public class Test extends ActionBarActivity {
                 Log.d("btCancel", "Device search canceled");
                 Toast.makeText(Test.this, "Bluetooth Scanning Ended", Toast.LENGTH_SHORT).show();
                 btSpinner.setVisibility(View.GONE);
+                searchButton.setEnabled(true);
+                cancelButton.setEnabled(false);
             }
         });
 
@@ -147,7 +154,7 @@ public class Test extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent,
                                     View view, int position, long id) {
-                Log.d("My POSITION",""+position);
+                Log.d("My POSITION", "" + position);
 
             }
         });
