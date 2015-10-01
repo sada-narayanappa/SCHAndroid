@@ -189,6 +189,18 @@ public class db {
         return sb.toString();
     }
 
+    public static String getInhalerData(int buttonPresses) {
+
+        StringBuffer sb = new StringBuffer(512);
+        long sessionNum = System.currentTimeMillis()/1000000 * 60;
+
+        StringBuffer append = sb.append(
+               "inhaler_count=" +buttonPresses
+        );
+
+        return sb.toString();
+    }
+
     public static boolean fileReady() {
         File to     = getFile(FILE_READY);
         return to.exists();

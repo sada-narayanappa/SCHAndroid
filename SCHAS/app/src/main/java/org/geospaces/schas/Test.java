@@ -7,9 +7,13 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -29,7 +33,7 @@ import org.geospaces.schas.Services.bleService;
 
 import java.util.ArrayList;
 
-public class Test extends ActionBarActivity {
+public class Test extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     private final static int REQUEST_ENABLE_BT = 1;
     private BluetoothManager btManager;
@@ -42,6 +46,7 @@ public class Test extends ActionBarActivity {
     protected TextView mConnectionState;
     private Button searchButton;
     private Button cancelButton;
+    private String mDeviceAddress;
 
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
@@ -53,11 +58,29 @@ public class Test extends ActionBarActivity {
         }
     };
 
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(final ComponentName componentName, final IBinder service) {
+            mBluetoothLeService = ((bleService.LocalBinder) service).getService();
+            if (!mBluetoothLeService.initialize()) {
+                Log.e("initalizeBT", "Unable to initialize Bluetooth");
+                finish();
+            }
+            // Automatically connects to the device upon successful start-up initialization.
+            mBluetoothLeService.connect(mDeviceAddress);
+        }
+
+        @Override
+        public void onServiceDisconnected(final ComponentName componentName) {
+            mBluetoothLeService = null;
+        }
+    };
+
     private final BluetoothGattCallback btleGattCallback = new BluetoothGattCallback() {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-            // this will get called anytime you perform a read or write characteristic operation
+
         }
 
         @Override
@@ -195,6 +218,23 @@ public class Test extends ActionBarActivity {
             }
         });
     }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        final BluetoothDevice device = itemsAdapter.getItem(position);
+        if (device == null) return;
+
+        else{
+            mBluetoothLeService.connect(device.getAddress());
+        }
+
+     //   final Intent intent = new Intent(this, DeviceDetailsActivity.class);
+     //   intent.putExtra(DeviceDetailsActivity.EXTRA_DEVICE, device);
+
+     //   startActivity(intent);
+     //   Toast.makeText(this,"OnClickWorks :)",Toast.LENGTH_SHORT);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -213,16 +253,31 @@ public class Test extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        if (mBluetoothLeService != null) {
+            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            Log.d("OnResume", "Connect request result=" + result);
+        }
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(mGattUpdateReceiver);
         if(btAdapter != null && btAdapter.isDiscovering()) {
             btAdapter.stopLeScan(leScanCallback);
         }
 
 
+    }
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(bleService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(bleService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(bleService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(bleService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
     }
 }
