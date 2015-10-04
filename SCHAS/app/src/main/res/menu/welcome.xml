@@ -7,10 +7,10 @@
         android:orderInCategory="100"
         android:showAsAction="never" />
 
-<item android:id="@+id/action_test"
+<!--<item android:id="@+id/action_test"
     android:title="@string/action_test"
     android:orderInCategory="100"
-    android:showAsAction="never" />
+    android:showAsAction="never" /> -->
 
 <item android:id="@+id/action_settings_menu"
     android:title="Settings"

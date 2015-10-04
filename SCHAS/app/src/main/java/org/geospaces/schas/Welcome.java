@@ -74,8 +74,8 @@ public class Welcome extends ActionBarActivity {
                                  }, 5000
             );
 
-            //TO-DO uncomment to activate heartbeat when upload service is complete
-            //startAlarm();
+
+            startAlarm();
 
             firstTime = false;
         }
@@ -93,9 +93,12 @@ public class Welcome extends ActionBarActivity {
 
     public void startAlarm(){
         manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        int interval = 10000;
 
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        //Time in ms 60*60*1000 = 1 hour
+        int hourHeartBeat = 3600000;
+        int testHeartBeat = 5000;
+
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), hourHeartBeat, pendingIntent);
         Toast.makeText(this,"Alarm Set", Toast.LENGTH_SHORT).show();
     }
     @Override
