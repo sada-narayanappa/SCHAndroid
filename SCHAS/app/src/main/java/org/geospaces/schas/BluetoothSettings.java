@@ -1,6 +1,5 @@
 package org.geospaces.schas;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -27,6 +26,7 @@ import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.geospaces.schas.AsyncTasks.PostToServer;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;

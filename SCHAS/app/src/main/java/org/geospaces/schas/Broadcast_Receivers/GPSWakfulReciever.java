@@ -1,4 +1,4 @@
-package org.geospaces.schas;
+package org.geospaces.schas.Broadcast_Receivers;
 
 import android.app.Activity;
 import android.app.ActivityManager;

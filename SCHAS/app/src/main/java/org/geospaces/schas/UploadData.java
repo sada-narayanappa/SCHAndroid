@@ -50,12 +50,11 @@ import android.widget.Toast;
 import com.commonsware.cwac.locpoll.LocationPoller;
 
 import org.geospaces.schas.BluetoothLE.InhalerCap;
+import org.geospaces.schas.Broadcast_Receivers.GPSWakfulReciever;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

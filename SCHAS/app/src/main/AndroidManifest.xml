@@ -70,7 +70,7 @@
         <service android:name="com.commonsware.cwac.locpoll.LocationPollerService" >
         </service>
 
-        <receiver android:name=".GPSWakfulReciever" >
+        <receiver android:name=".Broadcast_Receivers.GPSWakfulReciever" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
