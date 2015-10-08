@@ -1,0 +1,9 @@
+To Build Signed version of the app:
+
+Key Store Path: /opt/SCHAS/git/SCHAndroid/GooglePlay/keystores/android.jks
+Key Store Pass: wan123
+Key Alias ....: geospaces
+Key Password..: wan123
+
+Master password: wan123
+
