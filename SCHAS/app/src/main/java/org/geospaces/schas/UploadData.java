@@ -203,7 +203,7 @@ public class UploadData extends ActionBarActivity {
     }
 
 
-    public void startTheScan(){
+    /*public void startTheScan(){
 
         ScanFilter bluegiga = new ScanFilter.Builder()
                     .setServiceUuid(InhalerCap.genericAccessService).build();
@@ -216,7 +216,7 @@ public class UploadData extends ActionBarActivity {
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .build();
 
-       bleScan.startScan(filters,settings,callback);
+      // bleScan.startScan(filters,settings,callback);
       //  bleScan.startScan(filters,settings,callback);
 
     }
@@ -248,12 +248,12 @@ public class UploadData extends ActionBarActivity {
              * Create a new beacon from the list of obtains AD structures
              * and pass it up to the main thread
              */
-            InhalerCap cap = new InhalerCap(result.getScanRecord(),
+      /*      InhalerCap cap = new InhalerCap(result.getScanRecord(),
                     result.getDevice().getAddress(),
                     result.getRssi());
             mHandler.sendMessage(Message.obtain(null, 0, cap));
         }
-    };
+    };*/
 
     /*
  * We have a Handler to process scan results on the main thread,
