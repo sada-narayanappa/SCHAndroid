@@ -29,28 +29,17 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:src="@drawable/bug"
-        android:layout_above="@+id/mapButton"
-        android:layout_centerHorizontal="true" />
+        android:layout_above="@+id/imageView2"
+        android:layout_centerHorizontal="true"/>
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView2"
         android:src="@drawable/ashthma"
-        android:layout_below="@+id/welcomeTextView"
+        android:layout_above="@+id/version"
         android:layout_centerHorizontal="true" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="  Continue  "
-        android:id="@+id/mapButton"
-        android:background="@android:color/holo_blue_light"
-        android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/imageView"
-        android:layout_alignStart="@+id/imageView"
-        android:layout_alignRight="@+id/imageView"
-        android:layout_alignEnd="@+id/imageView" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -58,8 +47,8 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Version\nLast Updated"
         android:id="@+id/version"
-        android:layout_below="@+id/imageView2"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal" />
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

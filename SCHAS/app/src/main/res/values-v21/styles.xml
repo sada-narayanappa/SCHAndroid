@@ -1,7 +1,9 @@
 <resources>
 
     <style name="AppTheme" parent="AppTheme.Base">
-        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/ColorPrimary</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+        <item name="colorAccent">@color/ColorAccentColor</item>
     </style>
 
 </resources>

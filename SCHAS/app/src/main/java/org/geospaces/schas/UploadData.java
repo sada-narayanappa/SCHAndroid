@@ -29,7 +29,9 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -73,6 +75,7 @@ public class UploadData extends ActionBarActivity {
     private String FEV_Text;
     private int intT;
     private ConnectivityManager cm;
+    private ShareActionProvider mActionProvider;
 
 
 
@@ -478,7 +481,7 @@ public class UploadData extends ActionBarActivity {
 
             pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
 
-            Toast("" + PERIOD);
+         //   Toast("" + PERIOD);
 
             mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime(),
@@ -760,7 +763,14 @@ public class UploadData extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.welcome, menu);
-        return true;
+
+        MenuItem shareItem = menu.findItem(R.menu.welcome);
+
+        // To retrieve the Action Provider
+        mActionProvider = (ShareActionProvider)
+                MenuItemCompat.getActionProvider(shareItem);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

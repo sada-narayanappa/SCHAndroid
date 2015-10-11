@@ -1,5 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:paddingLeft="2dp"
     android:paddingRight="2dp"
@@ -12,7 +12,9 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:weightSum="1"
-        android:id="@+id/uploaded">
+        android:id="@+id/uploaded"
+        android:background="@color/ColorLightPrimary">
+
 
         <EditText
             style="?android:attr/buttonStyleSmall"
@@ -23,7 +25,7 @@
             android:id="@+id/statusText"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.5"
-            android:background="@android:color/holo_orange_dark"
+            android:background="@color/ColorLightPrimary"
             android:maxLines="1000"
             android:editable="false"
             android:enabled="true"
@@ -37,7 +39,6 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/gridLayout"
-            android:background="#ffebff66"
             android:id="@+id/linearLayout2">
 
             <Button
@@ -78,7 +79,6 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/gridLayout"
-            android:background="#ffebff66"
             android:id="@+id/linearLayout3"
             >
 
@@ -131,7 +131,6 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/gridLayout"
-            android:background="#ffebff66"
             android:id="@+id/linearLayout4">
 
             <Button
@@ -200,7 +199,7 @@
                 android:layout_gravity="center_horizontal|fill"
                 android:editable="true"
                 android:autoText="false"
-                android:background="@android:color/holo_orange_dark"
+                android:background="@color/ColorLightPrimary"
                 android:layout_row="1"
                 android:layout_column="1"
                 android:layout_columnSpan="1"

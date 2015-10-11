@@ -1,9 +1,13 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="AppTheme.Base"/>
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/ColorPrimary</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+        <item name="colorAccent">@color/ColorAccentColor</item>
+    </style>
 
-    <style name="AppTheme.Base" parent="Theme.AppCompat.Light"/>
+    <style name="AppTheme" parent="AppTheme.Base"/>
 
 
 </resources>

@@ -51,18 +51,6 @@ public class Welcome extends ActionBarActivity {
             directory.mkdirs();
         }
 
-        //Continue Button
-        final Button button = (Button) findViewById(R.id.mapButton);
-        if ( button != null) {
-            button.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    Intent intent = new Intent(Welcome.this, UploadData.class);
-                    //Intent intent = new Intent(Welcome.this, web1.class);
-                    startActivity(intent);
-                    //finish();
-                }
-            });
-        }
         if ( firstTime ) {
             new Timer().schedule(new TimerTask() {
                                      @Override
@@ -99,7 +87,6 @@ public class Welcome extends ActionBarActivity {
         int testHeartBeat = 5000;
 
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), hourHeartBeat, pendingIntent);
-        Toast.makeText(this,"Alarm Set", Toast.LENGTH_SHORT).show();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
