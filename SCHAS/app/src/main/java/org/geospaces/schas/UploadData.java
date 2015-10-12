@@ -29,6 +29,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
@@ -42,6 +43,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -78,9 +80,6 @@ public class UploadData extends ActionBarActivity {
     private ShareActionProvider mActionProvider;
 
 
-
-
-
     SharedPreferences SP;
 
     TextView statusText;
@@ -95,6 +94,16 @@ public class UploadData extends ActionBarActivity {
     private ScanSettings settings;
     private HashMap<String, InhalerCap> mCaps;
     private CapAdapter mCapAdapter;
+
+    //Floating Action Button
+    private FloatingActionButton menuButton;
+    private FloatingActionButton testButton1;
+    private FloatingActionButton testButton2;
+    private FloatingActionButton testButton3;
+    private FloatingActionButton testButton4;
+    private FloatingActionButton testButton5;
+    private FloatingActionButton testButton6;
+    private boolean menuActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +158,16 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
         findViewById(R.id.medButton).setOnClickListener(medicine_button);
+        findViewById(R.id.menu_button).setOnClickListener(menu_button);
+
+        testButton1 = (FloatingActionButton) findViewById(R.id.test1);
+        testButton2 = (FloatingActionButton) findViewById(R.id.test2);
+        testButton3 = (FloatingActionButton) findViewById(R.id.test3);
+        testButton4 = (FloatingActionButton) findViewById(R.id.test4);
+        testButton5 = (FloatingActionButton) findViewById(R.id.test5);
+        testButton6 = (FloatingActionButton) findViewById(R.id.test6);
+
+        menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
 
         medText    = (TextView) findViewById(R.id.medText);
         statusText = (TextView) findViewById(R.id.statusText);
@@ -749,6 +768,84 @@ public class UploadData extends ActionBarActivity {
         @Override
         public void onClick(View v) {
 
+
+        }
+    };
+    /*
+     *
+     * controls animations for the floating action button for the dashboard screen
+     */
+    private View.OnClickListener menu_button = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            menuButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
+
+            if(!menuActive) {
+                menuActive = true;
+
+                testButton1.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        testButton1.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
+                    }
+                }, 50);
+
+                testButton2.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        testButton2.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
+                    }
+                }, 100);
+
+                testButton3.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        testButton3.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
+                    }
+                }, 150);
+
+                testButton4.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        testButton4.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
+                    }
+                }, 200);
+
+                testButton5.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        menuButton.setImageResource(R.drawable.ic_x);
+                        testButton5.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
+                    }
+                }, 250);
+
+                testButton6.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
+                    }
+                }, 300);
+            }
+            else{
+                menuActive = false;
+
+                testButton1.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+                testButton2.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+                testButton3.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+                testButton4.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+                testButton5.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+                testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+
+                menuButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
+
+                menuButton.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        menuButton.setImageResource(R.drawable.ic_heart);
+                    }
+                }, 150);
+            }
 
         }
     };
