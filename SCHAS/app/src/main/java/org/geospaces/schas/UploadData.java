@@ -826,6 +826,14 @@ public class UploadData extends ActionBarActivity {
                         testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
                     }
                 }, 300);
+
+                testButton1.setEnabled(true);
+                testButton2.setEnabled(true);
+                testButton3.setEnabled(true);
+                testButton4.setEnabled(true);
+                testButton5.setEnabled(true);
+                testButton6.setEnabled(true);
+
             }
             else{
                 menuActive = false;
@@ -836,6 +844,13 @@ public class UploadData extends ActionBarActivity {
                 testButton4.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton5.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+
+                testButton1.setEnabled(false);
+                testButton2.setEnabled(false);
+                testButton3.setEnabled(false);
+                testButton4.setEnabled(false);
+                testButton5.setEnabled(false);
+                testButton6.setEnabled(false);
 
                 menuButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 

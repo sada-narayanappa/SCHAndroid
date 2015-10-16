@@ -2,10 +2,13 @@ package org.geospaces.schas.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.os.Environment;
 import android.provider.Settings;
 import android.text.format.Formatter;
@@ -21,10 +24,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
 public class db {
+    private static float batLevel;
+
     public final static String  DIRECTORY   = "/SCHAS";
     public final static String  FILE_NAME   = "LOC.txt";
     public final static String  FILE_READY  = "LOC_ready.txt";
@@ -186,13 +192,46 @@ public class db {
         return sb.toString();
     }
 
+    public static String getHeartBeat(Context cntx) {
+
+        batLevel = getBatteryLevel(cntx);
+
+        StringBuffer sb = new StringBuffer(512);
+        long sessionNum = System.currentTimeMillis()/1000000 * 60;
+        Calendar c = Calendar.getInstance();
+        int seconds = c.get(Calendar.SECOND);
+
+
+        StringBuffer append = sb.append(
+                "record_type="  + ("active")      + "," +
+                        "battery_level=" + batLevel   + "," +
+                        "session_num="   + sessionNum  + ","
+
+        );
+
+        return sb.toString();
+    }
+
+    public static float getBatteryLevel(Context cntx) {
+        Intent batteryIntent = cntx.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+        // Error checking that probably isn't needed but I added just in case.
+        if(level == -1 || scale == -1) {
+            return 50.0f;
+        }
+
+        return ((float)level / (float)scale) * 100.0f;
+    }
+
     public static String getInhalerData(int buttonPresses) {
 
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis()/1000000 * 60;
 
         StringBuffer append = sb.append(
-               "inhaler_count=" +buttonPresses
+               "inhaler_count=" + buttonPresses
         );
 
         return sb.toString();
@@ -256,7 +295,7 @@ public class db {
         return null;
     }
 
-    private static PostToServer POST_TO_SERVER = null;
+    private static PostToServer POST_TO_SERVER = null; 
     private static synchronized String Post(Activity act, Context context, String service) {
 
         if ( POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {   // Avoid race condition
