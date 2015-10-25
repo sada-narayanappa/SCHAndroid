@@ -9,9 +9,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,8 +29,10 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -41,8 +41,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -55,6 +53,8 @@ import com.commonsware.cwac.locpoll.LocationPoller;
 
 import org.geospaces.schas.BluetoothLE.InhalerCap;
 import org.geospaces.schas.Broadcast_Receivers.GPSWakfulReciever;
+import org.geospaces.schas.FragAdapters.ViewPagerAdapter;
+import org.geospaces.schas.SlidingLayout.SlidingTabLayout;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -63,14 +63,13 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class UploadData extends ActionBarActivity {
+public class UploadData extends AppCompatActivity {
 
-    private int PERIOD = 1 * 1000 * 60;  // 1 min
+    private static int PERIOD = 1 * 1000 * 60;  // 1 min
     private PendingIntent pi = null;
     private AlarmManager mgr = null;
     private String PEF_Text;
@@ -105,19 +104,45 @@ public class UploadData extends ActionBarActivity {
     private FloatingActionButton testButton6;
     private boolean menuActive = false;
 
+    //Tabular layout
+    Toolbar toolbar;
+    ViewPager pager;
+    ViewPagerAdapter adapter;
+    SlidingTabLayout tabs;
+    CharSequence Titles[]={"List","Map"};
+    int Numboftabs = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-        // temp
+        setContentView(R.layout.activity_upload_data);
 
-        setProgressBarIndeterminate(true);
-        // ^^ temp
+        //Set's toolbar to custom made toolbar Object
+        toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
 
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        // Creating The ViewPagerAdapter and Passing Fragment Manager, Titles fot the Tabs and Number Of Tabs.
+        adapter =  new ViewPagerAdapter(getSupportFragmentManager(),Titles,Numboftabs);
 
+        // Assigning ViewPager View and setting the adapter
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(adapter);
 
+        // Assiging the Sliding Tab Layout View
+        tabs = (SlidingTabLayout) findViewById(R.id.tabs);
+        tabs.setDistributeEvenly(true);
+        tabs.setViewPager(pager);
+        // To make the Tabs Fixed set this true, This makes the tabs Space Evenly in Available width
 
+        // Setting Custom Color for the Scroll bar indicator of the Tab View
+        tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.ColorAccentColor);
+            }
+        });
+
+        //initializes shared preferences for user (preference in settings menu)
         SP = PreferenceManager.getDefaultSharedPreferences(this);
         if(!SP.getString("frequency","2").equals("0")) {
             String stringT = SP.getString("frequency", "2");
@@ -130,6 +155,7 @@ public class UploadData extends ActionBarActivity {
             autoUpdate();
         }
 
+        //Based on preferences set it will set up the usage of mobile data usage for uploading
         SharedPreferences.OnSharedPreferenceChangeListener listener =
                 new SharedPreferences.OnSharedPreferenceChangeListener() {
                     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
@@ -143,11 +169,12 @@ public class UploadData extends ActionBarActivity {
                         }
                     }
                 };
+        //Sets the cellular data listener to the sharedpreferences object
         SP.registerOnSharedPreferenceChangeListener(listener);
 
 
-        setContentView(R.layout.activity_upload_data);
 
+        //Sets all buttons to their respective listeneres
         findViewById(R.id.homeButton).setOnClickListener(start_service_button);
         findViewById(R.id.PFMButton).setOnClickListener(pfm_button);
         findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
@@ -160,6 +187,8 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.medButton).setOnClickListener(medicine_button);
         findViewById(R.id.menu_button).setOnClickListener(menu_button);
 
+
+        //Sets the FAB buttons to object variables
         testButton1 = (FloatingActionButton) findViewById(R.id.test1);
         testButton2 = (FloatingActionButton) findViewById(R.id.test2);
         testButton3 = (FloatingActionButton) findViewById(R.id.test3);
@@ -827,12 +856,12 @@ public class UploadData extends ActionBarActivity {
                     }
                 }, 300);
 
-                testButton1.setEnabled(true);
-                testButton2.setEnabled(true);
-                testButton3.setEnabled(true);
-                testButton4.setEnabled(true);
-                testButton5.setEnabled(true);
-                testButton6.setEnabled(true);
+                testButton1.setClickable(true);
+                testButton2.setClickable(true);
+                testButton3.setClickable(true);
+                testButton4.setClickable(true);
+                testButton5.setClickable(true);
+                testButton6.setClickable(true);
 
             }
             else{
@@ -845,12 +874,12 @@ public class UploadData extends ActionBarActivity {
                 testButton5.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
 
-                testButton1.setEnabled(false);
-                testButton2.setEnabled(false);
-                testButton3.setEnabled(false);
-                testButton4.setEnabled(false);
-                testButton5.setEnabled(false);
-                testButton6.setEnabled(false);
+                testButton1.setClickable(false);
+                testButton2.setClickable(false);
+                testButton3.setClickable(false);
+                testButton4.setClickable(false);
+                testButton5.setClickable(false);
+                testButton6.setClickable(false);
 
                 menuButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 

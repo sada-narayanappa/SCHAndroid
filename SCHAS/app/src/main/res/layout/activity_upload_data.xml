@@ -1,178 +1,190 @@
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     tools:context="org.geospaces.schas.UploadData">
 
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/uploaded"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:weightSum="1"
-        android:id="@+id/uploaded"
-        android:background="@color/ColorLightPrimary">
+        android:background="@color/ColorLightPrimary"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+        <include
+            android:id="@+id/tool_bar"
+            layout="@layout/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <org.geospaces.schas.SlidingLayout.SlidingTabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/ColorPrimary"
+            android:elevation="2dp" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"></android.support.v4.view.ViewPager>
 
 
         <EditText
+            android:id="@+id/statusText"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:ems="10"
-            android:id="@+id/statusText"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.5"
             android:background="@color/ColorLightPrimary"
-            android:maxLines="1000"
+            android:clickable="false"
             android:editable="false"
+            android:ems="10"
             android:enabled="true"
-            android:text="Status Text"
-            android:clickable="false" />
+            android:inputType="textMultiLine"
+            android:maxLines="1000"
+            android:text="Status Text" />
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/gridLayout"
-            android:id="@+id/linearLayout2">
+            android:orientation="horizontal">
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Start"
                 android:id="@+id/homeButton"
-                android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded"
-                android:background="#ff00ff00" />
-
-            <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Status"
+                android:layout_toEndOf="@+id/uploaded"
+                android:layout_toRightOf="@+id/uploaded"
+                android:layout_weight="1"
+                android:background="#ff00ff00"
+                android:text="Start" />
+
+            <Button
                 android:id="@+id/updateStatus"
-                android:layout_below="@+id/graphButton"
-                android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2" />
-
-            <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Upload"
-                android:id="@+id/graphButton" />
+                android:layout_alignLeft="@+id/textView2"
+                android:layout_alignStart="@+id/textView2"
+                android:layout_below="@+id/graphButton"
+                android:layout_weight="1"
+                android:text="Status" />
+
+            <Button
+                android:id="@+id/graphButton"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Upload" />
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/gridLayout"
             android:id="@+id/linearLayout3"
-            >
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="MILD\nATTACK"
-                android:id="@+id/attack1"
-                android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="MEDIUM\nATTACK"
-                android:id="@+id/attack2"
-                android:layout_below="@+id/graphButton"
-                android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="SEVERE\nATTACK"
-                android:id="@+id/attack3"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/gridLayout"
-            android:id="@+id/linearLayout4">
+            android:orientation="horizontal">
 
             <Button
+                android:id="@+id/attack1"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="I USED\nInhaler"
-                android:id="@+id/inhlaerButton"
-                android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded"
                 android:layout_marginBottom="-5dp"
                 android:layout_marginLeft="-8dp"
                 android:layout_marginRight="-8dp"
-                />
+                android:layout_toEndOf="@+id/uploaded"
+                android:layout_toRightOf="@+id/uploaded"
+                android:layout_weight="1"
+                android:text="MILD\nATTACK" />
 
             <Button
-
+                android:id="@+id/attack2"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="I USED\nPeakFlow"
-                android:id="@+id/PFMButton"
-                android:layout_below="@+id/graphButton"
                 android:layout_alignLeft="@+id/textView2"
                 android:layout_alignStart="@+id/textView2"
+                android:layout_below="@+id/graphButton"
                 android:layout_marginBottom="-5dp"
                 android:layout_marginLeft="-8dp"
                 android:layout_marginRight="-8dp"
-                />
+                android:layout_weight="1"
+                android:text="MEDIUM\nATTACK" />
 
             <Button
+                android:id="@+id/attack3"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="RESET\nALL"
-                android:id="@+id/resetButton"
                 android:layout_marginBottom="-5dp"
                 android:layout_marginLeft="-8dp"
                 android:layout_marginRight="-8dp"
-                />
+                android:layout_weight="1"
+                android:text="SEVERE\nATTACK" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/gridLayout"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/inhlaerButton"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                android:layout_toEndOf="@+id/uploaded"
+                android:layout_toRightOf="@+id/uploaded"
+                android:layout_weight="1"
+                android:text="I USED\nInhaler" />
+
+            <Button
+
+                android:id="@+id/PFMButton"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/textView2"
+                android:layout_alignStart="@+id/textView2"
+                android:layout_below="@+id/graphButton"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                android:layout_weight="1"
+                android:text="I USED\nPeakFlow" />
+
+            <Button
+                android:id="@+id/resetButton"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-5dp"
+                android:layout_marginLeft="-8dp"
+                android:layout_marginRight="-8dp"
+                android:layout_weight="1"
+                android:text="RESET\nALL" />
         </LinearLayout>
 
         <GridLayout
@@ -181,28 +193,27 @@
             android:layout_gravity="center">
 
             <Button
+                android:id="@+id/medButton"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="175dp"
                 android:layout_height="wrap_content"
-                android:text="I TOOK\nMEDICATION"
-                android:id="@+id/medButton"
-                android:layout_row="1"
                 android:layout_column="0"
-                android:layout_columnSpan="1" />
+                android:layout_columnSpan="1"
+                android:layout_row="1"
+                android:text="I TOOK\nMEDICATION" />
 
             <EditText
+                android:id="@+id/medText"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="175dp"
                 android:layout_height="52dp"
-                android:id="@+id/medText"
-                android:layout_gravity="center_horizontal|fill"
-                android:editable="true"
-                android:autoText="false"
-                android:background="@color/ColorLightPrimary"
-                android:layout_row="1"
                 android:layout_column="1"
                 android:layout_columnSpan="1"
-            />
+                android:layout_gravity="center_horizontal|fill"
+                android:layout_row="1"
+                android:autoText="false"
+                android:background="@color/ColorLightPrimary"
+                android:editable="true" />
         </GridLayout>
     </LinearLayout>
 
@@ -212,113 +223,106 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="bottom|right|end">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="bottom|right|end"
+            android:orientation="vertical">
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/test6"
-                android:src="@drawable/ic_medicine"
-                app:elevation="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="24dp"
                 android:layout_marginTop="16dp"
-                app:fabSize="mini"
-                app:rippleColor="@android:color/white"
+                android:src="@drawable/ic_medicine"
                 android:visibility="invisible"
-                app:pressedTranslationZ="12dp"
                 app:borderWidth="0dp"
-                />
+                app:elevation="8dp"
+                app:fabSize="mini"
+                app:pressedTranslationZ="12dp"
+                app:rippleColor="@android:color/white" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/test5"
-                android:src="@drawable/ic_inhaler"
-                app:elevation="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="24dp"
                 android:layout_marginTop="16dp"
-                app:fabSize="mini"
-                app:rippleColor="@android:color/white"
+                android:src="@drawable/ic_inhaler"
                 android:visibility="invisible"
-                app:pressedTranslationZ="12dp"
                 app:borderWidth="0dp"
-                />
+                app:elevation="8dp"
+                app:fabSize="mini"
+                app:pressedTranslationZ="12dp"
+                app:rippleColor="@android:color/white" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/test4"
-                android:src="@drawable/ic_peakflow"
-                app:elevation="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="24dp"
                 android:layout_marginTop="16dp"
-                app:fabSize="mini"
-                app:rippleColor="@android:color/white"
+                android:src="@drawable/ic_peakflow"
                 android:visibility="invisible"
-                app:pressedTranslationZ="12dp"
                 app:borderWidth="0dp"
-                />
+                app:elevation="8dp"
+                app:fabSize="mini"
+                app:pressedTranslationZ="12dp"
+                app:rippleColor="@android:color/white" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/test3"
-                android:src="@drawable/ic_heart3"
-                app:elevation="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="24dp"
                 android:layout_marginTop="16dp"
-                app:fabSize="mini"
-                app:rippleColor="@android:color/white"
+                android:src="@drawable/ic_heart3"
                 android:visibility="invisible"
-                app:pressedTranslationZ="12dp"
                 app:borderWidth="0dp"
-                />
+                app:elevation="8dp"
+                app:fabSize="mini"
+                app:pressedTranslationZ="12dp"
+                app:rippleColor="@android:color/white" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/test2"
-                android:src="@drawable/ic_heart2"
-                app:elevation="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="24dp"
                 android:layout_marginTop="16dp"
-                app:fabSize="mini"
-                app:rippleColor="@android:color/white"
+                android:src="@drawable/ic_heart2"
                 android:visibility="invisible"
-                app:pressedTranslationZ="12dp"
                 app:borderWidth="0dp"
-                />
+                app:elevation="8dp"
+                app:fabSize="mini"
+                app:pressedTranslationZ="12dp"
+                app:rippleColor="@android:color/white" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/test1"
-                android:src="@drawable/ic_heart"
-                app:elevation="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="24dp"
                 android:layout_marginTop="16dp"
-                app:fabSize="mini"
-                app:rippleColor="@android:color/white"
+                android:src="@drawable/ic_heart"
                 android:visibility="invisible"
-                app:pressedTranslationZ="12dp"
                 app:borderWidth="0dp"
-                />
+                app:elevation="8dp"
+                app:fabSize="mini"
+                app:pressedTranslationZ="12dp"
+                app:rippleColor="@android:color/white" />
 
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/menu_button"
-                android:src="@drawable/ic_heart"
-                app:elevation="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
+                android:src="@drawable/ic_heart"
                 app:borderWidth="0dp"
-                app:rippleColor="@android:color/white"
+                app:elevation="8dp"
                 app:pressedTranslationZ="12dp"
-                />
+                app:rippleColor="@android:color/white" />
         </LinearLayout>
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

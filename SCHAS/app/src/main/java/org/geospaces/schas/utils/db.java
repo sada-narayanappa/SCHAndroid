@@ -295,7 +295,7 @@ public class db {
         return null;
     }
 
-    private static PostToServer POST_TO_SERVER = null; 
+    private static PostToServer POST_TO_SERVER = null;
     private static synchronized String Post(Activity act, Context context, String service) {
 
         if ( POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {   // Avoid race condition

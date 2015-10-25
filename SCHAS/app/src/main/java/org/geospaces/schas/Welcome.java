@@ -8,6 +8,8 @@ import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,16 +27,21 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class Welcome extends ActionBarActivity {
+public class Welcome extends AppCompatActivity {
 
     static boolean firstTime = true;
     private PendingIntent pendingIntent;
     private AlarmManager manager;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
+
 
         Intent alarmIntent = new Intent(this,heartBeatReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,0);
