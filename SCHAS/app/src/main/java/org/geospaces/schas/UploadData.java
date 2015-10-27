@@ -103,6 +103,7 @@ public class UploadData extends ActionBarActivity {
     private FloatingActionButton testButton4;
     private FloatingActionButton testButton5;
     private FloatingActionButton testButton6;
+    private FloatingActionButton mapButton;
     private boolean menuActive = false;
 
     @Override
@@ -166,7 +167,7 @@ public class UploadData extends ActionBarActivity {
         testButton4 = (FloatingActionButton) findViewById(R.id.test4);
         testButton5 = (FloatingActionButton) findViewById(R.id.test5);
         testButton6 = (FloatingActionButton) findViewById(R.id.test6);
-
+        mapButton = (FloatingActionButton) findViewById(R.id.map);
         menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
 
         medText    = (TextView) findViewById(R.id.medText);
@@ -827,12 +828,20 @@ public class UploadData extends ActionBarActivity {
                     }
                 }, 300);
 
+                mapButton.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mapButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
+                    }
+                }, 350);
+
                 testButton1.setEnabled(true);
                 testButton2.setEnabled(true);
                 testButton3.setEnabled(true);
                 testButton4.setEnabled(true);
                 testButton5.setEnabled(true);
                 testButton6.setEnabled(true);
+                mapButton.setEnabled(true);
 
             }
             else{
@@ -844,6 +853,7 @@ public class UploadData extends ActionBarActivity {
                 testButton4.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton5.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+                mapButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
 
                 testButton1.setEnabled(false);
                 testButton2.setEnabled(false);
@@ -851,6 +861,7 @@ public class UploadData extends ActionBarActivity {
                 testButton4.setEnabled(false);
                 testButton5.setEnabled(false);
                 testButton6.setEnabled(false);
+                mapButton.setEnabled(false);
 
                 menuButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
