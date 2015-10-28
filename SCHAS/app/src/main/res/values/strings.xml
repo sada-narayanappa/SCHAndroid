@@ -19,5 +19,5 @@
     <string name="title_settings_menu">Settings Menu</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
-
+    <string name="title_activity_maps">Maps</string>
 </resources>

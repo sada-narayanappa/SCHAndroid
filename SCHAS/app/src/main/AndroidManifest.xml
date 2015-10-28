@@ -66,6 +66,10 @@
             android:name=".UploadData"
             android:label="@string/title_activity_upload_data" >
         </activity>
+        <activity
+            android:name=".googleMapsActivity"
+            android:label="Maps" >
+        </activity>
 
         <service android:name="com.commonsware.cwac.locpoll.LocationPollerService" >
         </service>
@@ -111,8 +115,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".googleMapsActivity" >
-        </activity>
     </application>
 
 </manifest>
