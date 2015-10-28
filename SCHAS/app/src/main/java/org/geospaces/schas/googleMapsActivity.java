@@ -1,4 +1,4 @@
-package org.geospaces.schas.Fragments;
+package org.geospaces.schas;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -11,10 +11,6 @@ public class googleMapsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_google_maps);
-        GoogleMaps newMaps = GoogleMaps.newInstance();
     }
 
-    GoogleMaps.OnFragmentInteractionListener {
-
-    }
 }

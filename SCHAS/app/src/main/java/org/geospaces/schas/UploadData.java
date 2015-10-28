@@ -159,7 +159,6 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
         findViewById(R.id.medButton).setOnClickListener(medicine_button);
-        findViewById(R.id.menu_button).setOnClickListener(menu_button);
 
         testButton1 = (FloatingActionButton) findViewById(R.id.test1);
         testButton2 = (FloatingActionButton) findViewById(R.id.test2);
@@ -178,25 +177,6 @@ public class UploadData extends ActionBarActivity {
             startStopService();
         }
         updateStatus();
-
-        // Bluetooth implementation Below
-
-
-        /*
-         * We are going to display all the device beacons that we discover
-         * in a list, using a custom adapter implementation
-         *
-        ListView list = new ListView(this);
-        mCapAdapter = new CapAdapter(this);
-        list.setAdapter(mCapAdapter);
-        setContentView(list);
-*/
-
-      //  mCapAdapter = new CapAdapter(this);
-       // bluetoothInit();
-      //  bluetoothLEScan();
-
-
     }
 
 
@@ -828,20 +808,12 @@ public class UploadData extends ActionBarActivity {
                     }
                 }, 300);
 
-                mapButton.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mapButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
-                    }
-                }, 350);
-
                 testButton1.setEnabled(true);
                 testButton2.setEnabled(true);
                 testButton3.setEnabled(true);
                 testButton4.setEnabled(true);
                 testButton5.setEnabled(true);
                 testButton6.setEnabled(true);
-                mapButton.setEnabled(true);
 
             }
             else{
@@ -853,7 +825,6 @@ public class UploadData extends ActionBarActivity {
                 testButton4.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton5.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
-                mapButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
 
                 testButton1.setEnabled(false);
                 testButton2.setEnabled(false);
@@ -861,7 +832,6 @@ public class UploadData extends ActionBarActivity {
                 testButton4.setEnabled(false);
                 testButton5.setEnabled(false);
                 testButton6.setEnabled(false);
-                mapButton.setEnabled(false);
 
                 menuButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
