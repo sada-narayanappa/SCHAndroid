@@ -48,5 +48,4 @@ public class googleMapsActivity extends ActionBarActivity {
     protected void onPause() {
         super.onPause();
     }
-
 }

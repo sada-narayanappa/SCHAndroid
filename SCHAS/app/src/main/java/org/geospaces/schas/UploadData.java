@@ -3,6 +3,7 @@ package org.geospaces.schas;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -52,9 +53,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.locpoll.LocationPoller;
+import com.google.android.gms.maps.GoogleMap;
 
 import org.geospaces.schas.BluetoothLE.InhalerCap;
 import org.geospaces.schas.Broadcast_Receivers.GPSWakfulReciever;
+import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -82,8 +85,9 @@ public class UploadData extends ActionBarActivity {
 
     SharedPreferences SP;
 
-    TextView statusText;
+    //TextView statusText;
     TextView medText;
+
 
     //Bluetooth Variables below
     private BluetoothAdapter mBluetoothAdapter;
@@ -170,8 +174,8 @@ public class UploadData extends ActionBarActivity {
         menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
 
         medText    = (TextView) findViewById(R.id.medText);
-        statusText = (TextView) findViewById(R.id.statusText);
-        statusText.setMovementMethod(new ScrollingMovementMethod());
+        //statusText = (TextView) findViewById(R.id.statusText);
+        //statusText.setMovementMethod(new ScrollingMovementMethod());
 
         if (pi == null) {
             startStopService();
@@ -383,7 +387,7 @@ public class UploadData extends ActionBarActivity {
         sb.append("SETTINGS:" + SCHASSettings.getSettings() + " ...\n");
         sb.append("WIFI:" + db.isWIFIOn(this.getApplicationContext()) + " ...\n");
 
-        statusText.setText(sb.toString());
+        //statusText.setText(sb.toString());
     }
 
     private View.OnClickListener updateStatusCB = new View.OnClickListener() {
@@ -423,7 +427,7 @@ public class UploadData extends ActionBarActivity {
         super.setIntent(i);
         String str = "SetResult: " + i.getStringExtra("result");
         String url = "SetResult: " + i.getStringExtra("url");
-        statusText.setText(str);
+        //statusText.setText(str);
         if (!str.contains("ERROR")) {
             //db.delete();
         }
