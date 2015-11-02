@@ -305,7 +305,7 @@ public class db {
         String host     = SCHASSettings.host;
 
         if ( host == null || null == isWIFIOn(context) || host.equals("null") ) {
-            SCHASSettings.Initialize(null);
+            SCHASSettings.Initialize();
             return "ERROR: Host name is null: resetting hosts ";
         }
         db.rename(false);

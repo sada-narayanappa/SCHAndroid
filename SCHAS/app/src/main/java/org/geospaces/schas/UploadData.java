@@ -377,7 +377,7 @@ public class UploadData extends ActionBarActivity {
         sb.append(f.getName() + " : size=" + f.length() + "\n");
 
         if (SCHASSettings.host == null ) {
-            SCHASSettings.Initialize(null);
+            SCHASSettings.Initialize();
         }
         sb.append("URL: " + SCHASSettings.host + "\n");
 
@@ -401,7 +401,7 @@ public class UploadData extends ActionBarActivity {
         @Override
         public void onClick(View v) {
             SCHASSettings.host = null;
-            SCHASSettings.Initialize( null);
+            SCHASSettings.Initialize();
             SCHASSettings.saveSettings();
         }
     };

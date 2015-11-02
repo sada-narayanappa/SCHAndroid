@@ -86,7 +86,7 @@ public class SCHASSettings {
                 location.setLongitude(lon);
             }
         }
-        Initialize(null);
+        Initialize();
         return s;
     }
 
