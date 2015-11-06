@@ -71,7 +71,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class UploadData extends ActionBarActivity {
+public class UploadData extends ActionBarActivity{
 
     private int PERIOD = 1 * 1000 * 60;  // 1 min
     private PendingIntent pi = null;
@@ -112,10 +112,10 @@ public class UploadData extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-        // temp
+        setContentView(R.layout.activity_upload_data);
 
+    //    requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setProgressBarIndeterminate(true);
         // ^^ temp
 
@@ -151,11 +151,11 @@ public class UploadData extends ActionBarActivity {
         SP.registerOnSharedPreferenceChangeListener(listener);
 
 
-        setContentView(R.layout.activity_upload_data);
+
 
         findViewById(R.id.homeButton).setOnClickListener(start_service_button);
         findViewById(R.id.PFMButton).setOnClickListener(pfm_button);
-        findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
+     //   findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
         findViewById(R.id.graphButton).setOnClickListener(uploadCB);
         findViewById(R.id.resetButton).setOnClickListener(resetCB);
         findViewById(R.id.attack1).setOnClickListener(mild_attack_button);
@@ -164,14 +164,14 @@ public class UploadData extends ActionBarActivity {
         findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
         findViewById(R.id.medButton).setOnClickListener(medicine_button);
 
-        testButton1 = (FloatingActionButton) findViewById(R.id.test1);
+   /*     testButton1 = (FloatingActionButton) findViewById(R.id.test1);
         testButton2 = (FloatingActionButton) findViewById(R.id.test2);
         testButton3 = (FloatingActionButton) findViewById(R.id.test3);
         testButton4 = (FloatingActionButton) findViewById(R.id.test4);
         testButton5 = (FloatingActionButton) findViewById(R.id.test5);
         testButton6 = (FloatingActionButton) findViewById(R.id.test6);
-        mapButton = (FloatingActionButton) findViewById(R.id.map);
-        menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
+      //  mapButton = (FloatingActionButton) findViewById(R.id.map);
+        menuButton = (FloatingActionButton) findViewById(R.id.menu_button);*/
 
         medText    = (TextView) findViewById(R.id.medText);
         //statusText = (TextView) findViewById(R.id.statusText);

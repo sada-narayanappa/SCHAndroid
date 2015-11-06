@@ -56,15 +56,6 @@ public class HandleMenu  {
                 Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
                 return false;
 
-            case R.id.action_maps_activity:
-                if(a.getClass() != googleMapsActivity.class) {
-                    intent = new Intent(a, googleMapsActivity.class);
-                    a.startActivity(intent);
-                    //a.setContentView(R.layout.activity_web);
-                    return true;
-                }
-                Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
-                return false;
             }
         return false;
     }
