@@ -63,21 +63,18 @@ public class GoogleMaps extends SupportMapFragment {
         //set map type
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        // Get latitude of the current location
-        double latitude = myLocation.getLatitude();
-
-        // Get longitude of the current location
-        double longitude = myLocation.getLongitude();
+        double lat = myLocation == null ? 0: myLocation.getLatitude();
+        double lon = myLocation == null ? 0: myLocation.getLongitude();
 
         // Create a LatLng object for the current location
-        LatLng latLng = new LatLng(latitude, longitude);
+        LatLng latLng = new LatLng(lat, lon);
 
         // Show the current location in Google Map
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
         // Zoom in the Google Map
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
+        googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
     }
 
 }
