@@ -49,7 +49,7 @@ public class GoogleMaps extends SupportMapFragment {
 
         googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker").snippet("snippet"));
         // Enable MyLocation Layer of Google Map
-        //   googleMap.setMyLocationEnabled(true);
+           googleMap.setMyLocationEnabled(true);
 
         // Create a criteria object to retrieve provider
         criteria = new Criteria();
@@ -74,7 +74,7 @@ public class GoogleMaps extends SupportMapFragment {
 
         // Zoom in the Google Map
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
+       // googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
     }
 
 }
