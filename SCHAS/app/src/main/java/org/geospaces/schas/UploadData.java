@@ -86,7 +86,7 @@ public class UploadData extends ActionBarActivity{
     SharedPreferences SP;
 
     //TextView statusText;
-    TextView medText;
+    //TextView medText;
 
 
     //Bluetooth Variables below
@@ -173,7 +173,7 @@ public class UploadData extends ActionBarActivity{
       //  mapButton = (FloatingActionButton) findViewById(R.id.map);
         menuButton = (FloatingActionButton) findViewById(R.id.menu_button);*/
 
-        medText    = (TextView) findViewById(R.id.medText);
+        //medText    = (TextView) findViewById(R.id.medText);
         //statusText = (TextView) findViewById(R.id.statusText);
         //statusText.setMovementMethod(new ScrollingMovementMethod());
 
@@ -539,7 +539,7 @@ public class UploadData extends ActionBarActivity{
             //Toast ("Location: " );
             Log.w("onLocationChanged", ret);
             updateStatus();
-            medText.setText(ret);
+            //medText.setText(ret);
             if ( STOP_LOCATION_UPDATES ) {
                 lm.removeUpdates(this);
             }
@@ -552,13 +552,13 @@ public class UploadData extends ActionBarActivity{
 
         @Override
         public void onProviderEnabled(String provider) {
-            medText.setText(provider + " is Enabled");
+            //medText.setText(provider + " is Enabled");
             //Toast( "Provider " + provider );
         }
 
         @Override
         public void onProviderDisabled(String provider) {
-            medText.setText(provider + " is disabled");
+            //medText.setText(provider + " is disabled");
             //Toast( "Provider " + provider + " disabled!");
             lm.removeUpdates(this);
             getLocationUpdates();
