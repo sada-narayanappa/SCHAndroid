@@ -27,13 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GoogleMaps extends SupportMapFragment implements LocationListener {
+public class GoogleMaps extends SupportMapFragment {
 
     private GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
     private Context mContext;
     LocationManager locationManager;
-    LocationListener locationListener;
     Location myLocation;
     Criteria criteria;
     //set min update time to 15 seconds
@@ -44,6 +43,7 @@ public class GoogleMaps extends SupportMapFragment implements LocationListener {
     List<LatLng> locList = new ArrayList<>();
     PolylineOptions trackLine;
     Polyline polyLine;
+    LocationListener locListener;
 
 
     @Override
@@ -65,6 +65,51 @@ public class GoogleMaps extends SupportMapFragment implements LocationListener {
         mContext = getActivity().getApplicationContext();
 
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+
+
+        locListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                double newLat = location == null ? 0: location.getLatitude();
+                double newLon = location == null ? 0: location.getLongitude();
+                LatLng newlatLng = new LatLng(newLat, newLon);
+                if (newlatLng != null) locList.add(newlatLng);
+
+              //  polyLine.setPoints(locList);
+
+                PolylineOptions options = new PolylineOptions().width(1).color(Color.BLUE).geodesic(true);
+                for (int z = 0; z < locList.size(); z++) {
+                    LatLng point = locList.get(z);
+                    trackLine.add(point);
+                }
+
+                polyLine = googleMap.addPolyline(trackLine);
+
+
+
+                //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
+                Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 30, locListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 30, locListener);
+
 
         //googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker").snippet("snippet"));
         // Enable MyLocation Layer of Google Map
@@ -103,33 +148,7 @@ public class GoogleMaps extends SupportMapFragment implements LocationListener {
                 .color(Color.BLUE)
                 .geodesic(true);
         polyLine = googleMap.addPolyline(trackLine);
-
-        locationManager.requestLocationUpdates(provider, minTime, minDistance, this);
     }
 
-    @Override
-    public void onLocationChanged(Location location)
-    {
-        double newLat = myLocation == null ? 0: myLocation.getLatitude();
-        double newLon = myLocation == null ? 0: myLocation.getLongitude();
-        LatLng newlatLng = new LatLng(newLat, newLon);
-        if (newlatLng != null) locList.add(newlatLng);
 
-        polyLine.setPoints(locList);
-
-        Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider){
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-    }
 }
