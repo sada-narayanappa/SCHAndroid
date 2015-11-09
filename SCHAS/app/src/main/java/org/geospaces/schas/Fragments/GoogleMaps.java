@@ -77,7 +77,6 @@ public class GoogleMaps extends SupportMapFragment {
 
               //  polyLine.setPoints(locList);
 
-                PolylineOptions options = new PolylineOptions().width(1).color(Color.BLUE).geodesic(true);
                 for (int z = 0; z < locList.size(); z++) {
                     LatLng point = locList.get(z);
                     trackLine.add(point);
@@ -127,8 +126,8 @@ public class GoogleMaps extends SupportMapFragment {
         //set map type
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        double lat = myLocation == null ? 0: myLocation.getLatitude();
-        double lon = myLocation == null ? 0: myLocation.getLongitude();
+        double lat = myLocation == null ? 47.6205333: myLocation.getLatitude();
+        double lon = myLocation == null ? -122.19293: myLocation.getLongitude();
 
         // Create a LatLng object for the current location
         LatLng latLng = new LatLng(lat, lon);
@@ -138,13 +137,14 @@ public class GoogleMaps extends SupportMapFragment {
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
         // Zoom in the Google Map
+
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
      //   googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
 
         trackLine =new PolylineOptions()
                 .add(latLng)
-                .width(10)
+                .width(5)
                 .color(Color.BLUE)
                 .geodesic(true);
         polyLine = googleMap.addPolyline(trackLine);
