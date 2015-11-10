@@ -18,10 +18,13 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.geospaces.schas.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,16 +78,20 @@ public class GoogleMaps extends SupportMapFragment {
                 LatLng newlatLng = new LatLng(newLat, newLon);
                 if (newlatLng != null) locList.add(newlatLng);
 
-              //  polyLine.setPoints(locList);
+                //polyLine.setPoints(locList);
 
-                for (int z = 0; z < locList.size(); z++) {
+                /*for (int z = 0; z < locList.size(); z++) {
                     LatLng point = locList.get(z);
                     trackLine.add(point);
-                }
+                }*/
 
-                polyLine = googleMap.addPolyline(trackLine);
+                //polyLine = googleMap.addPolyline(trackLine);
 
-
+                googleMap.addMarker(new MarkerOptions()
+                    .flat(true)
+                    .position(newlatLng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.logo2smaller))
+                    .anchor(.5f, .5f));
 
                 //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
                 Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
@@ -107,7 +114,7 @@ public class GoogleMaps extends SupportMapFragment {
         };
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 30, locListener);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 30, locListener);
+        //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 30, locListener);
 
 
         //googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker").snippet("snippet"));
@@ -131,8 +138,15 @@ public class GoogleMaps extends SupportMapFragment {
 
         // Create a LatLng object for the current location
         LatLng latLng = new LatLng(lat, lon);
-        if (locList == null) Log.i("LocList", "loclist is null");
+
         if (latLng != null) locList.add(latLng);
+
+        googleMap.addMarker(new MarkerOptions()
+                .flat(true)
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.logo2smaller))
+                .anchor(.5f, .5f));
+
         // Show the current location in Google Map
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
@@ -142,13 +156,28 @@ public class GoogleMaps extends SupportMapFragment {
 
      //   googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
 
-        trackLine =new PolylineOptions()
+        /*trackLine =new PolylineOptions()
                 .add(latLng)
                 .width(5)
                 .color(Color.BLUE)
                 .geodesic(true);
-        polyLine = googleMap.addPolyline(trackLine);
+        polyLine = googleMap.addPolyline(trackLine);*/
     }
 
+    @Override
+    public void onPause()
+    {
+        //todo implement the following methods to remove and resume the listener
+        super.onPause();
+    }
 
+    public void onStop()
+    {
+        super.onStop();
+    }
+
+    public void onResume()
+    {
+        super.onResume();
+    }
 }

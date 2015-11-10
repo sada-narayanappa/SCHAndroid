@@ -11,10 +11,6 @@
     android:title="@string/action_test"
     android:orderInCategory="100"
     android:showAsAction="never" /> -->
-<item android:id="@+id/action_maps_activity"
-    android:title="Maps"
-    android:orderInCategory="100"
-    android:showAsAction="never" />
 
 <item android:id="@+id/action_settings_menu"
     android:title="Settings"

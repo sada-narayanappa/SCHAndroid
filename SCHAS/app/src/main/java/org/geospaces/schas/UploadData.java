@@ -162,7 +162,6 @@ public class UploadData extends ActionBarActivity{
         findViewById(R.id.attack2).setOnClickListener(medium_attack_button);
         findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
-        findViewById(R.id.medButton).setOnClickListener(medicine_button);
 
    /*     testButton1 = (FloatingActionButton) findViewById(R.id.test1);
         testButton2 = (FloatingActionButton) findViewById(R.id.test2);
