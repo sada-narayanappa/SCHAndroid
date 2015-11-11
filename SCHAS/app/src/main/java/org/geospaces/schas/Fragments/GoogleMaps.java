@@ -1,6 +1,8 @@
 package org.geospaces.schas.Fragments;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -54,7 +56,6 @@ public class GoogleMaps extends SupportMapFragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View v = super.onCreateView(inflater, container, savedInstanceState);
-
 
         googleMap = getMap();
 
@@ -136,6 +137,8 @@ public class GoogleMaps extends SupportMapFragment {
         double lat = myLocation == null ? 47.6205333: myLocation.getLatitude();
         double lon = myLocation == null ? -122.19293: myLocation.getLongitude();
 
+        if (myLocation == null) Log.i("myLocation", "location is null");
+
         // Create a LatLng object for the current location
         LatLng latLng = new LatLng(lat, lon);
 
@@ -162,6 +165,19 @@ public class GoogleMaps extends SupportMapFragment {
                 .color(Color.BLUE)
                 .geodesic(true);
         polyLine = googleMap.addPolyline(trackLine);*/
+
+        /*recover any points from previous app states
+        List<LatLng> returnedLocList = (List) getLastCutomNonConfigurationInstance();
+
+        for (int i = 0; i < returnedLocList.size(); i++) {
+            LatLng returnedPoint = returnedLocList.get(i);
+            googleMap.addMarker(new MarkerOptions()
+                    .flat(true)
+                    .position(returnedPoint)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.logo2smaller))
+                    .anchor(.5f, .5f));*/
+
+        setRetainInstance(true);
     }
 
     @Override
@@ -171,13 +187,22 @@ public class GoogleMaps extends SupportMapFragment {
         super.onPause();
     }
 
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+    }
+
+    @Override
     public void onStop()
     {
         super.onStop();
     }
 
-    public void onResume()
+    @Override
+    public void onDetach()
     {
-        super.onResume();
+        locationManager.removeUpdates(locListener);
+        super.onDetach();
     }
 }
