@@ -39,6 +39,7 @@ public class GoogleMaps extends SupportMapFragment {
     private Context mContext;
     LocationManager locationManager;
     Location myLocation;
+    Location prevLocation = null;
     Criteria criteria;
     //set min update time to 15 seconds
     long minTime = 15*1000;
@@ -77,7 +78,6 @@ public class GoogleMaps extends SupportMapFragment {
                 double newLat = location == null ? 0: location.getLatitude();
                 double newLon = location == null ? 0: location.getLongitude();
                 LatLng newlatLng = new LatLng(newLat, newLon);
-                if (newlatLng != null) locList.add(newlatLng);
 
                 //polyLine.setPoints(locList);
 
@@ -88,11 +88,18 @@ public class GoogleMaps extends SupportMapFragment {
 
                 //polyLine = googleMap.addPolyline(trackLine);
 
-                googleMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .position(newlatLng)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.logo2smaller))
-                    .anchor(.5f, .5f));
+                if (location != prevLocation)
+                {
+                    googleMap.addMarker(new MarkerOptions()
+                            .flat(true)
+                            .position(newlatLng)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+                            .anchor(.5f, .5f));
+                }
+
+                else if (location == prevLocation) Toast.makeText(mContext, "same location, no marker added", Toast.LENGTH_SHORT).show();
+
+                prevLocation = location;
 
                 //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
                 Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
@@ -120,7 +127,7 @@ public class GoogleMaps extends SupportMapFragment {
 
         //googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker").snippet("snippet"));
         // Enable MyLocation Layer of Google Map
-           googleMap.setMyLocationEnabled(true);
+        googleMap.setMyLocationEnabled(true);
 
         // Create a criteria object to retrieve provider
         criteria = new Criteria();
@@ -147,7 +154,7 @@ public class GoogleMaps extends SupportMapFragment {
         googleMap.addMarker(new MarkerOptions()
                 .flat(true)
                 .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.logo2smaller))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                 .anchor(.5f, .5f));
 
         // Show the current location in Google Map
