@@ -22,13 +22,9 @@ public class SCHASSettings {
     public static long      lastRecorded    = -1;
     public static Location  location        = new Location("LAST");
 
-    public static void Initialize(String ...args) {
-        if ( args == null ) {
-            String[] weburls = urls.split(";");
-            new PickHosts().execute(weburls);
-        } else {
-            new PickHosts().execute(args);
-        }
+    public static void Initialize() {
+        String[] weburls = urls.split(";");
+        new PickHosts().execute(weburls);
     }
     public static String getSettings() {
         StringBuilder sb = new StringBuilder(512);
