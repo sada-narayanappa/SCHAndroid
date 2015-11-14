@@ -12,7 +12,8 @@
         android:layout_height="match_parent"
         android:weightSum="1"
         android:id="@+id/uploaded"
-        android:background="@color/ColorLightPrimary">
+        android:background="@color/ColorLightPrimary"
+        >
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
@@ -46,7 +47,9 @@
             android:layout_height="wrap_content"
             android:id="@+id/linearLayout3"
             android:layout_above="@+id/linearLayout4"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentStart="true"
+            android:visibility="invisible"
+            android:layout_alignTop="@+id/linearLayout4">
 
             <Button
                 style="?android:attr/buttonStyleSmall"
@@ -96,6 +99,7 @@
             android:layout_height="55dp"
             android:id="@+id/linearLayout4"
             android:layout_alignParentStart="true"
+            android:visibility="invisible"
             android:layout_alignParentBottom="true">
 
             <Button
@@ -113,6 +117,18 @@
                 />
 
             <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:id="@+id/updateStatus"
+                android:layout_below="@+id/graphButton"
+                android:layout_alignLeft="@+id/textView2"
+                android:layout_alignStart="@+id/textView2"
+                android:visibility="invisible"/>
+
+            <Button
 
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
@@ -128,17 +144,7 @@
                 android:layout_marginRight="-8dp"
                 />
 
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="RESET\nALL"
-                android:id="@+id/resetButton"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
+
         </LinearLayout>
 
         <LinearLayout
@@ -146,13 +152,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/linearLayout2"
-            android:layout_above="@+id/linearLayout3"
             android:layout_alignParentStart="true"
-            >
+            android:layout_alignParentBottom="true">
 
 
             <Button
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -163,39 +167,34 @@
                 android:background="#ff00ff00" />
 
             <Button
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Status"
-                android:id="@+id/updateStatus"
-                android:layout_below="@+id/graphButton"
-                android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2"
-                android:visibility="invisible"/>
-
+                android:text="RESET\nALL"
+                android:id="@+id/resetButton"
+                />
             <Button
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Upload"
                 android:id="@+id/graphButton" />
         </LinearLayout>
-    </RelativeLayout>
 
-
-<!--    <RelativeLayout
+        <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_above="@+id/linearLayout2">
 
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="bottom|right|end"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true">
+            android:weightSum="1">
 
                 <android.support.design.widget.FloatingActionButton
                 android:id="@+id/map"
@@ -308,14 +307,16 @@
                 android:id="@+id/menu_button"
                 android:src="@drawable/ic_heart"
                 app:elevation="8dp"
-                android:layout_width="wrap_content"
+                android:layout_width="76dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 app:borderWidth="0dp"
-                android:visibility="invisible"
                 app:rippleColor="@android:color/white"
                 app:pressedTranslationZ="12dp"
-                />
+                android:layout_weight="0.04" />
         </LinearLayout>
-    </RelativeLayout> -->
+    </RelativeLayout>
+    </RelativeLayout>
+
+
 </android.support.design.widget.CoordinatorLayout>

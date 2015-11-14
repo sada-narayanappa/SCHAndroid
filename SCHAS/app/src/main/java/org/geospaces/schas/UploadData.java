@@ -150,27 +150,25 @@ public class UploadData extends ActionBarActivity{
                 };
         SP.registerOnSharedPreferenceChangeListener(listener);
 
-
-
-
-        findViewById(R.id.homeButton).setOnClickListener(start_service_button);
-        findViewById(R.id.PFMButton).setOnClickListener(pfm_button);
-     //   findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
-        findViewById(R.id.graphButton).setOnClickListener(uploadCB);
-        findViewById(R.id.resetButton).setOnClickListener(resetCB);
-        findViewById(R.id.attack1).setOnClickListener(mild_attack_button);
-        findViewById(R.id.attack2).setOnClickListener(medium_attack_button);
-        findViewById(R.id.attack3).setOnClickListener(severe_attack_button);
-        findViewById(R.id.inhlaerButton).setOnClickListener(inhaler_button);
-
-   /*     testButton1 = (FloatingActionButton) findViewById(R.id.test1);
+       testButton1 = (FloatingActionButton) findViewById(R.id.test1);
         testButton2 = (FloatingActionButton) findViewById(R.id.test2);
         testButton3 = (FloatingActionButton) findViewById(R.id.test3);
         testButton4 = (FloatingActionButton) findViewById(R.id.test4);
         testButton5 = (FloatingActionButton) findViewById(R.id.test5);
         testButton6 = (FloatingActionButton) findViewById(R.id.test6);
       //  mapButton = (FloatingActionButton) findViewById(R.id.map);
-        menuButton = (FloatingActionButton) findViewById(R.id.menu_button);*/
+        menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
+        menuButton.setOnClickListener(menu_button);
+
+        findViewById(R.id.homeButton).setOnClickListener(start_service_button);
+        findViewById(R.id.test4).setOnClickListener(pfm_button);
+        //   findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
+        findViewById(R.id.graphButton).setOnClickListener(uploadCB);
+        findViewById(R.id.resetButton).setOnClickListener(resetCB);
+        findViewById(R.id.test1).setOnClickListener(mild_attack_button);
+        findViewById(R.id.test2).setOnClickListener(medium_attack_button);
+        findViewById(R.id.test3).setOnClickListener(severe_attack_button);
+        findViewById(R.id.test5).setOnClickListener(inhaler_button);
 
         //medText    = (TextView) findViewById(R.id.medText);
         //statusText = (TextView) findViewById(R.id.statusText);
@@ -804,19 +802,12 @@ public class UploadData extends ActionBarActivity{
                     }
                 }, 250);
 
-                testButton6.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
-                    }
-                }, 300);
 
                 testButton1.setEnabled(true);
                 testButton2.setEnabled(true);
                 testButton3.setEnabled(true);
                 testButton4.setEnabled(true);
                 testButton5.setEnabled(true);
-                testButton6.setEnabled(true);
 
             }
             else{
@@ -827,14 +818,12 @@ public class UploadData extends ActionBarActivity{
                 testButton3.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton4.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 testButton5.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
-                testButton6.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
 
                 testButton1.setEnabled(false);
                 testButton2.setEnabled(false);
                 testButton3.setEnabled(false);
                 testButton4.setEnabled(false);
                 testButton5.setEnabled(false);
-                testButton6.setEnabled(false);
 
                 menuButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
