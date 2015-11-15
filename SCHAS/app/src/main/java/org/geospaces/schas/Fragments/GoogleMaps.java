@@ -118,11 +118,11 @@ public class GoogleMaps extends SupportMapFragment {
                             .anchor(.5f, .5f));
                 }
 
-                else if (newLocDist < 25)
+                /*else if (newLocDist < 25)
                 {
                     Toast.makeText(mContext, "same location, no marker added", Toast.LENGTH_LONG).show();
                     Log.i("same location", "location not changed");
-                }
+                }*/
 
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
 
