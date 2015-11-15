@@ -31,6 +31,9 @@ import org.geospaces.schas.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.hypot;
+
 
 public class GoogleMaps extends SupportMapFragment {
 
@@ -51,6 +54,12 @@ public class GoogleMaps extends SupportMapFragment {
     Polyline polyLine;
     LocationListener locListener;
 
+    //values for checking distance with
+    double prevLat;
+    double prevLong;
+    double changeInX;
+    double changeInY;
+    double newLocDist;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,17 +87,29 @@ public class GoogleMaps extends SupportMapFragment {
                 double newLat = location == null ? 0: location.getLatitude();
                 double newLon = location == null ? 0: location.getLongitude();
                 LatLng newlatLng = new LatLng(newLat, newLon);
+                locList.add(newlatLng);
 
-                //polyLine.setPoints(locList);
+                trackLine.add(newlatLng);
+               // polyLine.setPoints(locList);
 
                 /*for (int z = 0; z < locList.size(); z++) {
                     LatLng point = locList.get(z);
                     trackLine.add(point);
                 }*/
 
-                //polyLine = googleMap.addPolyline(trackLine);
 
-                if (location != prevLocation)
+
+                polyLine = googleMap.addPolyline(trackLine);
+
+                prevLat = prevLocation.getLatitude();
+                prevLong = prevLocation.getLongitude();
+
+                changeInX = abs(prevLat + newLat);
+                changeInY = abs(prevLong + newLon);
+
+                newLocDist = hypot(changeInX, changeInY);
+
+                if (newLocDist >= 25)
                 {
                     googleMap.addMarker(new MarkerOptions()
                             .flat(true)
@@ -97,12 +118,18 @@ public class GoogleMaps extends SupportMapFragment {
                             .anchor(.5f, .5f));
                 }
 
-                else if (location == prevLocation) Toast.makeText(mContext, "same location, no marker added", Toast.LENGTH_SHORT).show();
+                else if (newLocDist < 25)
+                {
+                    Toast.makeText(mContext, "same location, no marker added", Toast.LENGTH_LONG).show();
+                    Log.i("same location", "location not changed");
+                }
+
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
 
                 prevLocation = location;
 
                 //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
-                Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
+                //Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
             }
 
             @Override
@@ -144,7 +171,7 @@ public class GoogleMaps extends SupportMapFragment {
         double lat = myLocation == null ? 47.6205333: myLocation.getLatitude();
         double lon = myLocation == null ? -122.19293: myLocation.getLongitude();
 
-        if (myLocation == null) Log.i("myLocation", "location is null");
+        prevLocation = myLocation;
 
         // Create a LatLng object for the current location
         LatLng latLng = new LatLng(lat, lon);
@@ -166,23 +193,12 @@ public class GoogleMaps extends SupportMapFragment {
 
      //   googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
 
-        /*trackLine =new PolylineOptions()
+        trackLine =new PolylineOptions()
                 .add(latLng)
                 .width(5)
                 .color(Color.BLUE)
                 .geodesic(true);
-        polyLine = googleMap.addPolyline(trackLine);*/
-
-        /*recover any points from previous app states
-        List<LatLng> returnedLocList = (List) getLastCutomNonConfigurationInstance();
-
-        for (int i = 0; i < returnedLocList.size(); i++) {
-            LatLng returnedPoint = returnedLocList.get(i);
-            googleMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .position(returnedPoint)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.logo2smaller))
-                    .anchor(.5f, .5f));*/
+        polyLine = googleMap.addPolyline(trackLine);
 
         setRetainInstance(true);
     }
@@ -190,7 +206,6 @@ public class GoogleMaps extends SupportMapFragment {
     @Override
     public void onPause()
     {
-        //todo implement the following methods to remove and resume the listener
         super.onPause();
     }
 
