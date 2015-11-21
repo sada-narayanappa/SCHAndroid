@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.text.format.Formatter;
 import android.util.Log;
+import android.util.Pair;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -299,18 +300,18 @@ public class db {
     private static synchronized String Post(Activity act, Context context, String service) {
 
         if ( POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {   // Avoid race condition
-            return "ERROR: One upload in progress, please retry ...";
+            return "Message: One upload in progress, please wait ...";
         }
 
         String host     = SCHASSettings.host;
 
         if ( host == null || null == isWIFIOn(context) || host.equals("null") ) {
             SCHASSettings.Initialize();
-            return "ERROR: Host name is null: resetting hosts ";
+            return "Warning: Cannot find host: ";
         }
         db.rename(false);
         if ( !db.fileReady() ) {
-            return "ERROR: " + SCHASSettings.host + " No files to upload!!";
+            return "Message: " + SCHASSettings.host + " No files to upload!!";
         }
 
         String url = "http://" + host+ service;
