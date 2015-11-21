@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -24,7 +25,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -55,20 +58,32 @@ import android.widget.Toast;
 import com.commonsware.cwac.locpoll.LocationPoller;
 import com.google.android.gms.maps.GoogleMap;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.geospaces.schas.AsyncTasks.PostToServer;
 import org.geospaces.schas.BluetoothLE.InhalerCap;
 import org.geospaces.schas.Broadcast_Receivers.GPSWakfulReciever;
 import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import mymodule.app2.mymodule.app2.schasStrings;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class UploadData extends ActionBarActivity{
@@ -91,13 +106,22 @@ public class UploadData extends ActionBarActivity{
 
     //Bluetooth Variables below
     private BluetoothAdapter mBluetoothAdapter;
+    BluetoothDevice     mmDevice = null;
+    BluetoothSocket mmSocket = null;
+    UUID uuid;
+    OutputStream mmOutputStream = null;
+    InputStream mmInputStream = null;
+    volatile boolean    stopWorker;
+    int                 readBufferPosition;
+    byte[]              readBuffer;
+    Thread              workerThread;
+    private static double gpsLat = -1;
+    private static double gpsLon = -1;
+    private static double gpsVeloc = -1;
     private ProgressDialog mProgress;
-    private HashMap<String, BluetoothDevice> mDevices;
-    private BluetoothLeScanner bleScan;
-    private List<ScanFilter> filters;
-    private ScanSettings settings;
     private HashMap<String, InhalerCap> mCaps;
-    private CapAdapter mCapAdapter;
+    private static String android_id = "NA";
+    LocationManager     locationManager;
 
     //Floating Action Button
     private FloatingActionButton menuButton;
@@ -161,7 +185,7 @@ public class UploadData extends ActionBarActivity{
         menuButton.setOnClickListener(menu_button);
 
         findViewById(R.id.homeButton).setOnClickListener(start_service_button);
-        findViewById(R.id.test4).setOnClickListener(pfm_button);
+        findViewById(R.id.test4).setOnClickListener(pfm_BT_connect);
         //   findViewById(R.id.updateStatus).setOnClickListener(updateStatusCB);
         findViewById(R.id.graphButton).setOnClickListener(uploadCB);
         findViewById(R.id.resetButton).setOnClickListener(resetCB);
@@ -190,8 +214,6 @@ public class UploadData extends ActionBarActivity{
     public void bluetoothInit(){
         BluetoothManager blemanager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = blemanager.getAdapter();
-
-        bleScan = mBluetoothAdapter.getBluetoothLeScanner();
 
 
 
@@ -269,10 +291,10 @@ public class UploadData extends ActionBarActivity{
             InhalerCap cap = (InhalerCap) msg.obj;
             mCaps.put(cap.getName(), cap);
 
-            mCapAdapter.setNotifyOnChange(false);
-            mCapAdapter.clear();
-            mCapAdapter.addAll(mCaps.values());
-            mCapAdapter.notifyDataSetChanged();
+ //           mCapAdapter.setNotifyOnChange(false);
+ //          mCapAdapter.clear();
+ //          mCapAdapter.addAll(mCaps.values());
+ //          mCapAdapter.notifyDataSetChanged();
         }
     };
 
@@ -838,10 +860,217 @@ public class UploadData extends ActionBarActivity{
         }
     };
 
+    private View.OnClickListener pfm_BT_connect = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
 
-    public void writeFile(String s1, String s2) {
-        PEF_Text = "";
-        FEV_Text = "";
+            Toast("Attempting peakflow pairing");
+
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                    mmDevice = null;
+                    mmSocket = null;
+
+                    BlueToothHelper.on(UploadData.this);
+
+                    if(mBluetoothAdapter != null) {
+                        if (mBluetoothAdapter.isEnabled()) {
+                            findBT();
+                            uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+                            // uuid = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+                            //Toast.makeText(getApplicationContext(), ""+mmSocket.isConnected(), Toast.LENGTH_SHORT).show();
+
+                            if (mmDevice != null) {
+                                try {
+                                    mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
+                                    mBluetoothAdapter.cancelDiscovery();
+                                    mmSocket.connect();
+
+                                } catch (IOException e) {
+                                    try {
+                                        mmSocket = (BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[]{int.class}).invoke(mmDevice, 1);
+                                        mmSocket.connect();
+                                    } catch (Exception f) {
+
+                                    }
+                                }
+                            }
+                            if (mmSocket == null) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "No Devices connected", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                Intent intentOpenBluetoothSettings = new Intent();
+                                intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                                startActivity(intentOpenBluetoothSettings);
+                            }
+                        }
+                        try {
+                            mmSocket.close();
+                        } catch (Exception e) {
+
+                        }
+                        try {
+                            openBT();
+                        } catch (IOException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "Unable to Connect", Toast.LENGTH_SHORT).show();
+                                    testButton4.setImageResource(R.drawable.ic_peakflow_red);
+                                }
+                            });
+
+                        }
+                    }
+                }
+            };
+            Thread myThread = new Thread(runnable);
+            myThread.start();
+        }
+
+    };
+
+    void findBT() {
+        if (mBluetoothAdapter == null) {
+            return;
+        }
+
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                if (device.getName().contains("ASMA")) {
+                    if (mmDevice == null) {
+                        mmDevice = device;
+                    }
+                }
+
+            }
+        }
+    }
+    public void openBT() throws IOException {
+        try {
+            mmSocket.close();
+        }
+        catch (Exception e){
+
+        }
+
+        uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+        if (!mmSocket.isConnected()) {
+            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
+            mmSocket.connect();
+        }
+        try {
+            mmOutputStream = mmSocket.getOutputStream();
+            mmInputStream = mmSocket.getInputStream();
+        }
+        catch(Exception e){
+            Log.d("BTstream","failed");
+        }
+
+
+        if (mmSocket.isConnected()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    testButton4.setImageResource(R.drawable.ic_peakflow_green);
+                    Toast.makeText(getApplicationContext(), "Peakflow meter connected", Toast.LENGTH_LONG).show();
+                }
+            });
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    beginListenForData();
+                }
+            });
+        }
+    }
+
+    public void beginListenForData() {
+        //Toast.makeText(getApplicationContext(), "Step1", Toast.LENGTH_LONG).show();
+
+        final Handler handler = new Handler();
+        final byte delimiter = 3; //This is the ASCII code for a newline character
+
+        stopWorker = false;
+        readBufferPosition = 0;
+        readBuffer = new byte[1024];
+        int count = 0;
+        workerThread = new Thread(new Runnable() {
+            public void run() {
+                while (!Thread.currentThread().isInterrupted() && !stopWorker) {
+                    try {
+                        int bytesAvailable = mmInputStream.available();
+                        if (bytesAvailable > 0) {
+                            byte[] packetBytes = new byte[bytesAvailable];
+                            mmInputStream.read(packetBytes);
+                            for (int i = 0; i < bytesAvailable; i++) {
+                                byte b = packetBytes[i];
+                                if (b == delimiter) {
+                                    byte[] encodedBytes = new byte[readBufferPosition];
+                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+                                    final String data = new String(encodedBytes, "US-ASCII");
+                                    readBufferPosition = 0;
+                                    handler.post(new Runnable() {
+                                        boolean yes = false;
+
+                                        public void run() {
+                                            final double fev;
+                                            final int pef2;
+
+                                            if (data.length() >= 20) {
+                                                int temp = data.indexOf('D');
+                                                fev = (double) Integer.parseInt(data.substring(temp + 11, temp + 14)) / 100;
+                                                pef2 = Integer.parseInt(data.substring(temp + 14, temp + 17));
+                                                AlertDialog.Builder tempAlertBuilder2 = new AlertDialog.Builder(UploadData.this);
+                                                tempAlertBuilder2.setTitle("Submit Data")
+                                                        .setMessage("Do you want to submit this data?\n" + "The FEV1 was: " + fev + " and PEF was: " + pef2 + ".")
+                                                        .setNeutralButton("No", null)
+                                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface arg0, int arg1) {
+                                                                Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                                                                if (loc == null) {
+                                                                    Toast("Can't get Location");
+                                                                    return;
+                                                                }
+                                                                String msg = db.getPeakFlow(loc,String.valueOf(pef2),String.valueOf(fev));
+                                                                try {
+                                                                    db.Write(msg + "\n");
+                                                                } catch (IOException e) {
+                                                                    Log.e("ERROR", "Exception appending to log file", e);
+                                                                }
+                                                            }
+                                                        });
+                                                AlertDialog dialog2 = tempAlertBuilder2.create();
+                                                dialog2.show();
+                                            } else if (data.contains("CPD")) {
+                                                //     statusBT.setText("Device shutdown, please press end.");
+                                                Toast.makeText(getApplicationContext(), "Device shutdown.", Toast.LENGTH_LONG).show();
+                                                testButton4.setImageResource(R.drawable.ic_peakflow_red);
+
+                                            } else {
+                                              //  Toast.makeText(getApplicationContext(), "Invalid Statement Recieved", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+
+                                } else {
+                                    readBuffer[readBufferPosition++] = b;
+                                }
+                            }
+                        }
+                    } catch (IOException ex) {
+                        stopWorker = true;
+                    }
+                }
+            }
+        });
+        workerThread.start();
     }
 
     @Override
