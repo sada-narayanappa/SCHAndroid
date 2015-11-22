@@ -961,33 +961,34 @@ public class UploadData extends ActionBarActivity{
         }
 
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
-        if (!mmSocket.isConnected()) {
-            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-            mmSocket.connect();
-        }
-        try {
-            mmOutputStream = mmSocket.getOutputStream();
-            mmInputStream = mmSocket.getInputStream();
-        }
-        catch(Exception e){
-            Log.d("BTstream","failed");
-        }
+        if(mmSocket != null) {
+            if (!mmSocket.isConnected()) {
+                mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
+                mmSocket.connect();
+            }
+            try {
+                mmOutputStream = mmSocket.getOutputStream();
+                mmInputStream = mmSocket.getInputStream();
+            } catch (Exception e) {
+                Log.d("BTstream", "failed");
+            }
 
 
-        if (mmSocket.isConnected()) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    testButton4.setImageResource(R.drawable.ic_peakflow_green);
-                    Toast.makeText(getApplicationContext(), "Peakflow meter connected", Toast.LENGTH_LONG).show();
-                }
-            });
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    beginListenForData();
-                }
-            });
+            if (mmSocket.isConnected()) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        testButton4.setImageResource(R.drawable.ic_peakflow_green);
+                        Toast.makeText(getApplicationContext(), "Peakflow meter connected", Toast.LENGTH_LONG).show();
+                    }
+                });
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        beginListenForData();
+                    }
+                });
+            }
         }
     }
 
