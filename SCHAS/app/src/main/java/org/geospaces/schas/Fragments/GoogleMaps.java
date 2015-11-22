@@ -5,6 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.hardware.TriggerEvent;
+import android.hardware.TriggerEventListener;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -35,7 +41,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.hypot;
 
 
-public class GoogleMaps extends SupportMapFragment {
+public class GoogleMaps extends SupportMapFragment implements SensorEventListener {
 
     private GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
@@ -44,15 +50,27 @@ public class GoogleMaps extends SupportMapFragment {
     Location myLocation;
     Location prevLocation = null;
     Criteria criteria;
-    //set min update time to 15 seconds
-    long minTime = 15*1000;
-    //set min update distance to 50 meters
-    float minDistance = 50;
+    //set min update time to 60 seconds
+    long minTime = 60000;
+    //set min update distance to 30 meters
+    float minDistance =30;
     //list to hold LatLng values
     List<LatLng> locList = new ArrayList<>();
     PolylineOptions trackLine;
     Polyline polyLine;
     LocationListener locListener;
+
+    SensorManager mSensorManager;
+    Sensor mSigMotion;
+    TriggerEventListener mListener;
+    Sensor mAccelerometer;
+
+    long diffTime;
+    long curTime;
+    float x, y, z;
+    long lastUpdate =0;
+    float lastX, lastY, lastZ = 0;
+    int speedLevel = 1;
 
     //values for checking distance with
     double prevLat;
@@ -79,7 +97,18 @@ public class GoogleMaps extends SupportMapFragment {
         mContext = getActivity().getApplicationContext();
 
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
 
+        //mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        /*mListener = new TriggerEventListener() {
+            @Override
+            public void onTrigger(TriggerEvent event) {
+                setMinTime();
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+            }
+        };*/
 
         locListener = new LocationListener() {
             @Override
@@ -118,11 +147,11 @@ public class GoogleMaps extends SupportMapFragment {
                             .anchor(.5f, .5f));
                 }
 
-                /*else if (newLocDist < 25)
+                if (newLocDist < 25)
                 {
                     Toast.makeText(mContext, "same location, no marker added", Toast.LENGTH_LONG).show();
                     Log.i("same location", "location not changed");
-                }*/
+                }
 
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
 
@@ -148,9 +177,8 @@ public class GoogleMaps extends SupportMapFragment {
             }
         };
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 30, locListener);
+        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 30, locListener);
         //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 30, locListener);
-
 
         //googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker").snippet("snippet"));
         // Enable MyLocation Layer of Google Map
@@ -200,7 +228,30 @@ public class GoogleMaps extends SupportMapFragment {
                 .geodesic(true);
         polyLine = googleMap.addPolyline(trackLine);
 
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+        //mSensorManager.requestTriggerSensor(mListener, mSigMotion);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+        
         setRetainInstance(true);
+    }
+
+    //call this function before making a call to request location updates
+    public void setMinTime ()
+    {
+        //if walking, set minTime to 60 seconds
+        if (speedLevel == 1) {
+            minTime = 60000;
+        }
+        //if running, set minTime to 30 seconds
+        if (speedLevel == 2) {
+            minTime = 30000;
+        }
+        //if driving, set minTime to 10 seconds
+        if (speedLevel == 3) {
+            minTime = 10000;
+        }
+
+        Toast.makeText(mContext, "setMinTime called", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -225,6 +276,70 @@ public class GoogleMaps extends SupportMapFragment {
     public void onDetach()
     {
         locationManager.removeUpdates(locListener);
+        mSensorManager.unregisterListener(this);
         super.onDetach();
     }
+
+    @Override
+    public void onSensorChanged(SensorEvent event){
+        //get accelerometer values and use them here
+        curTime = System.currentTimeMillis();
+
+        //if it has been at least 15 seconds between sensor updates, do this
+        if ((curTime - lastUpdate) > 15000) {
+            //get x, y, and z values from sensor event
+            x = event.values[0];
+            y = event.values[1];
+            z = event.values[2];
+
+            diffTime = (curTime - lastUpdate);
+            lastUpdate = curTime;
+
+            //calculate the speed of the movement
+            float speed = Math.abs(x + y + z - lastX - lastY - lastZ)/ diffTime * 1000;
+
+            //do things based on the calculated speed
+            if (speed < .5 ) {
+                //do stuff for not moving
+                locationManager.removeUpdates(locListener);
+                mSensorManager.requestTriggerSensor(mListener, mSigMotion);
+                speedLevel = 0;
+                Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
+            }
+            if (speed >= .5 && speed < 5.0) {
+                //do stuff for walking
+                locationManager.removeUpdates(locListener);
+                speedLevel = 1;
+                setMinTime();
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
+            }
+            if (speed >= 5.0 && speed < 9.0){
+                //do stuff for running
+                locationManager.removeUpdates(locListener);
+                speedLevel = 2;
+                setMinTime();
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
+            }
+            if (speed > 9.0) {
+                //do stuff for driving
+                locationManager.removeUpdates(locListener);
+                speedLevel = 3;
+                setMinTime();
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
+            }
+
+            lastX = x;
+            lastY = y;
+            lastZ = z;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 }
+
