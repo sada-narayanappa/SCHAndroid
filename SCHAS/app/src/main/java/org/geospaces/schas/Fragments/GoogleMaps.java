@@ -39,9 +39,11 @@ import java.util.List;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.hypot;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 
-public class GoogleMaps extends SupportMapFragment implements SensorEventListener {
+public class GoogleMaps extends SupportMapFragment /*implements SensorEventListener*/ {
 
     private GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
@@ -60,8 +62,9 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
     Polyline polyLine;
     LocationListener locListener;
 
+    /*
     SensorManager mSensorManager;
-    Sensor mSigMotion;
+    //Sensor mSigMotion;
     TriggerEventListener mListener;
     Sensor mAccelerometer;
 
@@ -70,7 +73,8 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
     float x, y, z;
     long lastUpdate =0;
     float lastX, lastY, lastZ = 0;
-    int speedLevel = 1;
+    int speedLevel;
+    float XVel, YVel;*/
 
     //values for checking distance with
     double prevLat;
@@ -97,10 +101,10 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
         mContext = getActivity().getApplicationContext();
 
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+        //mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
 
         //mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        //mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         /*mListener = new TriggerEventListener() {
             @Override
@@ -147,11 +151,12 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
                             .anchor(.5f, .5f));
                 }
 
+                /*
                 if (newLocDist < 25)
                 {
                     Toast.makeText(mContext, "same location, no marker added", Toast.LENGTH_LONG).show();
                     Log.i("same location", "location not changed");
-                }
+                }*/
 
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
 
@@ -228,13 +233,14 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
                 .geodesic(true);
         polyLine = googleMap.addPolyline(trackLine);
 
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+        //mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
         //mSensorManager.requestTriggerSensor(mListener, mSigMotion);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
         
         setRetainInstance(true);
     }
 
+    /*
     //call this function before making a call to request location updates
     public void setMinTime ()
     {
@@ -252,7 +258,7 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
         }
 
         Toast.makeText(mContext, "setMinTime called", Toast.LENGTH_SHORT).show();
-    }
+    }*/
 
     @Override
     public void onPause()
@@ -276,10 +282,11 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
     public void onDetach()
     {
         locationManager.removeUpdates(locListener);
-        mSensorManager.unregisterListener(this);
+        //mSensorManager.unregisterListener(this);
         super.onDetach();
     }
 
+    /*
     @Override
     public void onSensorChanged(SensorEvent event){
         //get accelerometer values and use them here
@@ -288,48 +295,85 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
         //if it has been at least 15 seconds between sensor updates, do this
         if ((curTime - lastUpdate) > 15000) {
             //get x, y, and z values from sensor event
-            x = event.values[0];
-            y = event.values[1];
-            z = event.values[2];
+
+            final float alpha = 0.8f;
+            float[] gravity = new float[3];
+
+            // Isolate the force of gravity with the low-pass filter.
+            gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+            gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+            gravity[2] = alpha * SensorManager.GRAVITY_EARTH + (1 - alpha) * event.values[2];
+
+            x = event.values[0] - gravity[0];
+            y = event.values[1] - gravity[1];
+            //z = event.values[2] - gravity[2];
+
+            Log.i("accelX", String.valueOf(x));
+            Log.i("accelY", String.valueOf(y));
 
             diffTime = (curTime - lastUpdate);
+            Log.i("curTime", String.valueOf(curTime));
+            Log.i("lastTime", String.valueOf(lastUpdate));
             lastUpdate = curTime;
 
+            Log.i("time", String.valueOf(diffTime));
+
+            XVel = lastX + (x*(diffTime/10000));
+            YVel = lastY + (y*(diffTime/10000));
+
+            Log.i("VelX", String.valueOf(XVel));
+            Log.i("VelY", String.valueOf(YVel));
+
             //calculate the speed of the movement
-            float speed = Math.abs(x + y + z - lastX - lastY - lastZ)/ diffTime * 1000;
+            double speed = sqrt((XVel*XVel) + (YVel*YVel));
+
+            lastX = XVel;
+            lastY = YVel;
 
             //do things based on the calculated speed
             if (speed < .5 ) {
                 //do stuff for not moving
-                locationManager.removeUpdates(locListener);
-                mSensorManager.requestTriggerSensor(mListener, mSigMotion);
-                speedLevel = 0;
-                Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
+                if (speedLevel !=0) {
+                    locationManager.removeUpdates(locListener);
+                    //mSensorManager.requestTriggerSensor(mListener, mSigMotion);
+                    speedLevel = 0;
+                    Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
+                }
             }
-            if (speed >= .5 && speed < 5.0) {
+            else if (speed >= .5 && speed < 6.0) {
                 //do stuff for walking
-                locationManager.removeUpdates(locListener);
-                speedLevel = 1;
-                setMinTime();
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
+                if (speedLevel !=1) {
+                    locationManager.removeUpdates(locListener);
+                    speedLevel = 1;
+                    setMinTime();
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                    Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
+                }
             }
-            if (speed >= 5.0 && speed < 9.0){
+            else if (speed >= 10.0 && speed < 20.0){
                 //do stuff for running
-                locationManager.removeUpdates(locListener);
-                speedLevel = 2;
-                setMinTime();
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
+                if (speedLevel != 2) {
+                    locationManager.removeUpdates(locListener);
+                    speedLevel = 2;
+                    setMinTime();
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                    Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
+                }
             }
-            if (speed > 9.0) {
+            else if (speed > 20.0) {
                 //do stuff for driving
-                locationManager.removeUpdates(locListener);
-                speedLevel = 3;
-                setMinTime();
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
+                if (speedLevel != 3) {
+                    locationManager.removeUpdates(locListener);
+                    speedLevel = 3;
+                    setMinTime();
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                    Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
+                }
             }
+
+            Log.i("speed level", String.valueOf(speedLevel));
+            Log.i("speed level", String.valueOf(speed));
+            Toast.makeText(mContext, String.valueOf(speed), Toast.LENGTH_LONG).show();
 
             lastX = x;
             lastY = y;
@@ -340,6 +384,6 @@ public class GoogleMaps extends SupportMapFragment implements SensorEventListene
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-    }
+    }*/
 }
 
