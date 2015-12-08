@@ -131,7 +131,6 @@ public class UploadData extends ActionBarActivity{
     private FloatingActionButton testButton4;
     private FloatingActionButton testButton5;
     private FloatingActionButton testButton6;
-    private FloatingActionButton mapButton;
     private boolean menuActive = false;
 
     @Override
@@ -180,7 +179,6 @@ public class UploadData extends ActionBarActivity{
         testButton4 = (FloatingActionButton) findViewById(R.id.test4);
         testButton5 = (FloatingActionButton) findViewById(R.id.test5);
         testButton6 = (FloatingActionButton) findViewById(R.id.test6);
-      //  mapButton = (FloatingActionButton) findViewById(R.id.map);
         menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
         menuButton.setOnClickListener(menu_button);
 

@@ -8,7 +8,7 @@
     <string name="action_test">Bluetooth</string>
     <string name="title_activity_test">Scan for inhaler</string>
     <string name="action_UploadData">Dashboard</string>
-    <string name="title_activity_upload_data">Dashboard</string>
+    <string name="title_activity_upload_data">Home</string>
     <string name="action_about">Welcome Screen</string>
     <string name="title_activity_web">Usage Statistics</string>
     <string name="action_web">Usage Statistics</string>

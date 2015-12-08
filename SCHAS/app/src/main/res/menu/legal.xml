@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:a="http://schemas.android.com/apk/res-auto"
+    tools:context="org.geospaces.schas.Settings.LegalNotices">
+    <item android:id="@+id/action_legal_menu"
+        android:title="@+id/title_legal_menu"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+</menu>
