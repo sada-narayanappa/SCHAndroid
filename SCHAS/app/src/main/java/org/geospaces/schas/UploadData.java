@@ -131,7 +131,6 @@ public class UploadData extends ActionBarActivity{
     private FloatingActionButton testButton4;
     private FloatingActionButton testButton5;
     private FloatingActionButton testButton6;
-    private FloatingActionButton mapButton;
     private boolean menuActive = false;
 
     @Override
@@ -180,7 +179,6 @@ public class UploadData extends ActionBarActivity{
         testButton4 = (FloatingActionButton) findViewById(R.id.test4);
         testButton5 = (FloatingActionButton) findViewById(R.id.test5);
         testButton6 = (FloatingActionButton) findViewById(R.id.test6);
-      //  mapButton = (FloatingActionButton) findViewById(R.id.map);
         menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
         menuButton.setOnClickListener(menu_button);
 
@@ -852,7 +850,7 @@ public class UploadData extends ActionBarActivity{
                 menuButton.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        menuButton.setImageResource(R.drawable.ic_heart);
+                        menuButton.setImageResource(R.drawable.ic_heart_white);
                     }
                 }, 150);
             }
@@ -957,7 +955,7 @@ public class UploadData extends ActionBarActivity{
             mmSocket.close();
         }
         catch (Exception e){
-
+           // Toast("Open BT Fails");
         }
 
         uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
@@ -1053,6 +1051,7 @@ public class UploadData extends ActionBarActivity{
                                                 //     statusBT.setText("Device shutdown, please press end.");
                                                 Toast.makeText(getApplicationContext(), "Device shutdown.", Toast.LENGTH_LONG).show();
                                                 testButton4.setImageResource(R.drawable.ic_peakflow_red);
+
 
                                             } else {
                                               //  Toast.makeText(getApplicationContext(), "Invalid Statement Recieved", Toast.LENGTH_LONG).show();

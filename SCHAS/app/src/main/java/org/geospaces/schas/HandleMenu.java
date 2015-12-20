@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.geospaces.schas.Settings.LegalNotices;
+
 /**
  * Created by snarayan on 11/3/14.
  */
@@ -56,7 +58,17 @@ public class HandleMenu  {
                 Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
                 return false;
 
+            case R.id.action_legal_menu:
+            if(a.getClass() != LegalNotices.class) {
+                intent = new Intent(a, LegalNotices.class);
+                a.startActivity(intent);
+                //a.setContentView(R.layout.activity_web);
+                return true;
             }
+            Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
+            return false;
+
+        }
         return false;
     }
 }

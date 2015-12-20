@@ -66,6 +66,11 @@
             android:name=".UploadData"
             android:label="@string/title_activity_upload_data" >
         </activity>
+        <activity
+            android:name=".Settings.LegalNotices"
+            android:label="Legal Notices">
+
+        </activity>
 
         <service android:name="com.commonsware.cwac.locpoll.LocationPollerService" >
         </service>
