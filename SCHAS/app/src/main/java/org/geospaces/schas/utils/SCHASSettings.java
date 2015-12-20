@@ -110,7 +110,7 @@ public class SCHASSettings {
                 urlConnect.setReadTimeout(5000);
                 Object objData = urlConnect.getContent();
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 return false;
             }
             return true;
