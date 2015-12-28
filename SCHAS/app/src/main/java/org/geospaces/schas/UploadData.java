@@ -862,6 +862,8 @@ public class UploadData extends ActionBarActivity{
         @Override
         public void onClick(View v) {
 
+            testButton4.setEnabled(false);
+
             Toast("Attempting peakflow pairing");
 
             Runnable runnable = new Runnable() {
@@ -920,6 +922,7 @@ public class UploadData extends ActionBarActivity{
                                 public void run() {
                                     Toast.makeText(getApplicationContext(), "Unable to Connect", Toast.LENGTH_SHORT).show();
                                     testButton4.setImageResource(R.drawable.ic_peakflow_red);
+                                    testButton4.setEnabled(true);
                                 }
                             });
 
@@ -1051,6 +1054,7 @@ public class UploadData extends ActionBarActivity{
                                                 //     statusBT.setText("Device shutdown, please press end.");
                                                 Toast.makeText(getApplicationContext(), "Device shutdown.", Toast.LENGTH_LONG).show();
                                                 testButton4.setImageResource(R.drawable.ic_peakflow_red);
+                                                testButton4.setEnabled(true);
 
 
                                             } else {
