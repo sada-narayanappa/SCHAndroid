@@ -43,7 +43,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 
-public class GoogleMaps extends SupportMapFragment /*implements SensorEventListener*/ {
+public class GoogleMaps extends SupportMapFragment {
 
     private GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
@@ -77,13 +77,13 @@ public class GoogleMaps extends SupportMapFragment /*implements SensorEventListe
     long lastUpdate =0;
     float lastX, lastY, lastZ = 0;
     int speedLevel;
-    float XVel, YVel;*/
+    float XVel, YVel;
 
     //values for checking distance with
     double prevLat;
     double prevLong;
     double changeInX;
-    double changeInY;
+    double changeInY;*/
     double newLocDist;
 
     @Override
@@ -112,7 +112,6 @@ public class GoogleMaps extends SupportMapFragment /*implements SensorEventListe
         mListener = new TriggerEventListener() {
             @Override
             public void onTrigger(TriggerEvent event) {
-                speedCalc();
                 //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
             }
@@ -129,7 +128,7 @@ public class GoogleMaps extends SupportMapFragment /*implements SensorEventListe
 
 
                 speed = location.getSpeed();
-                float accuracy = location.getAccuracy();
+                //float accuracy = location.getAccuracy();
                 newLocDist = location.distanceTo(prevLocation);
                 speedCalc();
                 //Log.i("speed", String.valueOf(speed));
