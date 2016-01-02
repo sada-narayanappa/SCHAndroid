@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:a="http://schemas.android.com/apk/res-auto"
+    tools:context="org.geospaces.schas.Settings.AboutPage">
+    <item android:id="@+id/action_about"
+        android:title="@+id/title_about"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+</menu>

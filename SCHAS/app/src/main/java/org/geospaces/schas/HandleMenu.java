@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.geospaces.schas.Settings.AboutPage;
 import org.geospaces.schas.Settings.LegalNotices;
 
 /**
@@ -59,12 +60,20 @@ public class HandleMenu  {
                 return false;
 
             case R.id.action_legal_menu:
-            if(a.getClass() != LegalNotices.class) {
+                if(a.getClass() != LegalNotices.class) {
                 intent = new Intent(a, LegalNotices.class);
                 a.startActivity(intent);
                 //a.setContentView(R.layout.activity_web);
                 return true;
             }
+
+            case R.id.action_about:
+                if(a.getClass() != AboutPage.class) {
+                    intent = new Intent(a, AboutPage.class);
+                    a.startActivity(intent);
+                    //a.setContentView(R.layout.activity_web);
+                    return true;
+                }
             Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
             return false;
 

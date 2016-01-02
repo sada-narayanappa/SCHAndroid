@@ -22,4 +22,9 @@
     android:orderInCategory="100"
     android:showAsAction="never" />
 
+    <item android:id="@+id/action_about"
+        android:title="About"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
 </menu>
