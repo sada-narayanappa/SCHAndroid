@@ -72,11 +72,6 @@
             android:label="Legal Notices" >
         </activity>
 
-        <activity
-            android:name=".Settings.AboutPage"
-            android:label="About" >
-        </activity>
-
         <service android:name="com.commonsware.cwac.locpoll.LocationPollerService" >
         </service>
 

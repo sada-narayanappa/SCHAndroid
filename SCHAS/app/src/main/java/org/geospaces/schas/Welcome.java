@@ -4,9 +4,12 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -25,11 +28,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
+
 public class Welcome extends ActionBarActivity {
 
     static boolean firstTime = true;
     private PendingIntent pendingIntent;
     private AlarmManager manager;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,7 @@ public class Welcome extends ActionBarActivity {
 
         Intent alarmIntent = new Intent(this,heartBeatReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,0);
+        context = getApplicationContext();
 
         SCHASApplication.getInstance();
         //Creates a SCHAS directory on the external storage portion of the Device to keep data files
@@ -70,9 +76,13 @@ public class Welcome extends ActionBarActivity {
         try {
             PackageInfo pInfo = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0);
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+            String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+            String stringUName = SP.getString("username", "NA");
 
             String version = pInfo.versionName + " Code:" + pInfo.versionCode + "\n"+
-                    sdf.format( pInfo.lastUpdateTime);
+                    sdf.format( pInfo.lastUpdateTime) + "\nUser ID: " + ID + "\nUsername: " + stringUName;
             ((TextView)findViewById(R.id.version)).setText(version);
         } catch(Exception e){
             Log.e("Welcome", e.toString());

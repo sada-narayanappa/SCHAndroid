@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.geospaces.schas.Settings.AboutPage;
 import org.geospaces.schas.Settings.LegalNotices;
 
 /**
@@ -66,10 +65,12 @@ public class HandleMenu  {
                 //a.setContentView(R.layout.activity_web);
                 return true;
             }
+                Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
+                return false;
 
-            case R.id.action_about:
-                if(a.getClass() != AboutPage.class) {
-                    intent = new Intent(a, AboutPage.class);
+            case R.id.action_splash:
+                if(a.getClass() != Welcome.class) {
+                    intent = new Intent(a, Welcome.class);
                     a.startActivity(intent);
                     //a.setContentView(R.layout.activity_web);
                     return true;
