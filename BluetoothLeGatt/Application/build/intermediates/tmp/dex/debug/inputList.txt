@@ -1,7 +1,0 @@
-D:\Research\SCHAndroid\BluetoothLeGatt\Application\build\intermediates\classes\debug
-D:\Research\SCHAndroid\BluetoothLeGatt\Application\build\intermediates\pre-dexed\debug\internal_impl-21.0.2-ac4eb8ac085cc039e4352848fd150786eddd2c7b.jar
-D:\Research\SCHAndroid\BluetoothLeGatt\Application\build\intermediates\pre-dexed\debug\support-annotations-21.0.2-f75aa55e146ca655a4e0471eb510bc4773626697.jar
-D:\Research\SCHAndroid\BluetoothLeGatt\Application\build\intermediates\pre-dexed\debug\classes-2d85b163ae4b76aa8ca943cf77ac27cc6c1a016e.jar
-D:\Research\SCHAndroid\BluetoothLeGatt\Application\build\intermediates\pre-dexed\debug\classes-0c14f37fb90e9e18770566417101b2930ceefe09.jar
-D:\Research\SCHAndroid\BluetoothLeGatt\Application\build\intermediates\pre-dexed\debug\internal_impl-21.0.2-edfa9d64eab3713a6a6b1f85d4d3c68dfee56c4b.jar
-D:\Research\SCHAndroid\BluetoothLeGatt\Application\build\intermediates\pre-dexed\debug\classes-a0f43d8b468bd4b75a5e32b37250179b7be6d329.jar
