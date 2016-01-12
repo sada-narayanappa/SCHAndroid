@@ -32,17 +32,17 @@ import java.util.List;
 public class db {
     private static float batLevel;
 
-    public final static String  DIRECTORY   = "/SCHAS";
-    public final static String  FILE_NAME   = "LOC.txt";
-    public final static String  FILE_READY  = "LOC_ready.txt";
-    public final static int     FILE_SIZE   = 8 * 1024;
+    public final static String DIRECTORY = "/SCHAS";
+    public final static String FILE_NAME = "LOC.txt";
+    public final static String FILE_READY = "LOC_ready.txt";
+    public final static int FILE_SIZE = 8 * 1024;
 
-    public final static String  FILE_SETTINGS = "Settings.txt";
+    public final static String FILE_SETTINGS = "Settings.txt";
 
     public static String read(String fileName) {
         File file = getFile(fileName);
 
-        if ( !file.exists()) {
+        if (!file.exists()) {
             return "";
         }
         String str = "ERROR reading File:  " + fileName;
@@ -62,7 +62,7 @@ public class db {
         File file = db.getFile(db.FILE_NAME);
         BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
 
-        if ( msg.endsWith("\n"))
+        if (msg.endsWith("\n"))
             out.write(msg);
         else
             out.write(msg + "\n");
@@ -72,9 +72,9 @@ public class db {
 
     public static String getUploadableText(Context context) throws Exception {
         File file = getFile(FILE_READY);
-        if ( !file.exists()) {
+        if (!file.exists()) {
             boolean b = db.rename(false);
-            if ( !b ) {
+            if (!b) {
                 throw new Exception("File not found: " + FILE_READY);
             }
         }
@@ -92,77 +92,77 @@ public class db {
         return file;
     }
 
-    public static String getLocation(Location loc, Object...args) {
-        if ( loc == null ) {
+    public static String getLocation(Location loc, Object... args) {
+        if (loc == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer(512);
-        String sessionNum = (args.length > 0 ) ? ""+args[0] : "";
-        String source     = (args.length > 1 ) ? ""+args[1] : "";
+        String sessionNum = (args.length > 0) ? "" + args[0] : "";
+        String source = (args.length > 1) ? "" + args[1] : "";
         source = source.substring(0, Math.min(4, source.length()));
 
-        double speed      = (args.length > 2 ) ? ((Double)args[2]) : 0.0;
+        double speed = (args.length > 2) ? ((Double) args[2]) : 0.0;
 
         if (loc.getSpeed() > 0) {
             speed = loc.getSpeed();
         }
 
         StringBuffer append = sb.append(
-                "measured_at="  + (loc.getTime()/1000)  + "," +
-                "lat="          + loc.getLatitude()     + "," +
-                "lon="          + loc.getLongitude()    + "," +
-                "alt="          + loc.getAltitude()     + "," +
-                "speed="        + speed                 + "," +
-                "bearing="      + loc.getBearing()      + "," +
-                "accuracy="     + loc.getAccuracy()     + "," +
-                "record_type="  + "GPS_"+source         + "," +
-                "session_num="  + sessionNum            + ""  +
-                ""
+                "measured_at=" + (loc.getTime() / 1000) + "," +
+                        "lat=" + loc.getLatitude() + "," +
+                        "lon=" + loc.getLongitude() + "," +
+                        "alt=" + loc.getAltitude() + "," +
+                        "speed=" + speed + "," +
+                        "bearing=" + loc.getBearing() + "," +
+                        "accuracy=" + loc.getAccuracy() + "," +
+                        "record_type=" + "GPS_" + source + "," +
+                        "session_num=" + sessionNum + "" +
+                        ""
         );
 
         return sb.toString();
     }
 
     public static String getAttack(Location loc, String severity) {
-        if ( loc == null ) {
+        if (loc == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis()/1000000 * 60;
+        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
-                "measured_at="  + (loc.getTime()/1000)  + "," +
-                "lat="          + loc.getLatitude()     + "," +
-                "lon="          + loc.getLongitude()    + "," +
-                "alt="          + loc.getAltitude()     + "," +
-                "speed="        + loc.getSpeed()        + "," +
-                "bearing="      + loc.getBearing()      + "," +
-                "accuracy="     + loc.getAccuracy()     + "," +
-                "record_type="  + severity              + "," +
-                "session_num="  + sessionNum            + ""  +
-                ""
+                "measured_at=" + (loc.getTime() / 1000) + "," +
+                        "lat=" + loc.getLatitude() + "," +
+                        "lon=" + loc.getLongitude() + "," +
+                        "alt=" + loc.getAltitude() + "," +
+                        "speed=" + loc.getSpeed() + "," +
+                        "bearing=" + loc.getBearing() + "," +
+                        "accuracy=" + loc.getAccuracy() + "," +
+                        "record_type=" + severity + "," +
+                        "session_num=" + sessionNum + "" +
+                        ""
         );
 
         return sb.toString();
     }
 
     public static String getMedicine(Location loc, String medicineUsed) {
-        if ( loc == null ) {
+        if (loc == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis()/1000000 * 60;
+        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
-                "measured_at="  + (loc.getTime()/1000)  + "," +
-                        "lat="          + loc.getLatitude()     + "," +
-                        "lon="          + loc.getLongitude()    + "," +
-                        "alt="          + loc.getAltitude()     + "," +
-                        "speed="        + loc.getSpeed()        + "," +
-                        "bearing="      + loc.getBearing()      + "," +
-                        "accuracy="     + loc.getAccuracy()     + "," +
-                        "medicine_Used="  + medicineUsed        + "," +
-                        "session_num="  + sessionNum            + ""  +
+                "measured_at=" + (loc.getTime() / 1000) + "," +
+                        "lat=" + loc.getLatitude() + "," +
+                        "lon=" + loc.getLongitude() + "," +
+                        "alt=" + loc.getAltitude() + "," +
+                        "speed=" + loc.getSpeed() + "," +
+                        "bearing=" + loc.getBearing() + "," +
+                        "accuracy=" + loc.getAccuracy() + "," +
+                        "medicine_Used=" + medicineUsed + "," +
+                        "session_num=" + sessionNum + "" +
                         ""
         );
 
@@ -170,23 +170,23 @@ public class db {
     }
 
     public static String getPeakFlow(Location loc, String pef, String fev) {
-        if ( loc == null ) {
+        if (loc == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis()/1000000 * 60;
+        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
-                "measured_at="  + (loc.getTime()/1000)  + "," +
-                        "lat="          + loc.getLatitude()     + "," +
-                        "lon="          + loc.getLongitude()    + "," +
-                        "alt="          + loc.getAltitude()     + "," +
-                        "speed="        + loc.getSpeed()        + "," +
-                        "bearing="      + loc.getBearing()      + "," +
-                        "accuracy="     + loc.getAccuracy()     + "," +
-                        "PEF="          + pef                   + "," +
-                        "FEV="          + fev                   + "," +
-                        "session_num="  + sessionNum            + ""  +
+                "measured_at=" + (loc.getTime() / 1000) + "," +
+                        "lat=" + loc.getLatitude() + "," +
+                        "lon=" + loc.getLongitude() + "," +
+                        "alt=" + loc.getAltitude() + "," +
+                        "speed=" + loc.getSpeed() + "," +
+                        "bearing=" + loc.getBearing() + "," +
+                        "accuracy=" + loc.getAccuracy() + "," +
+                        "PEF=" + pef + "," +
+                        "FEV=" + fev + "," +
+                        "session_num=" + sessionNum + "" +
                         ""
         );
 
@@ -198,15 +198,15 @@ public class db {
         batLevel = getBatteryLevel(cntx);
 
         StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis()/1000000 * 60;
+        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
         Calendar c = Calendar.getInstance();
         int seconds = c.get(Calendar.SECOND);
 
 
         StringBuffer append = sb.append(
-                "record_type="  + ("active")      + "," +
-                        "battery_level=" + batLevel   + "," +
-                        "session_num="   + sessionNum  + ","
+                "record_type=" + ("active") + "," +
+                        "battery_level=" + batLevel + "," +
+                        "session_num=" + sessionNum + ","
 
         );
 
@@ -219,34 +219,35 @@ public class db {
         int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
         // Error checking that probably isn't needed but I added just in case.
-        if(level == -1 || scale == -1) {
+        if (level == -1 || scale == -1) {
             return 50.0f;
         }
 
-        return ((float)level / (float)scale) * 100.0f;
+        return ((float) level / (float) scale) * 100.0f;
     }
 
     public static String getInhalerData(int buttonPresses) {
 
         StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis()/1000000 * 60;
+        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
-               "inhaler_count=" + buttonPresses
+                "inhaler_count=" + buttonPresses
         );
 
         return sb.toString();
     }
 
     public static boolean fileReady() {
-        File to     = getFile(FILE_READY);
+        File to = getFile(FILE_READY);
         return to.exists();
     }
-    public synchronized static boolean rename(boolean force) {
-        File from   = getFile(FILE_NAME);
-        File to     = getFile(FILE_READY);
 
-        if ( !from.exists() ) {
+    public synchronized static boolean rename(boolean force) {
+        File from = getFile(FILE_NAME);
+        File to = getFile(FILE_READY);
+
+        if (!from.exists()) {
             return false;
         }
         if (to.exists() && !force) {
@@ -268,8 +269,8 @@ public class db {
 
     public static String isWIFIOn(Context ctx) {
         ConnectivityManager connManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-        WifiManager wifiman     = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-        NetworkInfo mWifi       = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        WifiManager wifiman = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         HashMap m = new HashMap();
 
@@ -277,7 +278,7 @@ public class db {
             int linkSpeed = wifiman.getConnectionInfo().getLinkSpeed();
             int ip = wifiman.getConnectionInfo().getIpAddress();
             String ips = Formatter.formatIpAddress(ip);
-            String str = "SPEED: " + linkSpeed +"Mbps, STRENGTH: " + wifiman.getConnectionInfo().getRssi() + "dBm";
+            String str = "SPEED: " + linkSpeed + "Mbps, STRENGTH: " + wifiman.getConnectionInfo().getRssi() + "dBm";
             return str;
         }
         return null;
@@ -285,37 +286,38 @@ public class db {
 
     public static synchronized String Upload(Context ctx, Activity act) {
         String str;
-        if ( null == (str = db.isWIFIOn(ctx)) ) {
+        if (null == (str = db.isWIFIOn(ctx))) {
             return "NO Wireless Connection! Please check back";
         }
-        str = db.Post( act, ctx, "/aura/webroot/loc.jsp");
-        if ( null != str ) {
+        str = db.Post(act, ctx, "/aura/webroot/loc.jsp");
+        if (null != str) {
             return str;
         }
         Log.w("DB:post:", " Post succeeded");
         return null;
     }
 
-    private static PostToServer POST_TO_SERVER = null; 
+    private static PostToServer POST_TO_SERVER = null;
+
     private static synchronized String Post(Activity act, Context context, String service) {
 
-        if ( POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {   // Avoid race condition
+        if (POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {   // Avoid race condition
             return "Message: One upload in progress, please wait ...";
         }
 
-        String host     = SCHASSettings.host;
+        String host = SCHASSettings.host;
 
-        if ( host == null || null == isWIFIOn(context) || host.equals("null") ) {
+        if (host == null || null == isWIFIOn(context) || host.equals("null")) {
             SCHASSettings.Initialize();
             return "Warning: Cannot find host: ";
         }
         db.rename(false);
-        if ( !db.fileReady() ) {
+        if (!db.fileReady()) {
             return "Message: " + SCHASSettings.host + " No files to upload!!";
         }
 
-        String url = "http://" + host+ service;
-        List <NameValuePair> nv = new ArrayList<NameValuePair>(2);
+        String url = "http://" + host + service;
+        List<NameValuePair> nv = new ArrayList<NameValuePair>(2);
         String msg = "";
 
         try {
@@ -329,13 +331,19 @@ public class db {
         nv.add(new BasicNameValuePair("mobile_id", ID));
         nv.add(new BasicNameValuePair("text", msg));
 
-        String ns = "Sending: " + url + "\n" + msg.substring(0, Math.min(msg.length() - 1, 256) );
-        Log.i("",ns);
+        String ns = "Sending: " + url + "\n" + msg.substring(0, Math.min(msg.length() - 1, 256));
+        Log.i("", ns);
 
         POST_TO_SERVER = null;
         POST_TO_SERVER = new PostToServer(nv, act, true);
         POST_TO_SERVER.execute(url);
 
         return null;
+    }
+
+    //TODO implement to take in location data from the maps fragment and upload it to the server
+    // also TODO implement requestSingleUpdate to remove location poller dependency
+    public static void getLocationData(Location location) {
+
     }
 }
