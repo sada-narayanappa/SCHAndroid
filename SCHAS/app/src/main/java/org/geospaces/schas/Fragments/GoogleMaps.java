@@ -146,7 +146,7 @@ public class GoogleMaps extends SupportMapFragment {
 
                     polyLine = googleMap.addPolyline(trackLine);
 
-                    //db.getLocationData(location);
+                    //db.getLocationData(location, provider);
 
                     prevLocation = location;
 
@@ -181,7 +181,7 @@ public class GoogleMaps extends SupportMapFragment {
 
                         polyLine = googleMap.addPolyline(trackLine);
 
-                        //db.getLocationData(location);
+                        //db.getLocationData(location, provider);
 
                         prevLocation = location;
 
