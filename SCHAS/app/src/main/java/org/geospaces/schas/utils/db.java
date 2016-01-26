@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.Provider;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -35,6 +36,9 @@ public class db {
     public final static String FILE_NAME = "LOC.txt";
     public final static String FILE_READY = "LOC_ready.txt";
     public final static int FILE_SIZE = 8 * 1024;
+
+
+    public static Location lastLocation;
     public final static String FILE_SETTINGS = "Settings.txt";
 
 
@@ -342,7 +346,31 @@ public class db {
 
     //TODO implement to take in location data from the maps fragment and upload it to the server
     // also TODO implement requestSingleUpdate to remove location poller dependency
-    public static void getLocationData(Location location) {
+    // also TODO remember to uncomment this function in the maps fragment
+    public static void getLocationData(Location location, Provider provider) {
+        lastLocation = location;
+        StringBuffer sb = new StringBuffer(512);
+        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
+        sb.append(
+                "measured_at=" + (location.getTime() / 1000) + "," +
+                        "lat=" + location.getLatitude() + "," +
+                        "lon=" + location.getLongitude() + "," +
+                        "alt=" + location.getAltitude() + "," +
+                        "speed=" + location.getSpeed() + "," +
+                        "bearing=" + location.getBearing() + "," +
+                        "accuracy=" + location.getAccuracy() + "," +
+                        "record_type=" + "GPS_" + provider + "," +
+                        "session_num=" + sessionNum + "" +
+                        ""
+        );
+
+        String writeString = sb.toString();
+
+        try {
+            Write(writeString + "\n");
+        } catch (IOException e) {
+            Log.e("ERROR", "Exception appending to log file", e);
+        }
     }
 }
