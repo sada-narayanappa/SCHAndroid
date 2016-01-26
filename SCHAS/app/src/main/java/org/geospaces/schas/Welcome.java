@@ -24,6 +24,7 @@ import org.geospaces.schas.utils.SCHASApplication;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,10 +39,12 @@ public class Welcome extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Creates layout via XML file 'activity_welcome'
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-        Intent alarmIntent = new Intent(this,heartBeatReceiver.class);
+        //Creates an intent that will launch the heartBeatReceiver Class
+        Intent alarmIntent = new Intent(getApplicationContext(),heartBeatReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,0);
         context = getApplicationContext();
 
@@ -57,6 +60,7 @@ public class Welcome extends ActionBarActivity {
             directory.mkdirs();
         }
 
+        //If this is the first time the app is launched it will set up/wait 5 seconds and then move from splash screen to UploadData activity
         if ( firstTime ) {
             new Timer().schedule(new TimerTask() {
                                      @Override
@@ -89,14 +93,17 @@ public class Welcome extends ActionBarActivity {
         }
     }
 
+    //Set's alarm manager to trigger each hour for a 'heartbeat' of the device
     public void startAlarm(){
         manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+
+        Calendar calendar = Calendar.getInstance();
 
         //Time in ms 60*60*1000 = 1 hour
         int hourHeartBeat = 3600000;
         int testHeartBeat = 5000;
 
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), hourHeartBeat, pendingIntent);
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

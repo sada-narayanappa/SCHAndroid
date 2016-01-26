@@ -227,7 +227,7 @@
                 />
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/test5"
+                android:id="@+id/inhalerButton"
                 android:src="@drawable/ic_inhaler"
                 app:elevation="8dp"
                 android:layout_width="wrap_content"
@@ -242,7 +242,7 @@
                 />
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/test4"
+                android:id="@+id/PFMConnectButton"
                 android:src="@drawable/ic_peakflow"
                 app:elevation="8dp"
                 android:layout_width="wrap_content"
@@ -259,7 +259,7 @@
 
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/test3"
+                android:id="@+id/severeAttackButton"
                 android:src="@drawable/ic_heart3"
                 app:elevation="8dp"
                 android:layout_width="wrap_content"
@@ -274,7 +274,7 @@
                 />
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/test2"
+                android:id="@+id/mediumAttackButton"
                 android:src="@drawable/ic_heart2"
                 app:elevation="8dp"
                 android:layout_width="wrap_content"
@@ -289,7 +289,7 @@
                 />
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/test1"
+                android:id="@+id/mildAttackButton"
                 android:src="@drawable/ic_heart"
                 app:elevation="8dp"
                 android:layout_width="wrap_content"

@@ -31,13 +31,12 @@ import java.util.List;
 
 public class db {
     private static float batLevel;
-
     public final static String DIRECTORY = "/SCHAS";
     public final static String FILE_NAME = "LOC.txt";
     public final static String FILE_READY = "LOC_ready.txt";
     public final static int FILE_SIZE = 8 * 1024;
-
     public final static String FILE_SETTINGS = "Settings.txt";
+
 
     public static String read(String fileName) {
         File file = getFile(fileName);
