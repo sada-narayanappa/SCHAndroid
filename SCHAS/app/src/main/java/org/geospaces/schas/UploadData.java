@@ -199,7 +199,6 @@ public class UploadData extends ActionBarActivity{
         super.setIntent(i);
         String str = "SetResult: " + i.getStringExtra("result");
         String url = "SetResult: " + i.getStringExtra("url");
-        //statusText.setText(str);
         if (!str.contains("ERROR")) {
         }
     }

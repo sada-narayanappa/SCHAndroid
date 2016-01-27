@@ -202,12 +202,11 @@ public class db {
 
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
-        Calendar c = Calendar.getInstance();
-        int seconds = c.get(Calendar.SECOND);
-
+        long milliseconds = System.currentTimeMillis();
 
         StringBuffer append = sb.append(
-                "record_type=" + ("active") + "," +
+                "measured_at=" + (milliseconds/1000) + "," +
+                        "record_type=" + ("active") + "," +
                         "battery_level=" + batLevel + "," +
                         "session_num=" + sessionNum + ","
 
