@@ -346,7 +346,7 @@ public class db {
     //TODO implement to take in location data from the maps fragment and upload it to the server
     // also TODO implement requestSingleUpdate to remove location poller dependency
     // also TODO remember to uncomment this function in the maps fragment
-    public static void getLocationData(Location location, Provider provider) {
+    public static void getLocationData(Location location, String provider) {
         lastLocation = location;
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;

@@ -37,6 +37,7 @@ import org.geospaces.schas.R;
 import org.geospaces.schas.utils.db;
 
 
+import java.security.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +67,8 @@ public class GoogleMaps extends SupportMapFragment {
     LocationListener locListener;
     boolean isFirstPoint = true;
 
+    String provider;
+
     float speed;
     int speedLevel;
 
@@ -91,6 +94,12 @@ public class GoogleMaps extends SupportMapFragment {
     private void setUpMap() {
 
         mContext = getActivity().getApplicationContext();
+
+        // Create a criteria object to retrieve provider
+        criteria = new Criteria();
+
+        // Get the name of the best provider
+        provider = locationManager.getBestProvider(criteria, true);
 
         //instantiate the managers for getting locations and using the sigmotionsensor
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -146,7 +155,7 @@ public class GoogleMaps extends SupportMapFragment {
 
                     polyLine = googleMap.addPolyline(trackLine);
 
-                    //db.getLocationData(location, provider);
+                    db.getLocationData(location, provider);
 
                     prevLocation = location;
 
@@ -181,7 +190,7 @@ public class GoogleMaps extends SupportMapFragment {
 
                         polyLine = googleMap.addPolyline(trackLine);
 
-                        //db.getLocationData(location, provider);
+                        db.getLocationData(location, provider);
 
                         prevLocation = location;
 
@@ -198,8 +207,13 @@ public class GoogleMaps extends SupportMapFragment {
             }
 
             @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
+            public void onStatusChanged(String lastProvider, int status, Bundle extras) {
+                //0 == OUT_OF_SERVICE
+                if (status == 0)
+                {
+                    // Get the name of the best provider
+                    provider = locationManager.getBestProvider(criteria, true);
+                }
             }
 
             @Override
@@ -213,15 +227,12 @@ public class GoogleMaps extends SupportMapFragment {
             }
         };
 
+        //put code to rebuild the map locations from the text file here
+        //not entirely sure how to do this
+
         //googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker").snippet("snippet"));
         // Enable MyLocation Layer of Google Map
         googleMap.setMyLocationEnabled(true);
-
-        // Create a criteria object to retrieve provider
-        criteria = new Criteria();
-
-        // Get the name of the best provider
-        String provider = locationManager.getBestProvider(criteria, true);
 
         //create the trackline and add it to the map as a polyline
         trackLine =new PolylineOptions()
@@ -230,7 +241,6 @@ public class GoogleMaps extends SupportMapFragment {
                 .geodesic(true);
         polyLine = googleMap.addPolyline(trackLine);
 
-        //TODO implement requestSingleUpdate here instead of last known location
         //Get Current Location
         //myLocation = locationManager.getLastKnownLocation(provider);
         locationManager.requestSingleUpdate(provider, locListener, null);
