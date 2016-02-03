@@ -72,19 +72,6 @@
             android:label="Legal Notices" >
         </activity>
 
-        <service android:name="com.commonsware.cwac.locpoll.LocationPollerService" >
-        </service>
-
-        <receiver android:name=".Broadcast_Receivers.GPSWakfulReciever" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name="com.commonsware.cwac.locpoll.LocationPoller" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
 
         <service
             android:name=".UploadService"

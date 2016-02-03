@@ -16,8 +16,6 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.support.v7.app.ActionBarActivity;
 
-import com.commonsware.cwac.locpoll.*;
-
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -38,7 +36,6 @@ public class Web extends ActionBarActivity {
         setContentView(R.layout.activity_web);
 
         this.context = this;
-        alarmIntent = new Intent(Web.this, LocationPoller.class);
         pendingIntent = PendingIntent.getBroadcast(Web.this, 0, alarmIntent, 0);
         webView = (WebView) findViewById(R.id.webView1);
 

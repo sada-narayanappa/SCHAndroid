@@ -11,14 +11,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -31,13 +26,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 
 import android.widget.Toast;
 
-import com.commonsware.cwac.locpoll.LocationPoller;
 
-import org.geospaces.schas.Broadcast_Receivers.GPSWakfulReciever;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -46,7 +38,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.Set;
 import java.util.UUID;
 
@@ -127,7 +118,7 @@ public class UploadData extends ActionBarActivity{
         menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
         menuButton.setOnClickListener(menu_button);
 
-        findViewById(R.id.homeButton).setOnClickListener(start_service_button);
+
         findViewById(R.id.PFMConnectButton).setOnClickListener(pfm_BT_connect);
         findViewById(R.id.graphButton).setOnClickListener(uploadCB);
         findViewById(R.id.resetButton).setOnClickListener(resetCB);
@@ -136,9 +127,6 @@ public class UploadData extends ActionBarActivity{
         findViewById(R.id.severeAttackButton).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhalerButton).setOnClickListener(inhaler_button);
 
-        if (pi == null) {
-            //startStopService();
-        }
     }
 
     public void mobiledataenable(boolean enabled) {
@@ -219,97 +207,6 @@ public class UploadData extends ActionBarActivity{
             autoUpdate();
         }
     }
-
-//    private void startStopService() {
-//        Button b = ((Button) findViewById(R.id.homeButton));
-//        if (pi == null) {
-//            STOP_LOCATION_UPDATES = false;
-//            getLocationUpdates();
-//
-//            mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-//
-//            Intent i = new Intent(UploadData.this, LocationPoller.class);
-//
-//            i.putExtra(LocationPoller.EXTRA_INTENT, new Intent(UploadData.this, GPSWakfulReciever.class));
-//            i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
-//
-//            pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-//
-//            mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-//                    SystemClock.elapsedRealtime(),
-//                    PERIOD,
-//                    pi);
-//
-//            String str = "Location polling every " + PERIOD/1000/60 + " minutes begun";
-//            Toast(str);
-//
-//            b.setText("Stop");
-//            b.setBackgroundColor(0xffff0000);
-//
-//        } else {
-//            STOP_LOCATION_UPDATES = true;
-//            mgr.cancel(pi);
-//            pi = null;
-//            b.setText("Start Service");
-//            b.setBackgroundColor(0xff00ff00);
-//            Toast("Location polling STOPPED");
-//        }
-//    }
-
-//    LocationManager lm = null;
-//
-//    private void getLocationUpdates() {
-//        Criteria criteria = new Criteria();
-//        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//        criteria.setCostAllowed(false);
-//        String provider = lm.getBestProvider(criteria, false);
-//        MyLocationListener mylistener = new MyLocationListener(provider);
-//        lm.requestLocationUpdates(provider, 5 * 60 * 1000, 200, mylistener); // every 60 seconds or 10 meter
-//
-//        if ( !provider.equals(LocationManager.GPS_PROVIDER)) {
-//            MyLocationListener myl1 = new MyLocationListener(LocationManager.GPS_PROVIDER);
-//            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 15, myl1);
-//        }
-//        Log.w("", "******** PROVIDER ***** " + provider);
-//    }
-
-//    private boolean STOP_LOCATION_UPDATES = false;
-//    private class MyLocationListener implements LocationListener {
-//        String myProvider;
-//
-//        public MyLocationListener(String p) {
-//            myProvider = p;
-//        }
-//        @Override
-//        public void onLocationChanged(Location loc) {
-//            String ret = GPSWakfulReciever.storeLocation(loc, myProvider);
-//            Log.w("onLocationChanged", ret);
-//            if ( STOP_LOCATION_UPDATES ) {
-//                lm.removeUpdates(this);
-//            }
-//        }
-//
-//        @Override
-//        public void onStatusChanged(String provider, int status, Bundle extras) {
-//        }
-//
-//        @Override
-//        public void onProviderEnabled(String provider) {
-//        }
-//
-//        @Override
-//        public void onProviderDisabled(String provider) {
-//            lm.removeUpdates(this);
-//            getLocationUpdates();
-//        }
-//    }
-
-    private View.OnClickListener start_service_button = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          //  startStopService();
-        }
-    };
 
     public void AttackConfirmPopUpCreator(String label,final String severity,boolean inhal) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
