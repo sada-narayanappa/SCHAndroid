@@ -22,15 +22,6 @@ public class HandleMenu  {
         Intent intent = null;
 
         switch (id) {
-            case R.id.action_settings:
-                if(a.getClass() != BluetoothSettings.class) {
-                    intent = new Intent(a, BluetoothSettings.class);
-                    a.startActivity(intent);
-                    return true;
-                }
-                Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
-                return false;
-
             case R.id.action_test:
                 if(a.getClass() != Test.class) {
                     intent = new Intent(a, Test.class);
