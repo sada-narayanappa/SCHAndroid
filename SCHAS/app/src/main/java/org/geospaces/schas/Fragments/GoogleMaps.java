@@ -99,7 +99,7 @@ public class GoogleMaps extends SupportMapFragment {
         criteria = new Criteria();
 
         // Get the name of the best provider
-        provider = locationManager.getBestProvider(criteria, true);
+        //provider = locationManager.getBestProvider(criteria, true);
 
         //instantiate the managers for getting locations and using the sigmotionsensor
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -243,7 +243,7 @@ public class GoogleMaps extends SupportMapFragment {
 
         //Get Current Location
         //myLocation = locationManager.getLastKnownLocation(provider);
-        locationManager.requestSingleUpdate(provider, locListener, null);
+//        locationManager.requestSingleUpdate(provider, locListener, null);
 
         //set map type
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);

@@ -137,7 +137,7 @@ public class UploadData extends ActionBarActivity{
         findViewById(R.id.inhalerButton).setOnClickListener(inhaler_button);
 
         if (pi == null) {
-            startStopService();
+            //startStopService();
         }
     }
 
@@ -257,6 +257,7 @@ public class UploadData extends ActionBarActivity{
     }
 
     LocationManager lm = null;
+
     private void getLocationUpdates() {
         Criteria criteria = new Criteria();
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -306,7 +307,7 @@ public class UploadData extends ActionBarActivity{
     private View.OnClickListener start_service_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            startStopService();
+          //  startStopService();
         }
     };
 

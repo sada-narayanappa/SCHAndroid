@@ -360,8 +360,8 @@ public class db {
                         "bearing=" + location.getBearing() + "," +
                         "accuracy=" + location.getAccuracy() + "," +
                         "record_type=" + "GPS_" + provider + "," +
-                        "session_num=" + sessionNum + "" +
-                        ""
+                        "session_num=" + sessionNum + ""
+                        + ""
         );
 
         String writeString = sb.toString();
