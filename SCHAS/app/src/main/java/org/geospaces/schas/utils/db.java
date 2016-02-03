@@ -95,37 +95,6 @@ public class db {
         return file;
     }
 
-//    public static String getLocation(Location loc, Object... args) {
-//        if (loc == null) {
-//            return "";
-//        }
-//        StringBuffer sb = new StringBuffer(512);
-//        String sessionNum = (args.length > 0) ? "" + args[0] : "";
-//        String source = (args.length > 1) ? "" + args[1] : "";
-//        source = source.substring(0, Math.min(4, source.length()));
-//
-//        double speed = (args.length > 2) ? ((Double) args[2]) : 0.0;
-//
-//        if (loc.getSpeed() > 0) {
-//            speed = loc.getSpeed();
-//        }
-//
-//        StringBuffer append = sb.append(
-//                "measured_at=" + (loc.getTime() / 1000) + "," +
-//                        "lat=" + loc.getLatitude() + "," +
-//                        "lon=" + loc.getLongitude() + "," +
-//                        "alt=" + loc.getAltitude() + "," +
-//                        "speed=" + speed + "," +
-//                        "bearing=" + loc.getBearing() + "," +
-//                        "accuracy=" + loc.getAccuracy() + "," +
-//                        "record_type=" + "GPS_" + source + "," +
-//                        "session_num=" + sessionNum + "" +
-//                        ""
-//        );
-//
-//        return sb.toString();
-//    }
-
     public static String getAttack(String severity) {
         if (lastLocation == null) {
             return "";
@@ -359,8 +328,8 @@ public class db {
                         "bearing=" + location.getBearing() + "," +
                         "accuracy=" + location.getAccuracy() + "," +
                         "provider=" + provider + "," +
-                        "session_num=" + sessionNum + ""
-                        + "" + "debug:written in by Erik :D"
+                        "session_num=" + sessionNum + ","
+                        + "debug:written in by Erik :D"
         );
 
         String writeString = sb.toString();
