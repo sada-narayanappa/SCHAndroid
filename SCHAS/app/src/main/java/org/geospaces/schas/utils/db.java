@@ -95,52 +95,52 @@ public class db {
         return file;
     }
 
-    public static String getLocation(Location loc, Object... args) {
-        if (loc == null) {
-            return "";
-        }
-        StringBuffer sb = new StringBuffer(512);
-        String sessionNum = (args.length > 0) ? "" + args[0] : "";
-        String source = (args.length > 1) ? "" + args[1] : "";
-        source = source.substring(0, Math.min(4, source.length()));
+//    public static String getLocation(Location loc, Object... args) {
+//        if (loc == null) {
+//            return "";
+//        }
+//        StringBuffer sb = new StringBuffer(512);
+//        String sessionNum = (args.length > 0) ? "" + args[0] : "";
+//        String source = (args.length > 1) ? "" + args[1] : "";
+//        source = source.substring(0, Math.min(4, source.length()));
+//
+//        double speed = (args.length > 2) ? ((Double) args[2]) : 0.0;
+//
+//        if (loc.getSpeed() > 0) {
+//            speed = loc.getSpeed();
+//        }
+//
+//        StringBuffer append = sb.append(
+//                "measured_at=" + (loc.getTime() / 1000) + "," +
+//                        "lat=" + loc.getLatitude() + "," +
+//                        "lon=" + loc.getLongitude() + "," +
+//                        "alt=" + loc.getAltitude() + "," +
+//                        "speed=" + speed + "," +
+//                        "bearing=" + loc.getBearing() + "," +
+//                        "accuracy=" + loc.getAccuracy() + "," +
+//                        "record_type=" + "GPS_" + source + "," +
+//                        "session_num=" + sessionNum + "" +
+//                        ""
+//        );
+//
+//        return sb.toString();
+//    }
 
-        double speed = (args.length > 2) ? ((Double) args[2]) : 0.0;
-
-        if (loc.getSpeed() > 0) {
-            speed = loc.getSpeed();
-        }
-
-        StringBuffer append = sb.append(
-                "measured_at=" + (loc.getTime() / 1000) + "," +
-                        "lat=" + loc.getLatitude() + "," +
-                        "lon=" + loc.getLongitude() + "," +
-                        "alt=" + loc.getAltitude() + "," +
-                        "speed=" + speed + "," +
-                        "bearing=" + loc.getBearing() + "," +
-                        "accuracy=" + loc.getAccuracy() + "," +
-                        "record_type=" + "GPS_" + source + "," +
-                        "session_num=" + sessionNum + "" +
-                        ""
-        );
-
-        return sb.toString();
-    }
-
-    public static String getAttack(Location loc, String severity) {
-        if (loc == null) {
+    public static String getAttack(String severity) {
+        if (lastLocation == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
-                "measured_at=" + (loc.getTime() / 1000) + "," +
-                        "lat=" + loc.getLatitude() + "," +
-                        "lon=" + loc.getLongitude() + "," +
-                        "alt=" + loc.getAltitude() + "," +
-                        "speed=" + loc.getSpeed() + "," +
-                        "bearing=" + loc.getBearing() + "," +
-                        "accuracy=" + loc.getAccuracy() + "," +
+                "measured_at=" + (lastLocation.getTime() / 1000) + "," +
+                        "lat=" + lastLocation.getLatitude() + "," +
+                        "lon=" + lastLocation.getLongitude() + "," +
+                        "alt=" + lastLocation.getAltitude() + "," +
+                        "speed=" + lastLocation.getSpeed() + "," +
+                        "bearing=" + lastLocation.getBearing() + "," +
+                        "accuracy=" + lastLocation.getAccuracy() + "," +
                         "record_type=" + severity + "," +
                         "session_num=" + sessionNum + "" +
                         ""
@@ -149,21 +149,21 @@ public class db {
         return sb.toString();
     }
 
-    public static String getMedicine(Location loc, String medicineUsed) {
-        if (loc == null) {
+    public static String getMedicine(String medicineUsed) {
+        if (lastLocation == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
-                "measured_at=" + (loc.getTime() / 1000) + "," +
-                        "lat=" + loc.getLatitude() + "," +
-                        "lon=" + loc.getLongitude() + "," +
-                        "alt=" + loc.getAltitude() + "," +
-                        "speed=" + loc.getSpeed() + "," +
-                        "bearing=" + loc.getBearing() + "," +
-                        "accuracy=" + loc.getAccuracy() + "," +
+                "measured_at=" + (lastLocation.getTime() / 1000) + "," +
+                        "lat=" + lastLocation.getLatitude() + "," +
+                        "lon=" + lastLocation.getLongitude() + "," +
+                        "alt=" + lastLocation.getAltitude() + "," +
+                        "speed=" + lastLocation.getSpeed() + "," +
+                        "bearing=" + lastLocation.getBearing() + "," +
+                        "accuracy=" + lastLocation.getAccuracy() + "," +
                         "medicine_Used=" + medicineUsed + "," +
                         "session_num=" + sessionNum + "" +
                         ""
@@ -172,21 +172,21 @@ public class db {
         return sb.toString();
     }
 
-    public static String getPeakFlow(Location loc, String pef, String fev) {
-        if (loc == null) {
+    public static String getPeakFlow(String pef, String fev) {
+        if (lastLocation == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
-                "measured_at=" + (loc.getTime() / 1000) + "," +
-                        "lat=" + loc.getLatitude() + "," +
-                        "lon=" + loc.getLongitude() + "," +
-                        "alt=" + loc.getAltitude() + "," +
-                        "speed=" + loc.getSpeed() + "," +
-                        "bearing=" + loc.getBearing() + "," +
-                        "accuracy=" + loc.getAccuracy() + "," +
+                "measured_at=" + (lastLocation.getTime() / 1000) + "," +
+                        "lat=" + lastLocation.getLatitude() + "," +
+                        "lon=" + lastLocation.getLongitude() + "," +
+                        "alt=" + lastLocation.getAltitude() + "," +
+                        "speed=" + lastLocation.getSpeed() + "," +
+                        "bearing=" + lastLocation.getBearing() + "," +
+                        "accuracy=" + lastLocation.getAccuracy() + "," +
                         "PEF=" + pef + "," +
                         "FEV=" + fev + "," +
                         "session_num=" + sessionNum + "" +
@@ -343,9 +343,8 @@ public class db {
         return null;
     }
 
-    //TODO implement to take in location data from the maps fragment and upload it to the server
-    // also TODO implement requestSingleUpdate to remove location poller dependency
-    // also TODO remember to uncomment this function in the maps fragment
+    //retrives a location from the maps fragment when called there, and pushes in a location
+    //to be written to the data file
     public static void getLocationData(Location location, String provider) {
         lastLocation = location;
         StringBuffer sb = new StringBuffer(512);
@@ -359,9 +358,9 @@ public class db {
                         "speed=" + location.getSpeed() + "," +
                         "bearing=" + location.getBearing() + "," +
                         "accuracy=" + location.getAccuracy() + "," +
-                        "record_type=" + "GPS_" + provider + "," +
+                        "provider=" + provider + "," +
                         "session_num=" + sessionNum + ""
-                        + ""
+                        + "" + "debug:written in by Erik :D"
         );
 
         String writeString = sb.toString();

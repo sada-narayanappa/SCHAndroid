@@ -220,89 +220,89 @@ public class UploadData extends ActionBarActivity{
         }
     }
 
-    private void startStopService() {
-        Button b = ((Button) findViewById(R.id.homeButton));
-        if (pi == null) {
-            STOP_LOCATION_UPDATES = false;
-            getLocationUpdates();
+//    private void startStopService() {
+//        Button b = ((Button) findViewById(R.id.homeButton));
+//        if (pi == null) {
+//            STOP_LOCATION_UPDATES = false;
+//            getLocationUpdates();
+//
+//            mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+//
+//            Intent i = new Intent(UploadData.this, LocationPoller.class);
+//
+//            i.putExtra(LocationPoller.EXTRA_INTENT, new Intent(UploadData.this, GPSWakfulReciever.class));
+//            i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
+//
+//            pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+//
+//            mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+//                    SystemClock.elapsedRealtime(),
+//                    PERIOD,
+//                    pi);
+//
+//            String str = "Location polling every " + PERIOD/1000/60 + " minutes begun";
+//            Toast(str);
+//
+//            b.setText("Stop");
+//            b.setBackgroundColor(0xffff0000);
+//
+//        } else {
+//            STOP_LOCATION_UPDATES = true;
+//            mgr.cancel(pi);
+//            pi = null;
+//            b.setText("Start Service");
+//            b.setBackgroundColor(0xff00ff00);
+//            Toast("Location polling STOPPED");
+//        }
+//    }
 
-            mgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+//    LocationManager lm = null;
+//
+//    private void getLocationUpdates() {
+//        Criteria criteria = new Criteria();
+//        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        criteria.setCostAllowed(false);
+//        String provider = lm.getBestProvider(criteria, false);
+//        MyLocationListener mylistener = new MyLocationListener(provider);
+//        lm.requestLocationUpdates(provider, 5 * 60 * 1000, 200, mylistener); // every 60 seconds or 10 meter
+//
+//        if ( !provider.equals(LocationManager.GPS_PROVIDER)) {
+//            MyLocationListener myl1 = new MyLocationListener(LocationManager.GPS_PROVIDER);
+//            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 15, myl1);
+//        }
+//        Log.w("", "******** PROVIDER ***** " + provider);
+//    }
 
-            Intent i = new Intent(UploadData.this, LocationPoller.class);
-
-            i.putExtra(LocationPoller.EXTRA_INTENT, new Intent(UploadData.this, GPSWakfulReciever.class));
-            i.putExtra(LocationPoller.EXTRA_PROVIDER, LocationManager.GPS_PROVIDER);
-
-            pi = PendingIntent.getBroadcast(UploadData.this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-
-            mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime(),
-                    PERIOD,
-                    pi);
-
-            String str = "Location polling every " + PERIOD/1000/60 + " minutes begun";
-            Toast(str);
-
-            b.setText("Stop");
-            b.setBackgroundColor(0xffff0000);
-
-        } else {
-            STOP_LOCATION_UPDATES = true;
-            mgr.cancel(pi);
-            pi = null;
-            b.setText("Start Service");
-            b.setBackgroundColor(0xff00ff00);
-            Toast("Location polling STOPPED");
-        }
-    }
-
-    LocationManager lm = null;
-
-    private void getLocationUpdates() {
-        Criteria criteria = new Criteria();
-        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        criteria.setCostAllowed(false);
-        String provider = lm.getBestProvider(criteria, false);
-        MyLocationListener mylistener = new MyLocationListener(provider);
-        lm.requestLocationUpdates(provider, 5 * 60 * 1000, 200, mylistener); // every 60 seconds or 10 meter
-
-        if ( !provider.equals(LocationManager.GPS_PROVIDER)) {
-            MyLocationListener myl1 = new MyLocationListener(LocationManager.GPS_PROVIDER);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 15, myl1);
-        }
-        Log.w("", "******** PROVIDER ***** " + provider);
-    }
-
-    private boolean STOP_LOCATION_UPDATES = false;
-    private class MyLocationListener implements LocationListener {
-        String myProvider;
-
-        public MyLocationListener(String p) {
-            myProvider = p;
-        }
-        @Override
-        public void onLocationChanged(Location loc) {
-            String ret = GPSWakfulReciever.storeLocation(loc, myProvider);
-            Log.w("onLocationChanged", ret);
-            if ( STOP_LOCATION_UPDATES ) {
-                lm.removeUpdates(this);
-            }
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            lm.removeUpdates(this);
-            getLocationUpdates();
-        }
-    }
+//    private boolean STOP_LOCATION_UPDATES = false;
+//    private class MyLocationListener implements LocationListener {
+//        String myProvider;
+//
+//        public MyLocationListener(String p) {
+//            myProvider = p;
+//        }
+//        @Override
+//        public void onLocationChanged(Location loc) {
+//            String ret = GPSWakfulReciever.storeLocation(loc, myProvider);
+//            Log.w("onLocationChanged", ret);
+//            if ( STOP_LOCATION_UPDATES ) {
+//                lm.removeUpdates(this);
+//            }
+//        }
+//
+//        @Override
+//        public void onStatusChanged(String provider, int status, Bundle extras) {
+//        }
+//
+//        @Override
+//        public void onProviderEnabled(String provider) {
+//        }
+//
+//        @Override
+//        public void onProviderDisabled(String provider) {
+//            lm.removeUpdates(this);
+//            getLocationUpdates();
+//        }
+//    }
 
     private View.OnClickListener start_service_button = new View.OnClickListener() {
         @Override
@@ -319,13 +319,7 @@ public class UploadData extends ActionBarActivity{
             builder.setPositiveButton("Confirm Attack", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if (loc == null) {
-                        Toast("Can't get Location");
-                        return;
-                    }
-
-                    String msg = db.getAttack(loc, severity);
+                    String msg = db.getAttack(severity);
                     try {
                         db.Write(msg + "\n");
                     } catch (IOException e) {
@@ -338,13 +332,7 @@ public class UploadData extends ActionBarActivity{
             builder.setPositiveButton("Confirm Usage", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if (loc == null) {
-                        Toast("Can't get Location");
-                        return;
-                    }
-
-                    String msg = db.getAttack(loc, severity);
+                    String msg = db.getAttack(severity);
                     try {
                         db.Write(msg + "\n");
                     } catch (IOException e) {
@@ -656,12 +644,7 @@ public class UploadData extends ActionBarActivity{
                                                         .setNeutralButton("No", null)
                                                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                                             public void onClick(DialogInterface arg0, int arg1) {
-                                                                Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                                                                if (loc == null) {
-                                                                    Toast("Can't get Location");
-                                                                    return;
-                                                                }
-                                                                String msg = db.getPeakFlow(loc,String.valueOf(pef2),String.valueOf(fev));
+                                                                String msg = db.getPeakFlow(String.valueOf(pef2),String.valueOf(fev));
                                                                 try {
                                                                     db.Write(msg + "\n");
                                                                 } catch (IOException e) {

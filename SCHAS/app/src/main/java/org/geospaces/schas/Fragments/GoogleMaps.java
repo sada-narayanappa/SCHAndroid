@@ -98,15 +98,15 @@ public class GoogleMaps extends SupportMapFragment {
         // Create a criteria object to retrieve provider
         criteria = new Criteria();
 
-        // Get the name of the best provider
-        //provider = locationManager.getBestProvider(criteria, true);
-
         //instantiate the managers for getting locations and using the sigmotionsensor
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
 
         //set up the signmotion sensor and link with the sensor manager
         mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+
+        // Get the name of the best provider
+        provider = locationManager.getBestProvider(criteria, true);
 
         //set up the tigger event for the sigmotionsensor to start updates
         mListener = new TriggerEventListener() {
@@ -208,12 +208,12 @@ public class GoogleMaps extends SupportMapFragment {
 
             @Override
             public void onStatusChanged(String lastProvider, int status, Bundle extras) {
-                //0 == OUT_OF_SERVICE
-                if (status == 0)
-                {
-                    // Get the name of the best provider
-                    provider = locationManager.getBestProvider(criteria, true);
-                }
+//                //0 == OUT_OF_SERVICE
+//                if (status == 0)
+//                {
+//                    // Get the name of the best provider
+//                    provider = locationManager.getBestProvider(criteria, true);
+//                }
             }
 
             @Override
@@ -243,7 +243,7 @@ public class GoogleMaps extends SupportMapFragment {
 
         //Get Current Location
         //myLocation = locationManager.getLastKnownLocation(provider);
-//        locationManager.requestSingleUpdate(provider, locListener, null);
+        locationManager.requestSingleUpdate(provider, locListener, null);
 
         //set map type
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
