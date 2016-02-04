@@ -329,7 +329,6 @@ public class db {
                         "accuracy=" + location.getAccuracy() + "," +
                         "provider=" + provider + "," +
                         "session_num=" + sessionNum + ","
-                        + "debug:written in by Erik :D"
         );
 
         String writeString = sb.toString();
