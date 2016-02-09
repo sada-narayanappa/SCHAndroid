@@ -30,6 +30,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 
+import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -126,6 +127,8 @@ public class UploadData extends ActionBarActivity{
         findViewById(R.id.mediumAttackButton).setOnClickListener(medium_attack_button);
         findViewById(R.id.severeAttackButton).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhalerButton).setOnClickListener(inhaler_button);
+
+        heartBeatReceiver.setAct(UploadData.this);
 
     }
 
