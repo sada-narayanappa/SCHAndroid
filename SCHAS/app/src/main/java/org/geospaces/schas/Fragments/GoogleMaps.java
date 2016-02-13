@@ -204,6 +204,10 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                     //if the new location is more than 25 meters away (for accuracy purposes)
                     if (newLocDist >= 25)
                     {
+
+                        // Zoom in the Google Map
+                        //googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
+
                         //move the camera to the new location
                         googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
 
@@ -338,6 +342,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 //locationManager.removeUpdates(locListener);
                 speedLevel = 1;
                 setMinTime();
+                locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
                 //Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
@@ -349,6 +354,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 //locationManager.removeUpdates(locListener);
                 speedLevel = 2;
                 setMinTime();
+                locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
                 //Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
@@ -360,6 +366,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 //locationManager.removeUpdates(locListener);
                 speedLevel = 3;
                 setMinTime();
+                locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
                 //Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
