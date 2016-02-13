@@ -328,8 +328,7 @@ public class db {
                         "bearing=" + location.getBearing() + "," +
                         "accuracy=" + location.getAccuracy() + "," +
                         "provider=" + provider + "," +
-                        "session_num=" + sessionNum + ","
-                        + "debug:written in by Erik :D"
+                        "session_num=" + sessionNum
         );
 
         String writeString = sb.toString();

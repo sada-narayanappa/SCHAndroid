@@ -1,6 +1,7 @@
 package org.geospaces.schas.Fragments;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
@@ -13,17 +14,24 @@ import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Looper;
+import android.telecom.ConnectionRequest;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -32,6 +40,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.location.LocationListener;
 
 import org.geospaces.schas.R;
 import org.geospaces.schas.utils.db;
@@ -47,11 +56,14 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 
-public class GoogleMaps extends SupportMapFragment {
+public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
     private Context mContext;
+    GoogleApiClient client;
+    LocationRequest locReq;
     LocationManager locationManager;
     Location myLocation;
     Location prevLocation = null;
@@ -59,7 +71,7 @@ public class GoogleMaps extends SupportMapFragment {
     //set min update time to 60 seconds
     long minTime = 60000;
     //set min update distance to 30 meters
-    float minDistance =30;
+    float minDistance =20;
     //list to hold LatLng values
     List<LatLng> locList = new ArrayList<>();
     PolylineOptions trackLine;
@@ -108,12 +120,26 @@ public class GoogleMaps extends SupportMapFragment {
         // Get the name of the best provider
         provider = locationManager.getBestProvider(criteria, true);
 
+        //build a GoogleApiClient object that has access to the location API
+        client = new GoogleApiClient.Builder(mContext)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        client.connect();
+
+        //build a LocationRequest object with the given parameters
+        locReq = new LocationRequest();
+        locReq.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locReq.setInterval(minTime);
+        locReq.setSmallestDisplacement(minDistance);
+
         //set up the tigger event for the sigmotionsensor to start updates
         mListener = new TriggerEventListener() {
             @Override
             public void onTrigger(TriggerEvent event) {
                 //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
             }
         };
 
@@ -142,6 +168,9 @@ public class GoogleMaps extends SupportMapFragment {
 
                     //move the camera to the new location
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
+
+                    // Zoom in the Google Map
+                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
                     //add a marker at the new location
                     googleMap.addMarker(new MarkerOptions()
@@ -205,26 +234,6 @@ public class GoogleMaps extends SupportMapFragment {
                 //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
                 //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
             }
-
-            @Override
-            public void onStatusChanged(String lastProvider, int status, Bundle extras) {
-//                //0 == OUT_OF_SERVICE
-//                if (status == 0)
-//                {
-//                    // Get the name of the best provider
-//                    provider = locationManager.getBestProvider(criteria, true);
-//                }
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
         };
 
         //put code to rebuild the map locations from the text file here
@@ -242,8 +251,8 @@ public class GoogleMaps extends SupportMapFragment {
         polyLine = googleMap.addPolyline(trackLine);
 
         //Get Current Location
-        //myLocation = locationManager.getLastKnownLocation(provider);
-        locationManager.requestSingleUpdate(provider, locListener, null);
+        myLocation = locationManager.getLastKnownLocation(provider);
+        //locationManager.requestSingleUpdate(provider, locListener, null);
 
         //set map type
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -288,7 +297,7 @@ public class GoogleMaps extends SupportMapFragment {
         //mSensorManager.requestTriggerSensor(mListener, mSigMotion);
 
         //request location updates at the given minTime or 30 meters
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+        //LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
 
         //retain the fragment across orientation changes
         setRetainInstance(true);
@@ -317,7 +326,7 @@ public class GoogleMaps extends SupportMapFragment {
         if (speed < .5 ) {
             //do stuff for not moving
             if (speedLevel !=0) {
-                locationManager.removeUpdates(locListener);
+                LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
                 mSensorManager.requestTriggerSensor(mListener, mSigMotion);
                 speedLevel = 0;
                 //Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
@@ -326,33 +335,51 @@ public class GoogleMaps extends SupportMapFragment {
         else if (speed >= .5 && speed < 6.0) {
             //do stuff for walking
             if (speedLevel !=1) {
-                locationManager.removeUpdates(locListener);
+                //locationManager.removeUpdates(locListener);
                 speedLevel = 1;
                 setMinTime();
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
                 //Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
             }
         }
         else if (speed >= 10.0 && speed < 20.0){
             //do stuff for running
             if (speedLevel != 2) {
-                locationManager.removeUpdates(locListener);
+                //locationManager.removeUpdates(locListener);
                 speedLevel = 2;
                 setMinTime();
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
                 //Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
             }
         }
         else if (speed > 20.0) {
             //do stuff for driving
             if (speedLevel != 3) {
-                locationManager.removeUpdates(locListener);
+                //locationManager.removeUpdates(locListener);
                 speedLevel = 3;
                 setMinTime();
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
                 //Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+    }
+
+    @Override
+    public void onConnectionSuspended(int result) {
+        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
     }
 
     @Override
@@ -377,7 +404,9 @@ public class GoogleMaps extends SupportMapFragment {
     public void onDetach()
     {
         //remove the location listener when the app during onDetach
-        locationManager.removeUpdates(locListener);
+        //locationManager.removeUpdates(locListener);
+        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+        client.disconnect();
         //mSensorManager.unregisterListener(this);
         super.onDetach();
     }
