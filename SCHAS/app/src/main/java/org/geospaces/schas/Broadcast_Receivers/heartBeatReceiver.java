@@ -20,6 +20,7 @@ import java.util.Calendar;
 
 public class heartBeatReceiver extends BroadcastReceiver {
     private Context cntx;
+    private static Activity act;
 
     public heartBeatReceiver() {
 
@@ -39,6 +40,11 @@ public class heartBeatReceiver extends BroadcastReceiver {
             Log.e("ERROR", "Exception appending to log file", e);
         }
         Log.d("Heartbeat", "Heartbeat occured");
+        db.Upload(cntx,act);
+
+    }
+    public static void setAct(Activity active){
+        act = active;
     }
 
 

@@ -162,7 +162,9 @@ public class db {
                         ""
         );
 
-        return sb.toString();
+        String writeString = sb.toString();
+
+        return writeString;
     }
 
     public static String getHeartBeat(Context cntx) {
