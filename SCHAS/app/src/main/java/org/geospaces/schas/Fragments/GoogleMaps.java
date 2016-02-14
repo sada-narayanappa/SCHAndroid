@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.location.LocationListener;
 
 import org.geospaces.schas.R;
+import org.geospaces.schas.UploadData;
 import org.geospaces.schas.utils.db;
 
 
@@ -62,8 +63,8 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     private GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
     private Context mContext;
-    GoogleApiClient client;
-    LocationRequest locReq;
+    static GoogleApiClient client;
+    static LocationRequest locReq;
     LocationManager locationManager;
     Location myLocation;
     Location prevLocation = null;
@@ -71,12 +72,12 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     //set min update time to 60 seconds
     long minTime = 60000;
     //set min update distance to 30 meters
-    float minDistance =20;
+    float minDistance =25;
     //list to hold LatLng values
     List<LatLng> locList = new ArrayList<>();
     PolylineOptions trackLine;
     Polyline polyLine;
-    LocationListener locListener;
+    static LocationListener locListener;
     boolean isFirstPoint = true;
 
     String provider;
@@ -139,7 +140,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
             @Override
             public void onTrigger(TriggerEvent event) {
                 //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
-                LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+                startPoll();
             }
         };
 
@@ -330,7 +331,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         if (speed < .5 ) {
             //do stuff for not moving
             if (speedLevel !=0) {
-                LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+                stopPoll();
                 mSensorManager.requestTriggerSensor(mListener, mSigMotion);
                 speedLevel = 0;
                 //Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
@@ -344,7 +345,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 setMinTime();
                 locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+                startPoll();
                 //Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
             }
         }
@@ -356,7 +357,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 setMinTime();
                 locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+                startPoll();
                 //Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
             }
         }
@@ -368,7 +369,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 setMinTime();
                 locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+                startPoll();
                 //Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
             }
         }
@@ -376,17 +377,17 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
 
     @Override
     public void onConnected(Bundle bundle) {
-        LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+        startPoll();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+        stopPoll();
     }
 
     @Override
     public void onConnectionSuspended(int result) {
-        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+        stopPoll();
     }
 
     @Override
@@ -412,10 +413,27 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     {
         //remove the location listener when the app during onDetach
         //locationManager.removeUpdates(locListener);
-        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+        stopPoll();
         client.disconnect();
         //mSensorManager.unregisterListener(this);
         super.onDetach();
+    }
+    
+    public static void startPoll() {
+        if (client.isConnected()) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+            UploadData.startStop.setText("Stop");
+            UploadData.startStop.setBackgroundColor(Color.RED);
+        }
+        if (!client.isConnected()) {
+            client.connect();
+        }
+    }
+
+    public static void stopPoll() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+        UploadData.startStop.setText("Start");
+        UploadData.startStop.setBackgroundColor(Color.GREEN);
     }
 }
 

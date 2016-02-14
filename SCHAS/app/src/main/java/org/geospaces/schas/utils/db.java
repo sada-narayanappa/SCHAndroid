@@ -109,6 +109,7 @@ public class db {
                         "alt=" + lastLocation.getAltitude() + "," +
                         "speed=" + lastLocation.getSpeed() + "," +
                         "bearing=" + lastLocation.getBearing() + "," +
+                        "altitude=" + lastLocation.getAltitude() + "," +
                         "accuracy=" + lastLocation.getAccuracy() + "," +
                         "record_type=" + severity + "," +
                         "session_num=" + sessionNum + "" +
@@ -132,6 +133,7 @@ public class db {
                         "alt=" + lastLocation.getAltitude() + "," +
                         "speed=" + lastLocation.getSpeed() + "," +
                         "bearing=" + lastLocation.getBearing() + "," +
+                        "altitude=" + lastLocation.getAltitude() + "," +
                         "accuracy=" + lastLocation.getAccuracy() + "," +
                         "medicine_Used=" + medicineUsed + "," +
                         "session_num=" + sessionNum + "" +
@@ -155,6 +157,7 @@ public class db {
                         "alt=" + lastLocation.getAltitude() + "," +
                         "speed=" + lastLocation.getSpeed() + "," +
                         "bearing=" + lastLocation.getBearing() + "," +
+                        "altitude=" + lastLocation.getAltitude() + "," +
                         "accuracy=" + lastLocation.getAccuracy() + "," +
                         "PEF=" + pef + "," +
                         "FEV=" + fev + "," +
@@ -328,6 +331,7 @@ public class db {
                         "alt=" + location.getAltitude() + "," +
                         "speed=" + location.getSpeed() + "," +
                         "bearing=" + location.getBearing() + "," +
+                        "altitude=" + location.getAltitude() + "," +
                         "accuracy=" + location.getAccuracy() + "," +
                         "provider=" + provider + "," +
                         "session_num=" + sessionNum

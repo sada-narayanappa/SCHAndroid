@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Handler;
@@ -27,10 +28,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 
+import android.widget.Button;
 import android.widget.Toast;
 
 
 import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
+import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -77,6 +80,10 @@ public class UploadData extends ActionBarActivity{
     private FloatingActionButton inhalerButton;
     private boolean menuActive = false;
 
+    public static Button startStop;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +128,8 @@ public class UploadData extends ActionBarActivity{
 
 
         findViewById(R.id.PFMConnectButton).setOnClickListener(pfm_BT_connect);
+        startStop = (Button) findViewById(R.id.homeButton);
+        startStop.setOnClickListener(startStopButton);
         findViewById(R.id.graphButton).setOnClickListener(uploadCB);
         findViewById(R.id.resetButton).setOnClickListener(resetCB);
         findViewById(R.id.mildAttackButton).setOnClickListener(mild_attack_button);
@@ -182,6 +191,24 @@ public class UploadData extends ActionBarActivity{
             str = db.Upload(ctx, UploadData.this);
             if ( str != null) {
                 Toast( str + " retry");
+            }
+        }
+    };
+
+    private View.OnClickListener startStopButton = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (startStop.getText() == "Start") {
+                startStop.setText("Stop");
+                startStop.setBackgroundColor(Color.RED);
+                GoogleMaps.startPoll();
+                Toast.makeText(UploadData.this, "Starting Location Polling", Toast.LENGTH_SHORT).show();
+            }
+            else if (startStop.getText() == "Stop") {
+                startStop.setText("Start");
+                startStop.setBackgroundColor(Color.GREEN);
+                GoogleMaps.stopPoll();
+                Toast.makeText(UploadData.this, "Stopping Location Polling", Toast.LENGTH_SHORT).show();
             }
         }
     };
