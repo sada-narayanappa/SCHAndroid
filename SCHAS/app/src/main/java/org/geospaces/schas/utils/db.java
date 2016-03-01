@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -15,10 +16,14 @@ import android.text.format.Formatter;
 import android.util.Log;
 import android.util.Pair;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.geospaces.schas.AsyncTasks.PostToServer;
+import org.geospaces.schas.Fragments.GoogleMaps;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
@@ -177,13 +182,24 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
         long milliseconds = System.currentTimeMillis();
+        PackageInfo pInfo = null;
+        String versionStuff = null;
+
+        try {
+            pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
+            versionStuff = "version_name=" + pInfo.versionName + "," +
+                    "version_code=" + pInfo.versionCode + "\n";
+        }
+        catch(Exception e) {
+            Log.i("package", "could not get package info");
+        }
 
         StringBuffer append = sb.append(
                 "measured_at=" + (milliseconds/1000) + "," +
                         "record_type=" + ("active") + "," +
                         "battery_level=" + batLevel + "," +
-                        "session_num=" + sessionNum + ","
-
+                        "session_num=" + sessionNum + "," +
+                        versionStuff
         );
 
         return sb.toString();
@@ -343,6 +359,35 @@ public class db {
             Write(writeString + "\n");
         } catch (IOException e) {
             Log.e("ERROR", "Exception appending to log file", e);
+        }
+    }
+
+    //use a readbuffer to read in from the txt and plot the points
+    public static void plotTxtPoints() throws IOException
+    {
+        //open the file that has all of the location values stored within it
+        File file = db.getFile(db.FILE_NAME);
+        BufferedReader in = new BufferedReader(new FileReader(file));
+
+        //while the next line to be read does not return null (empty line, or EOF)
+        while (in.readLine() != null) {
+            String nextLine = in.readLine();
+            //check to see if this line is a location or a heartbeat
+            if (nextLine.contains("lat=")) {
+                //get the indices of the known substrings
+                int indexLat = nextLine.indexOf("lat=");
+                int indexLon = nextLine.indexOf("lon=");
+                int indexAlt = nextLine.indexOf("alt=");
+                //create substrings for the values of the lat and lon floats between known indices
+                String latString = nextLine.substring(indexLat + 3, indexLon);
+                String lonString = nextLine.substring(indexLon+3, indexAlt);
+
+                //cast the strings to floats and put into the static array in GoogleMaps for plotting
+                float nextLat = Float.valueOf(latString);
+                float nextLon = Float.valueOf(lonString);
+                LatLng nextlatLng = new LatLng(nextLat, nextLon);
+                GoogleMaps.locList.add(nextlatLng);
+            }
         }
     }
 }

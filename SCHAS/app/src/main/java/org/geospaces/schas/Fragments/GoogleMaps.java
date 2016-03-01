@@ -47,6 +47,7 @@ import org.geospaces.schas.UploadData;
 import org.geospaces.schas.utils.db;
 
 
+import java.io.IOException;
 import java.security.Provider;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +75,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     //set min update distance to 30 meters
     float minDistance =25;
     //list to hold LatLng values
-    List<LatLng> locList = new ArrayList<>();
+    public static List<LatLng> locList;
     PolylineOptions trackLine;
     Polyline polyLine;
     static LocationListener locListener;
@@ -135,6 +136,24 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         locReq.setInterval(minTime);
         locReq.setSmallestDisplacement(minDistance);
 
+        locList = new ArrayList<LatLng>();
+        try {
+            db.plotTxtPoints();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (LatLng nextLoc : locList) {
+            googleMap.addMarker(new MarkerOptions()
+                    .flat(true)
+                    .position(nextLoc)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+                    .anchor(.5f, .5f));
+            trackLine.add(nextLoc);
+        }
+
+        polyLine = googleMap.addPolyline(trackLine);
+
         //set up the tigger event for the sigmotionsensor to start updates
         mListener = new TriggerEventListener() {
             @Override
@@ -152,7 +171,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 double newLat = location == null ? 0: location.getLatitude();
                 double newLon = location == null ? 0: location.getLongitude();
                 LatLng newlatLng = new LatLng(newLat, newLon);
-                locList.add(newlatLng);
+                //locList.add(newlatLng);
 
                 //float accuracy = location.getAccuracy();
 
