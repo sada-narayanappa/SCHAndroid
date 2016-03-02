@@ -187,8 +187,7 @@ public class db {
 
         try {
             pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
-            versionStuff = "version_name=" + pInfo.versionName + "," +
-                    "version_code=" + pInfo.versionCode + "\n";
+            versionStuff = "version=" + pInfo.versionName + "," + pInfo.versionCode;
         }
         catch(Exception e) {
             Log.i("package", "could not get package info");
@@ -199,7 +198,7 @@ public class db {
                         "record_type=" + ("active") + "," +
                         "battery_level=" + batLevel + "," +
                         "session_num=" + sessionNum + "," +
-                        versionStuff
+                        versionStuff + "\n"
         );
 
         return sb.toString();
