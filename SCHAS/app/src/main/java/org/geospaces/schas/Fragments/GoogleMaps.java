@@ -149,10 +149,10 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                     .position(nextLoc)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                     .anchor(.5f, .5f));
-            trackLine.add(nextLoc);
+            //trackLine.add(nextLoc);
         }
 
-        polyLine = googleMap.addPolyline(trackLine);
+        //polyLine = googleMap.addPolyline(trackLine);
 
         //set up the tigger event for the sigmotionsensor to start updates
         mListener = new TriggerEventListener() {

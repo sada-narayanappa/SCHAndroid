@@ -114,7 +114,6 @@ public class db {
                         "alt=" + lastLocation.getAltitude() + "," +
                         "speed=" + lastLocation.getSpeed() + "," +
                         "bearing=" + lastLocation.getBearing() + "," +
-                        "altitude=" + lastLocation.getAltitude() + "," +
                         "accuracy=" + lastLocation.getAccuracy() + "," +
                         "record_type=" + severity + "," +
                         "session_num=" + sessionNum + "" +
@@ -138,7 +137,6 @@ public class db {
                         "alt=" + lastLocation.getAltitude() + "," +
                         "speed=" + lastLocation.getSpeed() + "," +
                         "bearing=" + lastLocation.getBearing() + "," +
-                        "altitude=" + lastLocation.getAltitude() + "," +
                         "accuracy=" + lastLocation.getAccuracy() + "," +
                         "medicine_Used=" + medicineUsed + "," +
                         "session_num=" + sessionNum + "" +
@@ -162,7 +160,6 @@ public class db {
                         "alt=" + lastLocation.getAltitude() + "," +
                         "speed=" + lastLocation.getSpeed() + "," +
                         "bearing=" + lastLocation.getBearing() + "," +
-                        "altitude=" + lastLocation.getAltitude() + "," +
                         "accuracy=" + lastLocation.getAccuracy() + "," +
                         "PEF=" + pef + "," +
                         "FEV=" + fev + "," +
@@ -338,6 +335,7 @@ public class db {
         lastLocation = location;
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
+        boolean isValid = true;
 
         sb.append(
                 "measured_at=" + (location.getTime() / 1000) + "," +
@@ -346,10 +344,10 @@ public class db {
                         "alt=" + location.getAltitude() + "," +
                         "speed=" + location.getSpeed() + "," +
                         "bearing=" + location.getBearing() + "," +
-                        "altitude=" + location.getAltitude() + "," +
                         "accuracy=" + location.getAccuracy() + "," +
-                        "provider=" + provider + "," +
-                        "session_num=" + sessionNum
+                        "record_type=" + provider + "," +
+                        "session_num=" + sessionNum +
+                        "is_valid=" + isValid
         );
 
         String writeString = sb.toString();
@@ -378,8 +376,8 @@ public class db {
                 int indexLon = nextLine.indexOf("lon=");
                 int indexAlt = nextLine.indexOf("alt=");
                 //create substrings for the values of the lat and lon floats between known indices
-                String latString = nextLine.substring(indexLat + 3, indexLon);
-                String lonString = nextLine.substring(indexLon+3, indexAlt);
+                String latString = nextLine.substring(indexLat + 4, indexLon-1);
+                String lonString = nextLine.substring(indexLon+4, indexAlt-1);
 
                 //cast the strings to floats and put into the static array in GoogleMaps for plotting
                 float nextLat = Float.valueOf(latString);
@@ -388,5 +386,7 @@ public class db {
                 GoogleMaps.locList.add(nextlatLng);
             }
         }
+
+        in.close();
     }
 }
