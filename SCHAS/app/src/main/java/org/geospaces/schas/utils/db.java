@@ -370,7 +370,7 @@ public class db {
         while (in.readLine() != null) {
             String nextLine = in.readLine();
             //check to see if this line is a location or a heartbeat
-            if (nextLine.contains("lat=")) {
+            if (nextLine != null && nextLine.contains("lat=")) {
                 //get the indices of the known substrings
                 int indexLat = nextLine.indexOf("lat=");
                 int indexLon = nextLine.indexOf("lon=");
