@@ -365,12 +365,12 @@ public class db {
         //open the file that has all of the location values stored within it
         File file = db.getFile(db.FILE_NAME);
         BufferedReader in = new BufferedReader(new FileReader(file));
+        String nextLine = in.readLine();
 
         //while the next line to be read does not return null (empty line, or EOF)
-        while (in.readLine() != null) {
-            String nextLine = in.readLine();
+        while (nextLine != null) {
             //check to see if this line is a location or a heartbeat
-            if (nextLine != null && nextLine.contains("lat=")) {
+            if (nextLine.contains("lat=")) {
                 //get the indices of the known substrings
                 int indexLat = nextLine.indexOf("lat=");
                 int indexLon = nextLine.indexOf("lon=");
@@ -385,6 +385,7 @@ public class db {
                 LatLng nextlatLng = new LatLng(nextLat, nextLon);
                 GoogleMaps.locList.add(nextlatLng);
             }
+            nextLine = in.readLine();
         }
 
         in.close();
