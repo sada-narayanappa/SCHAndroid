@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -11,6 +12,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -179,6 +181,8 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
         long milliseconds = System.currentTimeMillis();
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(cntx);
+        String stringUName = SP.getString("username", "NA");
         PackageInfo pInfo = null;
         String versionStuff = null;
 
@@ -195,7 +199,8 @@ public class db {
                         "record_type=" + ("active") + "," +
                         "battery_level=" + batLevel + "," +
                         "session_num=" + sessionNum + "," +
-                        versionStuff + "\n"
+                        versionStuff + "," +
+                        "user=" + stringUName + "\n"
         );
 
         return sb.toString();

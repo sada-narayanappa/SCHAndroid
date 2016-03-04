@@ -136,6 +136,12 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         locReq.setInterval(minTime);
         locReq.setSmallestDisplacement(minDistance);
 
+        //create the trackline
+        trackLine =new PolylineOptions()
+                .width(5)
+                .color(Color.BLUE)
+                .geodesic(true);
+
         locList = new ArrayList<LatLng>();
         try {
             db.plotTxtPoints();
@@ -149,10 +155,10 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                     .position(nextLoc)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                     .anchor(.5f, .5f));
-            //trackLine.add(nextLoc);
+            trackLine.add(nextLoc);
         }
 
-        //polyLine = googleMap.addPolyline(trackLine);
+        polyLine = googleMap.addPolyline(trackLine);
 
         //set up the tigger event for the sigmotionsensor to start updates
         mListener = new TriggerEventListener() {
@@ -260,19 +266,16 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
             }
         };
 
-        //put code to rebuild the map locations from the text file here
-        //not entirely sure how to do this
-
         //googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker").snippet("snippet"));
         // Enable MyLocation Layer of Google Map
         googleMap.setMyLocationEnabled(true);
 
         //create the trackline and add it to the map as a polyline
-        trackLine =new PolylineOptions()
+        /*trackLine =new PolylineOptions()
                 .width(5)
                 .color(Color.BLUE)
-                .geodesic(true);
-        polyLine = googleMap.addPolyline(trackLine);
+                .geodesic(true);*/
+        //polyLine = googleMap.addPolyline(trackLine);
 
         //Get Current Location
         myLocation = locationManager.getLastKnownLocation(provider);
