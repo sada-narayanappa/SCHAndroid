@@ -289,6 +289,7 @@ public class db {
             return str;
         }
         Log.w("DB:post:", " Post succeeded");
+        UploadData.uploadButton.setBackgroundColor(Color.RED);
         GoogleMaps.removeMarkers();
         return null;
     }

@@ -181,6 +181,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 double newLat = location == null ? 0: location.getLatitude();
                 double newLon = location == null ? 0: location.getLongitude();
                 LatLng newlatLng = new LatLng(newLat, newLon);
+
                 //locList.add(newlatLng);
 
                 //float accuracy = location.getAccuracy();
