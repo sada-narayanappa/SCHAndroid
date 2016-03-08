@@ -37,6 +37,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -61,7 +62,7 @@ import static java.lang.Math.sqrt;
 public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private GoogleMap googleMap;
+    private static GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
     private Context mContext;
     static GoogleApiClient client;
@@ -80,6 +81,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     Polyline polyLine;
     static LocationListener locListener;
     boolean isFirstPoint = true;
+    public static List<Marker> markers;
 
     String provider;
 
@@ -137,6 +139,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         locReq.setSmallestDisplacement(minDistance);
 
         locList = new ArrayList<LatLng>();
+        markers = new ArrayList<Marker>();
         try {
             db.plotTxtPoints();
         } catch (IOException e) {
@@ -144,12 +147,13 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         }
 
         for (LatLng nextLoc : locList) {
-            googleMap.addMarker(new MarkerOptions()
+            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(nextLoc)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                     .anchor(.5f, .5f));
             //trackLine.add(nextLoc);
+            markers.add(nextMarker);
         }
 
         //polyLine = googleMap.addPolyline(trackLine);
@@ -193,11 +197,12 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
                     //add a marker at the new location
-                    googleMap.addMarker(new MarkerOptions()
+                    Marker newMarker = googleMap.addMarker(new MarkerOptions()
                             .flat(true)
                             .position(newlatLng)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                             .anchor(.5f, .5f));
+                    markers.add(newMarker);
 
                     //add new location to the trackline
                     trackLine.add(newlatLng);
@@ -232,11 +237,12 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                         googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
 
                         //add a marker at the new location
-                        googleMap.addMarker(new MarkerOptions()
+                        Marker newMarker = googleMap.addMarker(new MarkerOptions()
                                 .flat(true)
                                 .position(newlatLng)
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                                 .anchor(.5f, .5f));
+                        markers.add(newMarker);
 
                         //add new location to the trackline
                         trackLine.add(newlatLng);
@@ -453,6 +459,12 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
         UploadData.startStop.setText("Start");
         UploadData.startStop.setBackgroundColor(Color.GREEN);
+    }
+
+    public static void removeMarkers() {
+        for (Marker marker: markers) {
+            marker.remove();
+        }
     }
 }
 

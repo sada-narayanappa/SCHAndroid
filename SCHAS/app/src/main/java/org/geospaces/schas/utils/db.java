@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -22,6 +23,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.geospaces.schas.AsyncTasks.PostToServer;
 import org.geospaces.schas.Fragments.GoogleMaps;
+import org.geospaces.schas.UploadData;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -282,6 +284,7 @@ public class db {
             return str;
         }
         Log.w("DB:post:", " Post succeeded");
+        GoogleMaps.removeMarkers();
         return null;
     }
 
@@ -357,6 +360,8 @@ public class db {
         } catch (IOException e) {
             Log.e("ERROR", "Exception appending to log file", e);
         }
+
+        UploadData.uploadButton.setBackgroundColor(Color.GREEN);
     }
 
     //use a readbuffer to read in from the txt and plot the points

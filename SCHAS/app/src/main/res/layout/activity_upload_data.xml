@@ -178,7 +178,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Upload"
-                android:id="@+id/graphButton" />
+                android:id="@+id/graphButton"
+                android:background="@color/red"/>
         </LinearLayout>
 
         <RelativeLayout

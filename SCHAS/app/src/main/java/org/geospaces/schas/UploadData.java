@@ -81,6 +81,7 @@ public class UploadData extends ActionBarActivity{
     private boolean menuActive = false;
 
     public static Button startStop;
+    public static Button uploadButton;
 
 
 
@@ -130,7 +131,8 @@ public class UploadData extends ActionBarActivity{
         findViewById(R.id.PFMConnectButton).setOnClickListener(pfm_BT_connect);
         startStop = (Button) findViewById(R.id.homeButton);
         startStop.setOnClickListener(startStopButton);
-        findViewById(R.id.graphButton).setOnClickListener(uploadCB);
+        uploadButton = (Button) findViewById(R.id.graphButton);
+        uploadButton.setOnClickListener(uploadCB);
         findViewById(R.id.resetButton).setOnClickListener(resetCB);
         findViewById(R.id.mildAttackButton).setOnClickListener(mild_attack_button);
         findViewById(R.id.mediumAttackButton).setOnClickListener(medium_attack_button);
