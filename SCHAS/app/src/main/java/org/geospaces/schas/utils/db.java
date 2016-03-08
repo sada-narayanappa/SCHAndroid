@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.graphics.Color;
 import android.location.Location;
@@ -12,6 +13,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -181,6 +183,8 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
         long milliseconds = System.currentTimeMillis();
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(cntx);
+        String stringUName = SP.getString("username", "NA");
         PackageInfo pInfo = null;
         String versionStuff = null;
 
@@ -197,7 +201,8 @@ public class db {
                         "record_type=" + ("active") + "," +
                         "battery_level=" + batLevel + "," +
                         "session_num=" + sessionNum + "," +
-                        versionStuff + "\n"
+                        versionStuff + "," +
+                        "user=" + stringUName + "\n"
         );
 
         return sb.toString();
@@ -370,10 +375,10 @@ public class db {
         //open the file that has all of the location values stored within it
         File file = db.getFile(db.FILE_NAME);
         BufferedReader in = new BufferedReader(new FileReader(file));
+        String nextLine = in.readLine();
 
         //while the next line to be read does not return null (empty line, or EOF)
-        while (in.readLine() != null) {
-            String nextLine = in.readLine();
+        while (nextLine != null) {
             //check to see if this line is a location or a heartbeat
             if (nextLine.contains("lat=")) {
                 //get the indices of the known substrings
@@ -390,6 +395,7 @@ public class db {
                 LatLng nextlatLng = new LatLng(nextLat, nextLon);
                 GoogleMaps.locList.add(nextlatLng);
             }
+            nextLine = in.readLine();
         }
 
         in.close();
