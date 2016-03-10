@@ -190,7 +190,7 @@ public class db {
 
         try {
             pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
-            versionStuff = "version=" + pInfo.versionName + "," + pInfo.versionCode;
+            versionStuff = "version=" + pInfo.versionName + "-" + pInfo.versionCode;
         }
         catch(Exception e) {
             Log.i("package", "could not get package info");
@@ -355,7 +355,7 @@ public class db {
                         "bearing=" + location.getBearing() + "," +
                         "accuracy=" + location.getAccuracy() + "," +
                         "record_type=" + provider + "," +
-                        "session_num=" + sessionNum +
+                        "session_num=" + sessionNum + "," +
                         "is_valid=" + isValid
         );
 
