@@ -187,6 +187,7 @@ public class db {
         String stringUName = SP.getString("username", "NA");
         PackageInfo pInfo = null;
         String versionStuff = null;
+        GoogleMaps.lineCount++;
 
         try {
             pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
@@ -290,6 +291,7 @@ public class db {
         }
         Log.w("DB:post:", " Post succeeded");
         UploadData.uploadButton.setBackgroundColor(Color.RED);
+        GoogleMaps.lineCount = 0;
         GoogleMaps.removeMarkers();
         return null;
     }
@@ -345,6 +347,7 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
         boolean isValid = true;
+        GoogleMaps.lineCount++;
 
         sb.append(
                 "measured_at=" + (location.getTime() / 1000) + "," +
@@ -380,6 +383,7 @@ public class db {
 
         //while the next line to be read does not return null (empty line, or EOF)
         while (nextLine != null) {
+            GoogleMaps.lineCount++;
             //check to see if this line is a location or a heartbeat
             if (nextLine.contains("lat=")) {
                 //get the indices of the known substrings

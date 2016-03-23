@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
 import org.geospaces.schas.Fragments.GoogleMaps;
+import org.geospaces.schas.Services.LocationService;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -200,16 +201,22 @@ public class UploadData extends ActionBarActivity{
     private View.OnClickListener startStopButton = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+
+            Context ctx = getApplicationContext();
+            Intent stopLocationService = new Intent(ctx, LocationService.class);
+
             if (startStop.getText() == "Start") {
                 startStop.setText("Stop");
                 startStop.setBackgroundColor(Color.RED);
-                GoogleMaps.startPoll();
+                //LocationService.startPoll();
+                startService(stopLocationService);
                 Toast.makeText(UploadData.this, "Starting Location Polling", Toast.LENGTH_SHORT).show();
             }
             else if (startStop.getText() == "Stop") {
                 startStop.setText("Start");
                 startStop.setBackgroundColor(Color.GREEN);
-                GoogleMaps.stopPoll();
+                //LocationService.stopPoll();
+                stopService(stopLocationService);
                 Toast.makeText(UploadData.this, "Stopping Location Polling", Toast.LENGTH_SHORT).show();
             }
         }

@@ -3,6 +3,7 @@ package org.geospaces.schas.Fragments;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -44,6 +45,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.location.LocationListener;
 
 import org.geospaces.schas.R;
+import org.geospaces.schas.Services.LocationService;
 import org.geospaces.schas.UploadData;
 import org.geospaces.schas.utils.db;
 
@@ -59,40 +61,40 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 
-public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+public class GoogleMaps extends SupportMapFragment{
 
     private static GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
-    private Context mContext;
-    static GoogleApiClient client;
-    static LocationRequest locReq;
-    LocationManager locationManager;
-    Location myLocation;
-    Location prevLocation = null;
-    Criteria criteria;
-    //set min update time to 60 seconds
-    long minTime = 60000;
-    //set min update distance to 30 meters
-    float minDistance =25;
-    //list to hold LatLng values
+//    private Context mContext;
+//    static GoogleApiClient client;
+//    static LocationRequest locReq;
+//    LocationManager locationManager;
+//    Location myLocation;
+//    Location prevLocation = null;
+//    Criteria criteria;
+//    //set min update time to 60 seconds
+//    long minTime = 60000;
+//    //set min update distance to 30 meters
+//    float minDistance =25;
+//    //list to hold LatLng values
     public static List<LatLng> locList;
-    PolylineOptions trackLine;
-    Polyline polyLine;
-    static LocationListener locListener;
-    boolean isFirstPoint = true;
+    static PolylineOptions trackLine;
+    static Polyline polyLine;
+//    static LocationListener locListener;
+//    boolean isFirstPoint = true;
     public static List<Marker> markers;
-
-    String provider;
-
-    float speed;
-    int speedLevel;
-
-    SensorManager mSensorManager;
-    Sensor mSigMotion;
-    TriggerEventListener mListener;
-
-    double newLocDist;
+    public static int lineCount= 0;
+//
+//    String provider;
+//
+//    float speed;
+//    int speedLevel;
+//
+//    SensorManager mSensorManager;
+//    Sensor mSigMotion;
+//    TriggerEventListener mListener;
+//
+//    float newLocDist;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -109,34 +111,39 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
 
     private void setUpMap() {
 
-        mContext = getActivity().getApplicationContext();
+        Context mContext = getActivity().getApplicationContext();
+//
+//        // Create a criteria object to retrieve provider
+//        criteria = new Criteria();
+//
+//        //instantiate the managers for getting locations and using the sigmotionsensor
+//        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+//        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+//
+//        //set up the signmotion sensor and link with the sensor manager
+//        mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+//
+//        // Get the name of the best provider
+//        provider = locationManager.getBestProvider(criteria, true);
+//
+//        //build a GoogleApiClient object that has access to the location API
+//        client = new GoogleApiClient.Builder(mContext)
+//                .addApi(LocationServices.API)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .build();
+//        client.connect();
+//
+//        //build a LocationRequest object with the given parameters
+//        locReq = new LocationRequest();
+//        locReq.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        locReq.setInterval(minTime);
+//        locReq.setSmallestDisplacement(minDistance);
 
-        // Create a criteria object to retrieve provider
-        criteria = new Criteria();
+        Intent startLocationService = new Intent(mContext, LocationService.class);
+        mContext.startService(startLocationService);
 
-        //instantiate the managers for getting locations and using the sigmotionsensor
-        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
-
-        //set up the signmotion sensor and link with the sensor manager
-        mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
-
-        // Get the name of the best provider
-        provider = locationManager.getBestProvider(criteria, true);
-
-        //build a GoogleApiClient object that has access to the location API
-        client = new GoogleApiClient.Builder(mContext)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        client.connect();
-
-        //build a LocationRequest object with the given parameters
-        locReq = new LocationRequest();
-        locReq.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locReq.setInterval(minTime);
-        locReq.setSmallestDisplacement(minDistance);
+        LocationService.appIsRunning = true;
 
         //create the trackline
         trackLine =new PolylineOptions()
@@ -164,118 +171,121 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
 
         polyLine = googleMap.addPolyline(trackLine);
 
-        //set up the tigger event for the sigmotionsensor to start updates
-        mListener = new TriggerEventListener() {
-            @Override
-            public void onTrigger(TriggerEvent event) {
-                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
-                startPoll();
-            }
-        };
-
-        //create the location listener and begin location collection logic
-        locListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                //add location lat and lon to LatLng and add to list
-                double newLat = location == null ? 0: location.getLatitude();
-                double newLon = location == null ? 0: location.getLongitude();
-                LatLng newlatLng = new LatLng(newLat, newLon);
-
-                //locList.add(newlatLng);
-
-                //float accuracy = location.getAccuracy();
-
-                //Log.i("speed", String.valueOf(speed));
-                //Log.i("new loc dist", String.valueOf(newLocDist));
-
-               // polyLine.setPoints(locList);
-                /*for (int z = 0; z < locList.size(); z++) {
-                    LatLng point = locList.get(z);
-                    trackLine.add(point);
-                }*/
-
-                if (isFirstPoint) {
-
-                    //move the camera to the new location
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
-
-                    // Zoom in the Google Map
-                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
-
-                    //add a marker at the new location
-                    Marker newMarker = googleMap.addMarker(new MarkerOptions()
-                            .flat(true)
-                            .position(newlatLng)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
-                            .anchor(.5f, .5f));
-                    markers.add(newMarker);
-
-                    //add new location to the trackline
-                    trackLine.add(newlatLng);
-
-                    polyLine = googleMap.addPolyline(trackLine);
-
-                    db.getLocationData(location, provider);
-
-                    prevLocation = location;
-
-                    //get the extra info generated by the locationManager
-                    speed = location.getSpeed();
-
-                    //calculate the new minTime for the location updates if needed
-                    speedCalc();
-
-                    isFirstPoint = false;
-                }
-
-                else if (!isFirstPoint){
-
-                    newLocDist = location.distanceTo(prevLocation);
-
-                    //if the new location is more than 25 meters away (for accuracy purposes)
-                    if (newLocDist >= 25)
-                    {
-
-                        // Zoom in the Google Map
-                        //googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
-
-                        //move the camera to the new location
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
-
-                        //add a marker at the new location
-                        Marker newMarker = googleMap.addMarker(new MarkerOptions()
-                                .flat(true)
-                                .position(newlatLng)
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
-                                .anchor(.5f, .5f));
-                        markers.add(newMarker);
-
-                        //add new location to the trackline
-                        trackLine.add(newlatLng);
-
-                        polyLine = googleMap.addPolyline(trackLine);
-
-                        db.getLocationData(location, provider);
-
-                        prevLocation = location;
-
-                        //get the extra info generated by the locationManager
-                        speed = location.getSpeed();
-
-                        //calculate the new minTime for the location updates if needed
-                        speedCalc();
-                    }
-                }
-
-                //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
-                //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
-            }
-        };
+//        //set up the tigger event for the sigmotionsensor to start updates
+//        mListener = new TriggerEventListener() {
+//            @Override
+//            public void onTrigger(TriggerEvent event) {
+//                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
+//                startPoll();
+//            }
+//        };
+//
+//        //create the location listener and begin location collection logic
+//        locListener = new LocationListener() {
+//            @Override
+//            public void onLocationChanged(Location location) {
+//                //add location lat and lon to LatLng and add to list
+//                double newLat = location == null ? 0: location.getLatitude();
+//                double newLon = location == null ? 0: location.getLongitude();
+//                LatLng newlatLng = new LatLng(newLat, newLon);
+//
+//                //locList.add(newlatLng);
+//
+//                //float accuracy = location.getAccuracy();
+//
+//                //Log.i("speed", String.valueOf(speed));
+//                //Log.i("new loc dist", String.valueOf(newLocDist));
+//
+//               // polyLine.setPoints(locList);
+//                /*for (int z = 0; z < locList.size(); z++) {
+//                    LatLng point = locList.get(z);
+//                    trackLine.add(point);
+//                }*/
+//
+//                if (isFirstPoint) {
+//
+//                    //move the camera to the new location
+//                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
+//
+//                    // Zoom in the Google Map
+//                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
+//
+//                    //add a marker at the new location
+//                    Marker newMarker = googleMap.addMarker(new MarkerOptions()
+//                            .flat(true)
+//                            .position(newlatLng)
+//                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+//                            .anchor(.5f, .5f));
+//                    markers.add(newMarker);
+//
+//                    //add new location to the trackline
+//                    trackLine.add(newlatLng);
+//
+//                    polyLine = googleMap.addPolyline(trackLine);
+//
+//                    db.getLocationData(location, provider);
+//
+//                    prevLocation = location;
+//
+//                    //get the extra info generated by the locationManager
+//                    speed = location.getSpeed();
+//
+//                    //calculate the new minTime for the location updates if needed
+//                    speedCalc();
+//
+//                    isFirstPoint = false;
+//                }
+//
+//                else if (!isFirstPoint){
+//
+//                    newLocDist = location.distanceTo(prevLocation);
+//
+//                    //if the new location is more than 25 meters away (for accuracy purposes)
+//                    if (newLocDist >= 25)
+//                    {
+//
+//                        // Zoom in the Google Map
+//                        //googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
+//
+//                        //move the camera to the new location
+//                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(newlatLng));
+//
+//                        //add a marker at the new location
+//                        Marker newMarker = googleMap.addMarker(new MarkerOptions()
+//                                .flat(true)
+//                                .position(newlatLng)
+//                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+//                                .anchor(.5f, .5f));
+//                        markers.add(newMarker);
+//
+//                        //add new location to the trackline
+//                        trackLine.add(newlatLng);
+//
+//                        polyLine = googleMap.addPolyline(trackLine);
+//
+//                        db.getLocationData(location, provider);
+//
+//                        prevLocation = location;
+//
+//                        //get the extra info generated by the locationManager
+//                        speed = location.getSpeed();
+//
+//                        //calculate the new minTime for the location updates if needed
+//                        speedCalc();
+//                    }
+//                }
+//
+//                //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
+//                //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
+//            }
+//        };
 
         //googleMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker").snippet("snippet"));
         // Enable MyLocation Layer of Google Map
         googleMap.setMyLocationEnabled(true);
+
+        // Zoom in the Google Map
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
         //create the trackline and add it to the map as a polyline
         /*trackLine =new PolylineOptions()
@@ -285,7 +295,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         //polyLine = googleMap.addPolyline(trackLine);
 
         //Get Current Location
-        myLocation = locationManager.getLastKnownLocation(provider);
+//        myLocation = locationManager.getLastKnownLocation(provider);
         //locationManager.requestSingleUpdate(provider, locListener, null);
 
         //set map type
@@ -337,87 +347,87 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         setRetainInstance(true);
     }
 
-    //call this function before making a call to request location updates
-    public void setMinTime ()
-    {
-        //if walking, set minTime to 60 seconds
-        if (speedLevel == 1) {
-            minTime = 60000;
-        }
-        //if running, set minTime to 30 seconds
-        if (speedLevel == 2) {
-            minTime = 30000;
-        }
-        //if driving, set minTime to 10 seconds
-        if (speedLevel == 3) {
-            minTime = 10000;
-        }
-        //Toast.makeText(mContext, "setMinTime called", Toast.LENGTH_SHORT).show();
-    }
-
-    public void speedCalc() {
-        //do things based on the calculated speed
-        if (speed < .5 ) {
-            //do stuff for not moving
-            if (speedLevel !=0) {
-                stopPoll();
-                mSensorManager.requestTriggerSensor(mListener, mSigMotion);
-                speedLevel = 0;
-                //Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
-            }
-        }
-        else if (speed >= .5 && speed < 6.0) {
-            //do stuff for walking
-            if (speedLevel !=1) {
-                //locationManager.removeUpdates(locListener);
-                speedLevel = 1;
-                setMinTime();
-                locReq.setInterval(minTime);
-                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                startPoll();
-                //Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
-            }
-        }
-        else if (speed >= 10.0 && speed < 20.0){
-            //do stuff for running
-            if (speedLevel != 2) {
-                //locationManager.removeUpdates(locListener);
-                speedLevel = 2;
-                setMinTime();
-                locReq.setInterval(minTime);
-                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                startPoll();
-                //Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
-            }
-        }
-        else if (speed > 20.0) {
-            //do stuff for driving
-            if (speedLevel != 3) {
-                //locationManager.removeUpdates(locListener);
-                speedLevel = 3;
-                setMinTime();
-                locReq.setInterval(minTime);
-                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
-                startPoll();
-                //Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        startPoll();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        stopPoll();
-    }
-
-    @Override
-    public void onConnectionSuspended(int result) {
-        stopPoll();
-    }
+//    //call this function before making a call to request location updates
+//    public void setMinTime ()
+//    {
+//        //if walking, set minTime to 60 seconds
+//        if (speedLevel == 1) {
+//            minTime = 60000;
+//        }
+//        //if running, set minTime to 30 seconds
+//        if (speedLevel == 2) {
+//            minTime = 30000;
+//        }
+//        //if driving, set minTime to 10 seconds
+//        if (speedLevel == 3) {
+//            minTime = 10000;
+//        }
+//        //Toast.makeText(mContext, "setMinTime called", Toast.LENGTH_SHORT).show();
+//    }
+//
+//    public void speedCalc() {
+//        //do things based on the calculated speed
+//        if (speed < .5 ) {
+//            //do stuff for not moving
+//            if (speedLevel !=0) {
+//                stopPoll();
+//                mSensorManager.requestTriggerSensor(mListener, mSigMotion);
+//                speedLevel = 0;
+//                //Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//        else if (speed >= .5 && speed < 6.0) {
+//            //do stuff for walking
+//            if (speedLevel !=1) {
+//                //locationManager.removeUpdates(locListener);
+//                speedLevel = 1;
+//                setMinTime();
+//                locReq.setInterval(minTime);
+//                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+//                startPoll();
+//                //Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//        else if (speed >= 10.0 && speed < 20.0){
+//            //do stuff for running
+//            if (speedLevel != 2) {
+//                //locationManager.removeUpdates(locListener);
+//                speedLevel = 2;
+//                setMinTime();
+//                locReq.setInterval(minTime);
+//                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+//                startPoll();
+//                //Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//        else if (speed > 20.0) {
+//            //do stuff for driving
+//            if (speedLevel != 3) {
+//                //locationManager.removeUpdates(locListener);
+//                speedLevel = 3;
+//                setMinTime();
+//                locReq.setInterval(minTime);
+//                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+//                startPoll();
+//                //Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void onConnected(Bundle bundle) {
+//        startPoll();
+//    }
+//
+//    @Override
+//    public void onConnectionFailed(ConnectionResult result) {
+//        stopPoll();
+//    }
+//
+//    @Override
+//    public void onConnectionSuspended(int result) {
+//        stopPoll();
+//    }
 
     @Override
     public void onPause()
@@ -440,35 +450,55 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     @Override
     public void onDetach()
     {
+        LocationService.appIsRunning = false;
+        super.onDetach();
         //remove the location listener when the app during onDetach
         //locationManager.removeUpdates(locListener);
-        stopPoll();
-        client.disconnect();
+        //stopPoll();
+        //client.disconnect();
         //mSensorManager.unregisterListener(this);
-        super.onDetach();
+        //super.onDetach();
     }
-    
-    public static void startPoll() {
-        if (client.isConnected()) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
-            UploadData.startStop.setText("Stop");
-            UploadData.startStop.setBackgroundColor(Color.RED);
-        }
-        if (!client.isConnected()) {
-            client.connect();
-        }
-    }
-
-    public static void stopPoll() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
-        UploadData.startStop.setText("Start");
-        UploadData.startStop.setBackgroundColor(Color.GREEN);
-    }
+//
+//    public static void startPoll() {
+//        if (client.isConnected()) {
+//            LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+//            UploadData.startStop.setText("Stop");
+//            UploadData.startStop.setBackgroundColor(Color.RED);
+//        }
+//        if (!client.isConnected()) {
+//            client.connect();
+//        }
+//    }
+//
+//    public static void stopPoll() {
+//        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+//        UploadData.startStop.setText("Start");
+//        UploadData.startStop.setBackgroundColor(Color.GREEN);
+//    }
 
     public static void removeMarkers() {
         for (Marker marker: markers) {
             marker.remove();
         }
+    }
+
+    public static void plotNewPoint(LatLng newPoint) {
+        //move the camera to the new location
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(newPoint));
+
+        //add a marker at the new location
+        Marker newMarker = googleMap.addMarker(new MarkerOptions()
+                .flat(true)
+                .position(newPoint)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+                .anchor(.5f, .5f));
+        markers.add(newMarker);
+
+        //add new location to the trackline
+        trackLine.add(newPoint);
+
+        polyLine = googleMap.addPolyline(trackLine);
     }
 }
 
