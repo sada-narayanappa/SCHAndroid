@@ -32,7 +32,7 @@ import java.util.TimerTask;
 
 public class Welcome extends ActionBarActivity {
 
-    static boolean firstTime = true;
+    boolean firstTime = true;
     private PendingIntent pendingIntent;
     private AlarmManager manager;
     Context context;
