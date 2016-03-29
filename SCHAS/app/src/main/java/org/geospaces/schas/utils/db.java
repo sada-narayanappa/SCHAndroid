@@ -290,7 +290,7 @@ public class db {
             return str;
         }
         Log.w("DB:post:", " Post succeeded");
-        UploadData.uploadButton.setBackgroundColor(Color.RED);
+        UploadData.uploadButton.setText("Upload");
         GoogleMaps.lineCount = 0;
         GoogleMaps.removeMarkers();
         return null;
@@ -370,7 +370,7 @@ public class db {
             Log.e("ERROR", "Exception appending to log file", e);
         }
 
-        UploadData.uploadButton.setBackgroundColor(Color.GREEN);
+        UploadData.uploadButton.setText("Upload +" + GoogleMaps.lineCount);
     }
 
     //use a readbuffer to read in from the txt and plot the points

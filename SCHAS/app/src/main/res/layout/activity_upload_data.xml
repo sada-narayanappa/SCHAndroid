@@ -160,11 +160,11 @@
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Start"
+                android:text="Stop"
                 android:id="@+id/homeButton"
                 android:layout_toRightOf="@+id/uploaded"
                 android:layout_toEndOf="@+id/uploaded"
-                android:background="#ff00ff00" />
+                android:background="@color/red" />
 
             <Button
                 android:layout_width="0dip"
@@ -178,8 +178,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Upload"
-                android:id="@+id/graphButton"
-                android:background="@color/red"/>
+                android:id="@+id/graphButton"/>
         </LinearLayout>
 
         <RelativeLayout

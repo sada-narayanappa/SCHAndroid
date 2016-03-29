@@ -153,6 +153,7 @@ public class GoogleMaps extends SupportMapFragment{
 
         locList = new ArrayList<LatLng>();
         markers = new ArrayList<Marker>();
+
         try {
             db.plotTxtPoints();
         } catch (IOException e) {
@@ -165,9 +166,11 @@ public class GoogleMaps extends SupportMapFragment{
                     .position(nextLoc)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                     .anchor(.5f, .5f));
-            //trackLine.add(nextLoc);
+            trackLine.add(nextLoc);
             markers.add(nextMarker);
         }
+
+        Log.i("locList", locList.toString());
 
         polyLine = googleMap.addPolyline(trackLine);
 
@@ -481,6 +484,13 @@ public class GoogleMaps extends SupportMapFragment{
         for (Marker marker: markers) {
             marker.remove();
         }
+
+        polyLine.remove();
+
+        trackLine =new PolylineOptions()
+                .width(5)
+                .color(Color.BLUE)
+                .geodesic(true);
     }
 
     public static void plotNewPoint(LatLng newPoint) {

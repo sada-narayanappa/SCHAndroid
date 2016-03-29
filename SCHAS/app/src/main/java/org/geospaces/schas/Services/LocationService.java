@@ -74,8 +74,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         mContext = getApplicationContext();
 
         Notification notification = new Notification.Builder(mContext)
-                .setContentTitle("SCHAS polling")
-                .setContentText("SCHAS location polling is running in the background")
+                .setContentTitle("SCHAS Location Polling")
+                .setContentText("Thank you for sharing your location to make better predictions!")
                 .setSmallIcon(R.drawable.ic_location_on_black)
                 .build();
 
