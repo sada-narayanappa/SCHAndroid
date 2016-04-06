@@ -119,4 +119,9 @@ public class Welcome extends ActionBarActivity {
         }
         return true;
     }
+
+    public void goToHomePage(View view) {
+        Intent homeIntent = new Intent(this, UploadData.class);
+        startActivity(homeIntent);
+    }
 }

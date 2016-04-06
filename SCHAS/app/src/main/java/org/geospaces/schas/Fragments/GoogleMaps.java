@@ -481,16 +481,14 @@ public class GoogleMaps extends SupportMapFragment{
 //    }
 
     public static void removeMarkers() {
-        for (Marker marker: markers) {
+        /*for (Marker marker: markers) {
             marker.remove();
         }
 
-        polyLine.remove();
+        for (Polyline poly : polyLines) {
 
-        trackLine =new PolylineOptions()
-                .width(5)
-                .color(Color.BLUE)
-                .geodesic(true);
+        }*/
+        googleMap.clear();
     }
 
     public static void plotNewPoint(LatLng newPoint) {

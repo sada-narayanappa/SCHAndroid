@@ -11,6 +11,6 @@ Master password: wan123
 TO RELEASE
 ==========
 Open "Gradle Scripts"/build.gradle (Module: app)
-Change: versionCode 28 (to next number)
+Change: versionCode 43 (to next number)
 build
 
