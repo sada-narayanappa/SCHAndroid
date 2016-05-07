@@ -2,8 +2,10 @@ package org.geospaces.schas.Fragments;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -18,6 +20,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.IBinder;
 import android.os.Looper;
 import android.telecom.ConnectionRequest;
 import android.util.Log;
@@ -61,40 +64,62 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 
-public class GoogleMaps extends SupportMapFragment{
+public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+    LocationService mService;
+    boolean mBound;
 
     private static GoogleMap googleMap;
     private LatLng mPosFija = new LatLng(37.878901,-4.779396);
 //    private Context mContext;
-//    static GoogleApiClient client;
-//    static LocationRequest locReq;
+    static GoogleApiClient client;
+    static LocationRequest locReq;
     LocationManager locationManager;
-//    Location myLocation;
-//    Location prevLocation = null;
+    Location myLocation;
+    Location prevLocation = null;
     Criteria criteria;
 //    //set min update time to 60 seconds
-//    long minTime = 60000;
+    long minTime = 60000;
 //    //set min update distance to 30 meters
-//    float minDistance =25;
+    float minDistance =25;
 //    //list to hold LatLng values
     public static List<LatLng> locList;
     static PolylineOptions trackLine;
     static Polyline polyLine;
-//    static LocationListener locListener;
+    static LocationListener locListener;
 //    boolean isFirstPoint = true;
     public static List<Marker> markers;
     public static int lineCount= 0;
+
+    public boolean appIsRunning;
 //
     String provider;
 //
-//    float speed;
-//    int speedLevel;
+    float speed;
+    int speedLevel;
 //
-//    SensorManager mSensorManager;
-//    Sensor mSigMotion;
-//    TriggerEventListener mListener;
+    SensorManager mSensorManager;
+    Sensor mSigMotion;
+    TriggerEventListener mListener;
 //
-//    float newLocDist;
+    float newLocDist;
+
+    /*private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            LocationService.LocalBinder binder = (LocationService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -111,6 +136,8 @@ public class GoogleMaps extends SupportMapFragment{
 
     private void setUpMap() {
 
+        appIsRunning = true;
+
         Context mContext = getActivity().getApplicationContext();
 //
 //        // Create a criteria object to retrieve provider
@@ -118,18 +145,78 @@ public class GoogleMaps extends SupportMapFragment{
 //
 //        //instantiate the managers for getting locations and using the sigmotionsensor
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-//        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
 //
 //        //set up the signmotion sensor and link with the sensor manager
-//        mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+        mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 //
 //        // Get the name of the best provider
         provider = locationManager.getBestProvider(criteria, true);
 
-        Intent startLocationService = new Intent(mContext, LocationService.class);
-        mContext.startService(startLocationService);
+        //build a GoogleApiClient object that has access to the location API
+        client = new GoogleApiClient.Builder(mContext)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        client.connect();
 
-        LocationService.appIsRunning = true;
+        //build a LocationRequest object with the given parameters
+        locReq = new LocationRequest();
+        locReq.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locReq.setInterval(minTime);
+        locReq.setSmallestDisplacement(minDistance);
+
+        //set up the tigger event for the sigmotionsensor to start updates
+        mListener = new TriggerEventListener() {
+            @Override
+            public void onTrigger(TriggerEvent event) {
+                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
+                startPoll();
+            }
+        };
+
+        locListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                //add location lat and lon to LatLng and add to list
+                double newLat = location == null ? 0: location.getLatitude();
+                double newLon = location == null ? 0: location.getLongitude();
+                LatLng newlatLng = new LatLng(newLat, newLon);
+
+                if (location != null) {
+                    if (prevLocation != null) {
+                        newLocDist = location.distanceTo(prevLocation);
+                    } else {
+                        newLocDist = 25;
+                    }
+
+                    //if the new location is more than 25 meters away (for accuracy purposes)
+                    if (newLocDist >= 25) {
+                        if (appIsRunning) {
+                            GoogleMaps.plotNewPoint(newlatLng);
+                        }
+
+                        db.getLocationData(location, location.getProvider());
+
+                        prevLocation = location;
+
+                        //get the extra info generated by the locationManager
+                        speed = location.getSpeed();
+
+                        Log.i("speed", String.valueOf(speed));
+
+                        //calculate the new minTime for the location updates if needed
+                        speedCalc();
+                    }
+                }
+                //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
+                //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
+            }
+        };
+
+        //Intent startLocationService = new Intent(mContext, LocationService.class);
+        //mContext.startService(startLocationService);
 
         //create the trackline
         trackLine =new PolylineOptions()
@@ -282,6 +369,104 @@ public class GoogleMaps extends SupportMapFragment{
         trackLine.add(newPoint);
 
         polyLine = googleMap.addPolyline(trackLine);
+    }
+
+    public static void startPoll() {
+        if (client.isConnected()) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+            UploadData.startStop.setText("Stop");
+            UploadData.startStop.setBackgroundColor(Color.RED);
+        }
+        if (!client.isConnected()) {
+            client.connect();
+        }
+    }
+
+    public static void stopPoll() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+        UploadData.startStop.setText("Start");
+        UploadData.startStop.setBackgroundColor(Color.GREEN);
+    }
+
+    public void setMinTime ()
+    {
+        //if walking, set minTime to 60 seconds
+        if (speedLevel == 1) {
+            minTime = 60000;
+        }
+        //if running, set minTime to 30 seconds
+        if (speedLevel == 2) {
+            minTime = 30000;
+        }
+        //if driving, set minTime to 10 seconds
+        if (speedLevel == 3) {
+            minTime = 10000;
+        }
+        //Toast.makeText(mContext, "setMinTime called", Toast.LENGTH_SHORT).show();
+    }
+
+    public void speedCalc() {
+        //do things based on the calculated speed
+        if (speed < .5 ) {
+            //do stuff for not moving
+            if (speedLevel !=0) {
+                stopPoll();
+                mSensorManager.requestTriggerSensor(mListener, mSigMotion);
+                speedLevel = 0;
+                //Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if (speed >= .5 && speed < 6.0) {
+            //do stuff for walking
+            if (speedLevel !=1) {
+                //locationManager.removeUpdates(locListener);
+                speedLevel = 1;
+                setMinTime();
+                locReq.setInterval(minTime);
+                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                startPoll();
+                //Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if (speed >= 10.0 && speed < 20.0){
+            //do stuff for running
+            if (speedLevel != 2) {
+                //locationManager.removeUpdates(locListener);
+                speedLevel = 2;
+                setMinTime();
+                locReq.setInterval(minTime);
+                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                startPoll();
+                //Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if (speed > 20.0) {
+            //do stuff for driving
+            if (speedLevel != 3) {
+                //locationManager.removeUpdates(locListener);
+                speedLevel = 3;
+                setMinTime();
+                locReq.setInterval(minTime);
+                //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
+                startPoll();
+                //Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        startPoll();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        stopPoll();
+    }
+
+    @Override
+    public void onConnectionSuspended(int result) {
+        stopPoll();
     }
 }
 

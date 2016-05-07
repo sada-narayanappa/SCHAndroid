@@ -12,6 +12,7 @@ import android.hardware.TriggerEventListener;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -41,6 +42,8 @@ import java.util.List;
 public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
 
+    IBinder mBinder = new LocalBinder();
+
     private Context mContext;
     GoogleApiClient client;
     LocationRequest locReq;
@@ -67,6 +70,12 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     float newLocDist;
 
     public static boolean appIsRunning = false;
+
+    public class LocalBinder extends Binder {
+            public LocationService getService() {
+                return LocationService.this;
+            }
+    }
 
     @Override
     public void onCreate() {
@@ -170,7 +179,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     @Override

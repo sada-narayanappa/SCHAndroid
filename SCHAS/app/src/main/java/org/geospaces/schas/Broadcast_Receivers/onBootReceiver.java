@@ -7,6 +7,7 @@ import android.content.Intent;
 
 import org.geospaces.schas.R;
 import org.geospaces.schas.Services.LocationService;
+import org.geospaces.schas.Welcome;
 
 /**
  * Created by Erik on 3/15/2016.
@@ -15,7 +16,8 @@ import org.geospaces.schas.Services.LocationService;
 public class onBootReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent startLocationService = new Intent(context, LocationService.class);
+        //temp starts just the app, should start the location service but it is offline for now
+        Intent startLocationService = new Intent(context, Welcome.class);
         context.startService(startLocationService);
     }
 }
