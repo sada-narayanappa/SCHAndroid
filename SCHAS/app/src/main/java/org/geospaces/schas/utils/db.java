@@ -43,6 +43,7 @@ public class db {
     private static float batLevel;
     public final static String DIRECTORY = "/SCHAS";
     public final static String FILE_NAME = "LOC.txt";
+    public final static String ONE_DAY_FILE_NAME = "ONE_DAY_LOC.txt";
     public final static String FILE_READY = "LOC_ready.txt";
     public final static int FILE_SIZE = 8 * 1024;
 
@@ -74,12 +75,20 @@ public class db {
         File file = db.getFile(db.FILE_NAME);
         BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
 
-        if (msg.endsWith("\n"))
+        File file2 = db.getFile(db.ONE_DAY_FILE_NAME);
+        BufferedWriter out2 = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
+
+        if (msg.endsWith("\n")) {
             out.write(msg);
-        else
+            out2.write(msg);
+        }
+        else {
             out.write(msg + "\n");
+            out2.write(msg + "\n");
+        }
 
         out.close();
+        out2.close();
     }
 
     public static String getUploadableText(Context context) throws Exception {
@@ -159,14 +168,15 @@ public class db {
 
         StringBuffer append = sb.append(
                 "measured_at=" + (lastLocation.getTime() / 1000) + "," +
+                        "record_type=" + ("peakflow") + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
                         "alt=" + lastLocation.getAltitude() + "," +
                         "speed=" + lastLocation.getSpeed() + "," +
                         "bearing=" + lastLocation.getBearing() + "," +
                         "accuracy=" + lastLocation.getAccuracy() + "," +
-                        "PEF=" + pef + "," +
-                        "FEV=" + fev + "," +
+                        "pef=" + pef + "," +
+                        "fev=" + fev + "," +
                         "session_num=" + sessionNum + "" +
                         ""
         );
@@ -373,6 +383,40 @@ public class db {
         UploadData.uploadButton.setText("Upload +" + GoogleMaps.lineCount);
     }
 
+    //use to compare the location values from a clicked marker with
+    //values in the text file
+    public void compareLocation(double markerLat, double markerLon) throws IOException {
+        //if the marker is clicked, find the location in the text file and mark invalid
+        File file = db.getFile(db.FILE_NAME);
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String nextLine = in.readLine();
+        int lineCount = 1;
+
+        //while the next line to be read does not return null (empty line, or EOF)
+        while (nextLine != null) {
+            if (nextLine.contains("lat=")) {
+                //get the indices of the known substrings
+                int indexLat = nextLine.indexOf("lat=");
+                int indexLon = nextLine.indexOf("lon=");
+                int indexAlt = nextLine.indexOf("alt=");
+                //create substrings for the values of the lat and lon floats between known indices
+                String latString = nextLine.substring(indexLat + 4, indexLon-1);
+                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
+
+                //cast the strings to floats and put into the static array in GoogleMaps for plotting
+                double thisLat = Double.valueOf(latString);
+                double thisLon = Double.valueOf(lonString);
+
+                if ((thisLat == markerLat) && (thisLon == markerLon)) {
+
+                }
+            }
+            nextLine = in.readLine();
+            lineCount++;
+        }
+        in.close();
+    }
+
     //use a readbuffer to read in from the txt and plot the points
     public static void plotTxtPoints() throws IOException
     {
@@ -392,11 +436,11 @@ public class db {
                 int indexAlt = nextLine.indexOf("alt=");
                 //create substrings for the values of the lat and lon floats between known indices
                 String latString = nextLine.substring(indexLat + 4, indexLon-1);
-                String lonString = nextLine.substring(indexLon+4, indexAlt-1);
+                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
 
                 //cast the strings to floats and put into the static array in GoogleMaps for plotting
-                float nextLat = Float.valueOf(latString);
-                float nextLon = Float.valueOf(lonString);
+                double nextLat = Double.valueOf(latString);
+                double nextLon = Double.valueOf(lonString);
                 LatLng nextlatLng = new LatLng(nextLat, nextLon);
                 GoogleMaps.locList.add(nextlatLng);
             }

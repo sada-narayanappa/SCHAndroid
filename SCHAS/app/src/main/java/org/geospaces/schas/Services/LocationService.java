@@ -165,6 +165,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
             }
         };
+
+        startPoll();
     }
 
     @Override
@@ -186,7 +188,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     public void onDestroy() {
         Log.i("LocationService", "Location Service stopped");
         stopPoll();
-        client.disconnect();
+        //client.disconnect();
         super.onDestroy();
     }
 
@@ -285,6 +287,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     public void stopPoll() {
         LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+        client.disconnect();
         UploadData.startStop.setText("Start");
         UploadData.startStop.setBackgroundColor(Color.GREEN);
     }

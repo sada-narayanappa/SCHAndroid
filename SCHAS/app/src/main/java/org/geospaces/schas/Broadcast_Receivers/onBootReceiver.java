@@ -16,7 +16,7 @@ import org.geospaces.schas.Welcome;
 public class onBootReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
-        //temp starts just the app, should start the location service but it is offline for now
+        //temp starts just the app at the welcome screen, should start the location service but it is offline for now
         Intent startLocationService = new Intent(context, Welcome.class);
         context.startService(startLocationService);
     }
