@@ -75,20 +75,20 @@ public class db {
         File file = db.getFile(db.FILE_NAME);
         BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
 
-        File file2 = db.getFile(db.ONE_DAY_FILE_NAME);
-        BufferedWriter out2 = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
+        //File file2 = db.getFile(db.ONE_DAY_FILE_NAME);
+        //BufferedWriter out2 = new BufferedWriter(new FileWriter(file2.getAbsolutePath(), file2.exists()));
 
         if (msg.endsWith("\n")) {
             out.write(msg);
-            out2.write(msg);
+            //out2.write(msg);
         }
         else {
             out.write(msg + "\n");
-            out2.write(msg + "\n");
+            //out2.write(msg + "\n");
         }
 
         out.close();
-        out2.close();
+        //out2.close();
     }
 
     public static String getUploadableText(Context context) throws Exception {
@@ -115,7 +115,7 @@ public class db {
 
     public static String getAttack(String severity) {
         if (lastLocation == null) {
-            return "";
+            lastLocation = new Location("null_location");
         }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
@@ -138,7 +138,7 @@ public class db {
 
     public static String getMedicine(String medicineUsed) {
         if (lastLocation == null) {
-            return "";
+            lastLocation = new Location("null_location");
         }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
@@ -161,7 +161,7 @@ public class db {
 
     public static String getPeakFlow(String pef, String fev) {
         if (lastLocation == null) {
-            return "";
+            lastLocation = new Location("null_location");
         }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
@@ -422,6 +422,11 @@ public class db {
     {
         //open the file that has all of the location values stored within it
         File file = db.getFile(db.FILE_NAME);
+
+        if (!file.exists()) {
+            return;
+        }
+
         BufferedReader in = new BufferedReader(new FileReader(file));
         String nextLine = in.readLine();
 
@@ -442,7 +447,7 @@ public class db {
                 double nextLat = Double.valueOf(latString);
                 double nextLon = Double.valueOf(lonString);
                 LatLng nextlatLng = new LatLng(nextLat, nextLon);
-                GoogleMaps.locList.add(nextlatLng);
+                GoogleMaps.AddToLocList(nextlatLng);
             }
             nextLine = in.readLine();
         }

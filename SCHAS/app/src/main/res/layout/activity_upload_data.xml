@@ -182,8 +182,8 @@
         </LinearLayout>
 
         <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:layout_above="@+id/linearLayout2">
 
@@ -192,43 +192,28 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="bottom|right|end"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:weightSum="1">
-
-                <android.support.design.widget.FloatingActionButton
-                android:id="@+id/map"
-                android:src="@drawable/ic_map"
-                app:elevation="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="24dp"
-                android:layout_marginTop="16dp"
-                app:fabSize="mini"
-                app:rippleColor="@android:color/white"
-                android:visibility="invisible"
-                app:pressedTranslationZ="12dp"
-                app:borderWidth="0dp"
-                />
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/test6"
-                android:src="@drawable/ic_medicine"
-                app:elevation="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="24dp"
-                android:layout_marginTop="16dp"
-                app:fabSize="mini"
-                app:rippleColor="@android:color/white"
-                android:visibility="invisible"
-                app:pressedTranslationZ="12dp"
-                app:borderWidth="0dp"
-                />
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:weightSum="1">
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/inhalerButton"
                 android:src="@drawable/ic_inhaler"
+                app:elevation="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="24dp"
+                android:layout_marginTop="16dp"
+                app:fabSize="mini"
+                app:rippleColor="@android:color/white"
+                android:visibility="invisible"
+                app:pressedTranslationZ="12dp"
+                app:borderWidth="0dp"
+                />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/manualPeakflow"
+                android:src="@drawable/ic_hand_white_24dp"
                 app:elevation="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -255,8 +240,6 @@
                 app:pressedTranslationZ="12dp"
                 app:borderWidth="0dp"
                 />
-
-
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/severeAttackButton"

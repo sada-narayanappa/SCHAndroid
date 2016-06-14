@@ -138,19 +138,23 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         appIsRunning = true;
 
         mContext = getActivity().getApplicationContext();
-//
-//        // Create a criteria object to retrieve provider
+
+        // Create a criteria object to retrieve provider
         criteria = new Criteria();
-//
-//        //instantiate the managers for getting locations and using the sigmotionsensor
+
+        //instantiate the managers for getting locations and using the sigmotionsensor
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
-//
-//        //set up the sigmotion sensor and link with the sensor manager
+
+        //set up the sigmotion sensor and link with the sensor manager
         mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
-//
-//        // Get the name of the best provider
+
+        // Get the name of the best provider
         provider = locationManager.getBestProvider(criteria, true);
+
+        //Get Current Location
+        lastLocation = locationManager.getLastKnownLocation(provider);
+        db.lastLocation = lastLocation;
 
         //build a GoogleApiClient object that has access to the location API
         client = new GoogleApiClient.Builder(mContext)
@@ -261,8 +265,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 .geodesic(true);*/
         //polyLine = googleMap.addPolyline(trackLine);
 
-        //Get Current Location
-        lastLocation = locationManager.getLastKnownLocation(provider);
+
         //locationManager.requestSingleUpdate(provider, locListener, null);
 
         //set map type
@@ -447,6 +450,10 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 //Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public static void AddToLocList (LatLng nextLatLng) {
+        locList.add(nextLatLng);
     }
 
     @Override

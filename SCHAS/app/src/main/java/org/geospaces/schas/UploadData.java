@@ -1,8 +1,10 @@
 package org.geospaces.schas;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -22,6 +24,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Build;
@@ -33,6 +36,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +44,7 @@ import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 
@@ -101,10 +106,13 @@ public class UploadData extends ActionBarActivity{
     private FloatingActionButton severeAttackButton;
     private FloatingActionButton PFMConnectButton;
     private FloatingActionButton inhalerButton;
+    private FloatingActionButton manualPFButton;
     private boolean menuActive = false;
 
     public static Button startStop;
     public static Button uploadButton;
+
+    private Context mContext;
 
 
 
@@ -156,6 +164,7 @@ public class UploadData extends ActionBarActivity{
         severeAttackButton = (FloatingActionButton) findViewById(R.id.severeAttackButton);
         PFMConnectButton = (FloatingActionButton) findViewById(R.id.PFMConnectButton);
         inhalerButton = (FloatingActionButton) findViewById(R.id.inhalerButton);
+        manualPFButton = (FloatingActionButton) findViewById(R.id.manualPeakflow);
         menuButton = (FloatingActionButton) findViewById(R.id.menu_button);
         menuButton.setOnClickListener(menu_button);
 
@@ -170,8 +179,11 @@ public class UploadData extends ActionBarActivity{
         findViewById(R.id.mediumAttackButton).setOnClickListener(medium_attack_button);
         findViewById(R.id.severeAttackButton).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhalerButton).setOnClickListener(inhaler_button);
+        findViewById(R.id.manualPeakflow).setOnClickListener(manual_PF_enter);
 
         heartBeatReceiver.setAct(UploadData.this);
+
+        mContext = this;
 
     }
 
@@ -203,6 +215,51 @@ public class UploadData extends ActionBarActivity{
         Context ctx = getApplicationContext();
         Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show();
     }
+
+    private View.OnClickListener manual_PF_enter = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            //create a runnable that will launch a menu for entering the PF values
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Manual PF Enter");
+
+            LayoutInflater inflater = (LayoutInflater) UploadData.this.getSystemService(LAYOUT_INFLATER_SERVICE);
+            final View inflateView = inflater.inflate(R.layout.manual_pf_entry, null);
+            builder.setView(inflateView);
+
+            //final EditText pefText = (EditText) inflateView.findViewById(R.id.pef);
+            //final EditText fevText = (EditText) inflateView.findViewById(R.id.fev);
+
+            builder.setPositiveButton("Enter Values", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    //String msg = db.getPeakFlow(pefText.getText().toString(), fevText.getText().toString());
+                    Log.v("peakflow", "positive button");
+
+                    Dialog castDialog = (Dialog) dialog;
+                    EditText pefText = (EditText) castDialog.findViewById(R.id.pef);
+                    EditText fevText = (EditText) castDialog.findViewById(R.id.fev);
+
+                    String msg = db.getPeakFlow(pefText.getText().toString(), fevText.getText().toString());
+                    Log.v("peakflow2", msg);
+                    try
+                    {
+                        db.Write(msg + "\n");
+                    } catch (IOException e) {
+                        Log.e("ERROR", "Exception appending to log file", e);
+                    }
+                }
+            });
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+    };
 
     private View.OnClickListener resetCB = new View.OnClickListener() {
         @Override
@@ -387,13 +444,20 @@ public class UploadData extends ActionBarActivity{
                     }
                 }, 200);
 
+                manualPFButton.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        manualPFButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
+                    }
+                }, 250);
+
                 inhalerButton.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         menuButton.setImageResource(R.drawable.ic_x);
                         inhalerButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in));
                     }
-                }, 250);
+                }, 300);
 
 
                 mildAttackButton.setEnabled(true);
@@ -401,6 +465,7 @@ public class UploadData extends ActionBarActivity{
                 severeAttackButton.setEnabled(true);
                 PFMConnectButton.setEnabled(true);
                 inhalerButton.setEnabled(true);
+                manualPFButton.setEnabled(true);
 
             }
             else{
@@ -411,12 +476,14 @@ public class UploadData extends ActionBarActivity{
                 severeAttackButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 PFMConnectButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
                 inhalerButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
+                manualPFButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out));
 
                 mildAttackButton.setEnabled(false);
                 mediumAttackButton.setEnabled(false);
                 severeAttackButton.setEnabled(false);
                 PFMConnectButton.setEnabled(false);
                 inhalerButton.setEnabled(false);
+                manualPFButton.setEnabled(false);
 
                 menuButton.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate));
 
