@@ -1,17 +1,8 @@
 package org.geospaces.schas.Fragments;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
@@ -19,23 +10,14 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.os.IBinder;
-import android.os.Looper;
-import android.telecom.ConnectionRequest;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -45,25 +27,19 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.location.LocationListener;
+//import com.google.android.gms.location.LocationListener;
+import android.location.LocationListener;
 
 import org.geospaces.schas.R;
 import org.geospaces.schas.Services.LocationService;
-import org.geospaces.schas.UploadData;
 import org.geospaces.schas.utils.db;
 
 import java.io.IOException;
-import java.security.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.hypot;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
 
-
-public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class GoogleMaps extends SupportMapFragment {
 
     LocationService mService;
     boolean mBound;
@@ -73,14 +49,14 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     private Context mContext;
     static GoogleApiClient client;
     static LocationRequest locReq;
-    LocationManager locationManager;
+    static LocationManager locationManager;
     Location lastLocation;
     Location prevLocation = null;
     Criteria criteria;
 //    //set min update time to 60 seconds
-    long minTime = 60000;
+static long minTime = 60000;
 //    //set min update distance to 30 meters
-    float minDistance =25;
+static float minDistance =25;
 //    //list to hold LatLng values
     public static List<LatLng> locList;
     static PolylineOptions trackLine;
@@ -156,19 +132,19 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         lastLocation = locationManager.getLastKnownLocation(provider);
         db.lastLocation = lastLocation;
 
-        //build a GoogleApiClient object that has access to the location API
-        client = new GoogleApiClient.Builder(mContext)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        client.connect();
+//        //build a GoogleApiClient object that has access to the location API
+//        client = new GoogleApiClient.Builder(mContext)
+//                .addApi(LocationServices.API)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .build();
+//        client.connect();
 
-        //build a LocationRequest object with the given parameters
-        locReq = new LocationRequest();
-        locReq.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locReq.setInterval(minTime);
-        locReq.setSmallestDisplacement(minDistance);
+//        //build a LocationRequest object with the given parameters
+//        locReq = new LocationRequest();
+//        locReq.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        locReq.setInterval(minTime);
+//        locReq.setSmallestDisplacement(minDistance);
 
         //set up the tigger event for the sigmotionsensor to start updates
         mListener = new TriggerEventListener() {
@@ -209,6 +185,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                         Toast.makeText(mContext, "speed is currently: " + String.valueOf(speed), Toast.LENGTH_SHORT).show();
 
                         Log.i("speed", String.valueOf(speed));
+                        Toast.makeText(mContext, "speed is "+String.valueOf(speed), Toast.LENGTH_SHORT).show();
 
                         //calculate the new minTime for the location updates if needed
                         speedCalc();
@@ -216,6 +193,20 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 }
                 //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
                 //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                startPoll();
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                stopPoll();
             }
         };
 
@@ -228,8 +219,8 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 .color(Color.BLUE)
                 .geodesic(true);
 
-        locList = new ArrayList<LatLng>();
-        markers = new ArrayList<Marker>();
+        locList = new ArrayList<>();
+        markers = new ArrayList<>();
 
         try {
             db.plotTxtPoints();
@@ -239,6 +230,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         }
 
         for (LatLng nextLoc : locList) {
+            Log.i("StartingLocPlot", nextLoc.toString());
             Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(nextLoc)
@@ -265,12 +257,10 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 .geodesic(true);*/
         //polyLine = googleMap.addPolyline(trackLine);
 
-
         //locationManager.requestSingleUpdate(provider, locListener, null);
 
         //set map type
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
 
         double lat = lastLocation == null ? 47.6205333: lastLocation.getLatitude();
         double lon = lastLocation == null ? -122.19293: lastLocation.getLongitude();
@@ -337,14 +327,13 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     @Override
     public void onDetach()
     {
-        LocationService.appIsRunning = false;
+        //LocationService.appIsRunning = false;
         super.onDetach();
         //remove the location listener when the app during onDetach
         //locationManager.removeUpdates(locListener);
         //stopPoll();
         //client.disconnect();
         //mSensorManager.unregisterListener(this);
-        //super.onDetach();
     }
 
     public static void removeMarkers() {
@@ -370,20 +359,13 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
     }
 
     public static void startPoll() {
-        if (client.isConnected()) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
-            UploadData.startStop.setText("Stop");
-            UploadData.startStop.setBackgroundColor(Color.RED);
-        }
-        else {
-            client.connect();
-        }
+        //LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, locListener);
     }
 
     public static void stopPoll() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
-        UploadData.startStop.setText("Start");
-        UploadData.startStop.setBackgroundColor(Color.GREEN);
+        //LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
+        locationManager.removeUpdates(locListener);
     }
 
     public void setMinTime ()
@@ -411,7 +393,6 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 stopPoll();
                 mSensorManager.requestTriggerSensor(mListener, mSigMotion);
                 speedLevel = 0;
-                //Toast.makeText(mContext, "not moving", Toast.LENGTH_SHORT).show();
             }
         }
         else if (speed >= .5 && speed < 6.0) {
@@ -420,10 +401,9 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 //locationManager.removeUpdates(locListener);
                 speedLevel = 1;
                 setMinTime();
-                locReq.setInterval(minTime);
+                //locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 startPoll();
-                //Toast.makeText(mContext, "walking", Toast.LENGTH_SHORT).show();
             }
         }
         else if (speed >= 10.0 && speed < 20.0){
@@ -432,10 +412,9 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 //locationManager.removeUpdates(locListener);
                 speedLevel = 2;
                 setMinTime();
-                locReq.setInterval(minTime);
+                //locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 startPoll();
-                //Toast.makeText(mContext, "running", Toast.LENGTH_SHORT).show();
             }
         }
         else if (speed > 20.0) {
@@ -444,10 +423,9 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
                 //locationManager.removeUpdates(locListener);
                 speedLevel = 3;
                 setMinTime();
-                locReq.setInterval(minTime);
+                //locReq.setInterval(minTime);
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 startPoll();
-                //Toast.makeText(mContext, "driving", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -456,19 +434,44 @@ public class GoogleMaps extends SupportMapFragment implements GoogleApiClient.Co
         locList.add(nextLatLng);
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        startPoll();
+    public static boolean PlotAttackOnMap (String severity, Location location){
+        switch(severity){
+            case "MILD_ATTACK":
+                googleMap.addMarker(new MarkerOptions()
+                        .flat(true)
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.mildattack))
+                        .anchor(.5f, .5f));
+                break;
+            case "MEDIUM_ATTACK":
+                googleMap.addMarker(new MarkerOptions()
+                        .flat(true)
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.mediumattack))
+                        .anchor(.5f, .5f));
+                break;
+            case "SEVERE_ATTACK":
+                googleMap.addMarker(new MarkerOptions()
+                        .flat(true)
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.severeattack))
+                        .anchor(.5f, .5f));
+                break;
+            default:
+                break;
+        }
+
+        return true;
     }
 
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        stopPoll();
-    }
+    public static boolean PlotInhalerOnMap(Location location){
+        googleMap.addMarker(new MarkerOptions()
+                .flat(true)
+                .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.inhaler))
+                .anchor(.5f, .5f));
 
-    @Override
-    public void onConnectionSuspended(int result) {
-        stopPoll();
+        return true;
     }
 }
 

@@ -296,13 +296,13 @@ public class UploadData extends ActionBarActivity{
             if (startStop.getText() == "Start") {
                 startStop.setText("Stop");
                 startStop.setBackgroundColor(Color.RED);
-                startService(stopLocationService);
+                //startService(stopLocationService);
                 Toast.makeText(UploadData.this, "Starting Location Polling", Toast.LENGTH_SHORT).show();
             }
             else if (startStop.getText() == "Stop") {
                 startStop.setText("Start");
                 startStop.setBackgroundColor(Color.GREEN);
-                stopService(stopLocationService);
+                //stopService(stopLocationService);
                 Toast.makeText(UploadData.this, "Stopping Location Polling", Toast.LENGTH_SHORT).show();
             }
         }

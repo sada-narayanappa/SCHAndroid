@@ -120,8 +120,12 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
+        if (lastLocation != null){
+            GoogleMaps.PlotAttackOnMap(severity, lastLocation);
+        }
+
         StringBuffer append = sb.append(
-                "measured_at=" + (lastLocation.getTime() / 1000) + "," +
+                "measured_at=" + (System.currentTimeMillis() / 60) + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
                         "alt=" + lastLocation.getAltitude() + "," +
@@ -143,8 +147,12 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
+        if (lastLocation != null){
+            GoogleMaps.PlotInhalerOnMap(lastLocation);
+        }
+
         StringBuffer append = sb.append(
-                "measured_at=" + (lastLocation.getTime() / 1000) + "," +
+                "measured_at=" + (System.currentTimeMillis() / 60) + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
                         "alt=" + lastLocation.getAltitude() + "," +
@@ -166,8 +174,12 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
+        if (lastLocation != null){
+            GoogleMaps.PlotInhalerOnMap(lastLocation);
+        }
+
         StringBuffer append = sb.append(
-                "measured_at=" + (lastLocation.getTime() / 1000) + "," +
+                "measured_at=" + (System.currentTimeMillis() / 60) + "," +
                         "record_type=" + ("peakflow") + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
@@ -300,7 +312,6 @@ public class db {
             return str;
         }
         Log.w("DB:post:", " Post succeeded");
-        UploadData.uploadButton.setText("Upload");
         GoogleMaps.lineCount = 0;
         GoogleMaps.removeMarkers();
         return null;
@@ -360,7 +371,7 @@ public class db {
         GoogleMaps.lineCount++;
 
         sb.append(
-                "measured_at=" + (location.getTime() / 1000) + "," +
+                "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
                         "lat=" + location.getLatitude() + "," +
                         "lon=" + location.getLongitude() + "," +
                         "alt=" + location.getAltitude() + "," +
@@ -379,8 +390,6 @@ public class db {
         } catch (IOException e) {
             Log.e("ERROR", "Exception appending to log file", e);
         }
-
-        UploadData.uploadButton.setText("Upload +" + GoogleMaps.lineCount);
     }
 
     //use to compare the location values from a clicked marker with
