@@ -1,7 +1,6 @@
 package org.geospaces.schas;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -16,20 +15,17 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Build;
-import android.os.Handler;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
@@ -42,15 +38,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
-
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-
 import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
-import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.Services.LocationService;
+import org.geospaces.schas.utils.CustomExceptionHandler;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
 
@@ -119,6 +113,9 @@ public class UploadData extends ActionBarActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler());
+
         setContentView(R.layout.activity_upload_data);
 
         setProgressBarIndeterminate(true);
@@ -279,7 +276,11 @@ public class UploadData extends ActionBarActivity{
                 Toast( "NO Wireless Connection! Please check back");
             }
 
-            str = db.Upload(ctx, UploadData.this);
+            try {
+                str = db.Upload(ctx, UploadData.this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if ( str != null) {
                 Toast( str + " retry");
             }

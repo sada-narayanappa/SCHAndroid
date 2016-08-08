@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -17,7 +16,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.format.Formatter;
 import android.util.Log;
-import android.util.Pair;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -25,17 +23,18 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.geospaces.schas.AsyncTasks.PostToServer;
 import org.geospaces.schas.Fragments.GoogleMaps;
-import org.geospaces.schas.UploadData;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.Provider;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class db {
     private static float batLevel;
     public final static String DIRECTORY = "/SCHAS";
     public final static String FILE_NAME = "LOC.txt";
-    public final static String ONE_DAY_FILE_NAME = "ONE_DAY_LOC.txt";
+    public final static String SECONDARY_FILE_NAME = "SECONDARY_LOC.txt";
     public final static String FILE_READY = "LOC_ready.txt";
     public final static int FILE_SIZE = 8 * 1024;
 
@@ -59,7 +58,7 @@ public class db {
             return "";
         }
         String str = "ERROR reading File:  " + fileName;
-        char[] bytes = new char[Math.min(FILE_SIZE, (int) file.length())];
+        char[] bytes = new char[(int) file.length()];
         try {
             FileReader in = new FileReader(file);
             in.read(bytes);
@@ -75,20 +74,28 @@ public class db {
         File file = db.getFile(db.FILE_NAME);
         BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
 
-        //File file2 = db.getFile(db.ONE_DAY_FILE_NAME);
-        //BufferedWriter out2 = new BufferedWriter(new FileWriter(file2.getAbsolutePath(), file2.exists()));
-
         if (msg.endsWith("\n")) {
             out.write(msg);
-            //out2.write(msg);
         }
         else {
             out.write(msg + "\n");
-            //out2.write(msg + "\n");
         }
 
         out.close();
-        //out2.close();
+    }
+
+    public static void WriteToFile(String fileName, String msg) throws IOException {
+        File file = db.getFile(fileName);
+        BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsolutePath(), file.exists()));
+
+        if (msg.endsWith("\n")) {
+            out.write(msg);
+        }
+        else {
+            out.write(msg + "\n");
+        }
+
+        out.close();
     }
 
     public static String getUploadableText(Context context) throws Exception {
@@ -125,7 +132,7 @@ public class db {
         }
 
         StringBuffer append = sb.append(
-                "measured_at=" + (System.currentTimeMillis() / 60) + "," +
+                "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
                         "alt=" + lastLocation.getAltitude() + "," +
@@ -152,7 +159,7 @@ public class db {
         }
 
         StringBuffer append = sb.append(
-                "measured_at=" + (System.currentTimeMillis() / 60) + "," +
+                "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
                         "alt=" + lastLocation.getAltitude() + "," +
@@ -179,7 +186,7 @@ public class db {
         }
 
         StringBuffer append = sb.append(
-                "measured_at=" + (System.currentTimeMillis() / 60) + "," +
+                "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
                         "record_type=" + ("peakflow") + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
@@ -220,7 +227,7 @@ public class db {
         }
 
         StringBuffer append = sb.append(
-                "measured_at=" + (milliseconds/1000) + "," +
+                "measured_at=" + (milliseconds / 1000) + "," +
                         "record_type=" + ("active") + "," +
                         "battery_level=" + batLevel + "," +
                         "session_num=" + sessionNum + "," +
@@ -302,7 +309,9 @@ public class db {
         return null;
     }
 
-    public static synchronized String Upload(Context ctx, Activity act) {
+    public static synchronized String Upload(Context ctx, Activity act) throws IOException {
+        db.CreateDuplicateFile();
+
         String str;
         if (null == (str = db.isWIFIOn(ctx))) {
             return "NO Wireless Connection! Please check back";
@@ -312,8 +321,14 @@ public class db {
             return str;
         }
         Log.w("DB:post:", " Post succeeded");
-        GoogleMaps.lineCount = 0;
+
         GoogleMaps.removeMarkers();
+        try {
+            GoogleMaps.RefreshMapAfterUpload();
+        }
+        catch (Exception e) {
+            throw new IOException("could not refresh google map" + e);
+        }
         return null;
     }
 
@@ -462,5 +477,69 @@ public class db {
         }
 
         in.close();
+    }
+
+    //use a readbuffer to read in from the secondary txt and plot the points
+    public static void plotSecondaryTxtPoints() throws IOException
+    {
+        //open the file that has all of the location values stored within it
+        File file = db.getFile(SECONDARY_FILE_NAME);
+
+        if (!file.exists()) {
+            Log.i("plot secondary", "");
+            return;
+        }
+
+        Log.i("reading secondary text", "");
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String nextLine = in.readLine();
+
+        //while the next line to be read does not return null (empty line, or EOF)
+        while (nextLine != null) {
+            //GoogleMaps.lineCount++;
+            //check to see if this line is a location or a heartbeat
+            if (nextLine.contains("lat=")) {
+                //get the indices of the known substrings
+                int indexLat = nextLine.indexOf("lat=");
+                int indexLon = nextLine.indexOf("lon=");
+                int indexAlt = nextLine.indexOf("alt=");
+                //create substrings for the values of the lat and lon floats between known indices
+                String latString = nextLine.substring(indexLat + 4, indexLon-1);
+                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
+
+                //cast the strings to floats and put into the static array in GoogleMaps for plotting
+                double nextLat = Double.valueOf(latString);
+                double nextLon = Double.valueOf(lonString);
+                LatLng nextlatLng = new LatLng(nextLat, nextLon);
+                GoogleMaps.AddToSecondaryLocList(nextlatLng);
+            }
+            nextLine = in.readLine();
+        }
+
+        in.close();
+    }
+
+    public static void CreateDuplicateFile()throws IOException{
+        File externalMem = Environment.getExternalStorageDirectory();
+        File directory = new File(externalMem.getAbsolutePath() + DIRECTORY);
+        directory.mkdirs();
+
+        File oldFile = getFile((SECONDARY_FILE_NAME));
+        if(oldFile.exists()) oldFile.delete();
+
+        File from = getFile(FILE_NAME);
+
+        File to = new File (directory, SECONDARY_FILE_NAME);
+
+        InputStream in = new FileInputStream(from);
+        OutputStream out = new FileOutputStream(to);
+
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        in.close();
+        out.close();
     }
 }
