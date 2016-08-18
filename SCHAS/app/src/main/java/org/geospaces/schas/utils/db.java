@@ -522,7 +522,6 @@ public class db {
     public static void CreateDuplicateFile()throws IOException{
         File externalMem = Environment.getExternalStorageDirectory();
         File directory = new File(externalMem.getAbsolutePath() + DIRECTORY);
-        directory.mkdirs();
 
         File oldFile = getFile((SECONDARY_FILE_NAME));
         if(oldFile.exists()) oldFile.delete();

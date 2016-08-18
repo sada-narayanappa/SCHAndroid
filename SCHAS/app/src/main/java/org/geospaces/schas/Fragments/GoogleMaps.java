@@ -46,7 +46,7 @@ public class GoogleMaps extends SupportMapFragment {
     boolean mBound;
 
     private static GoogleMap googleMap;
-    private LatLng mPosFija = new LatLng(37.878901,-4.779396);
+    private LatLng mPosFija = new LatLng(37.878901, -4.779396);
     private static Context mContext;
     static GoogleApiClient client;
     static LocationRequest locReq;
@@ -54,11 +54,11 @@ public class GoogleMaps extends SupportMapFragment {
     Location lastLocation;
     Location prevLocation = null;
     Criteria criteria;
-//    //set min update time to 60 seconds
-    static long minTime = 60000;
-//    //set min update distance to 30 meters
-    static float minDistance =25;
-//    //list to hold LatLng values
+    //    //set min update time to 60 seconds
+    static long minTime = 20000;
+    //    //set min update distance to 30 meters
+    static float minDistance = 25;
+    //    //list to hold LatLng values
     public static List<LatLng> locList;
     public static List<LatLng> secondaryLocList;
     static PolylineOptions trackLine;
@@ -66,22 +66,22 @@ public class GoogleMaps extends SupportMapFragment {
     static Polyline polyLine;
     static Polyline secondaryPolyline;
     static LocationListener locListener;
-//    boolean isFirstPoint = true;
+    //    boolean isFirstPoint = true;
     public static List<Marker> markers;
     public static List<Marker> secondaryMarkers;
-    public static int lineCount= 0;
+    public static int lineCount = 0;
 
     public boolean appIsRunning;
-//
+    //
     String provider;
-//
+    //
     float speed;
     int speedLevel;
-//
+    //
     SensorManager mSensorManager;
     Sensor mSigMotion;
     TriggerEventListener mListener;
-//
+    //
     float newLocDist;
 
     /*private ServiceConnection mConnection = new ServiceConnection() {
@@ -128,7 +128,10 @@ public class GoogleMaps extends SupportMapFragment {
 
         //instantiate the managers for getting locations and using the sigmotionsensor
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+
+        //check to see if GPS is enabled for the device, and if not prompt the user to enable
+        //GpsStatusCheck();
 
         //set up the sigmotion sensor and link with the sensor manager
         mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
@@ -167,8 +170,8 @@ public class GoogleMaps extends SupportMapFragment {
             @Override
             public void onLocationChanged(Location location) {
                 //add location lat and lon to LatLng and add to list
-                double newLat = location == null ? 0: location.getLatitude();
-                double newLon = location == null ? 0: location.getLongitude();
+                double newLat = location == null ? 0 : location.getLatitude();
+                double newLon = location == null ? 0 : location.getLongitude();
                 LatLng newlatLng = new LatLng(newLat, newLon);
 
                 if (location != null) {
@@ -222,7 +225,7 @@ public class GoogleMaps extends SupportMapFragment {
         //mContext.startService(startLocationService);
 
         //create the trackline
-        trackLine =new PolylineOptions()
+        trackLine = new PolylineOptions()
                 .width(5)
                 .color(Color.BLUE)
                 .geodesic(true);
@@ -250,9 +253,13 @@ public class GoogleMaps extends SupportMapFragment {
             markers.add(nextMarker);
         }
 
-        RefreshMapAfterUpload();
+        try {
+            RefreshMapAfterUpload();
+        } catch (IOException e) {
+            //nothing, handles in refresh method
+        }
 
-        //Log.i("locList", locList.toString());
+        Log.i("locList", locList.toString());
 
         polyLine = googleMap.addPolyline(trackLine);
 
@@ -274,8 +281,8 @@ public class GoogleMaps extends SupportMapFragment {
         //set map type
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        double lat = lastLocation == null ? 47.6205333: lastLocation.getLatitude();
-        double lon = lastLocation == null ? -122.19293: lastLocation.getLongitude();
+        double lat = lastLocation == null ? 47.6205333 : lastLocation.getLatitude();
+        double lon = lastLocation == null ? -122.19293 : lastLocation.getLongitude();
 
         //prevLocation = myLocation;
 
@@ -296,17 +303,17 @@ public class GoogleMaps extends SupportMapFragment {
         // Zoom in the Google Map
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
-     //   googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
+        //   googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
 
-        /*
+
         //create the trackline and add it to the map as a polyline
-        trackLine =new PolylineOptions()
-                .add(latLng)
-                .width(5)
-                .color(Color.BLUE)
-                .geodesic(true);
-        polyLine = googleMap.addPolyline(trackLine);
-        */
+//        trackLine =new PolylineOptions()
+//                .add(latLng)
+//                .width(5)
+//                .color(Color.BLUE)
+//                .geodesic(true);
+//        polyLine = googleMap.addPolyline(trackLine);
+
 
         //mSensorManager.requestTriggerSensor(mListener, mSigMotion);
 
@@ -319,26 +326,22 @@ public class GoogleMaps extends SupportMapFragment {
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
     }
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         super.onStop();
     }
 
     @Override
-    public void onDetach()
-    {
+    public void onDetach() {
         //LocationService.appIsRunning = false;
         super.onDetach();
         //remove the location listener when the app during onDetach
@@ -380,36 +383,34 @@ public class GoogleMaps extends SupportMapFragment {
         locationManager.removeUpdates(locListener);
     }
 
-    public void setMinTime ()
-    {
+    public void setMinTime() {
         //if walking, set minTime to 60 seconds
         if (speedLevel == 1) {
-            minTime = 60000;
+            minTime = 20000;
         }
         //if running, set minTime to 30 seconds
         if (speedLevel == 2) {
-            minTime = 30000;
+            minTime = 15000;
         }
         //if driving, set minTime to 10 seconds
         if (speedLevel == 3) {
-            minTime = 10000;
+            minTime = 5000;
         }
         //Toast.makeText(mContext, "setMinTime called", Toast.LENGTH_SHORT).show();
     }
 
     public void speedCalc() {
         //do things based on the calculated speed
-        if (speed < .5 ) {
+        if (speed < .5) {
             //do stuff for not moving
-            if (speedLevel !=0) {
+            if (speedLevel != 0) {
                 stopPoll();
                 mSensorManager.requestTriggerSensor(mListener, mSigMotion);
                 speedLevel = 0;
             }
-        }
-        else if (speed >= .5 && speed < 6.0) {
+        } else if (speed >= .5 && speed < 6.0) {
             //do stuff for walking
-            if (speedLevel !=1) {
+            if (speedLevel != 1) {
                 //locationManager.removeUpdates(locListener);
                 speedLevel = 1;
                 setMinTime();
@@ -417,8 +418,7 @@ public class GoogleMaps extends SupportMapFragment {
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 startPoll();
             }
-        }
-        else if (speed >= 10.0 && speed < 20.0){
+        } else if (speed >= 10.0 && speed < 20.0) {
             //do stuff for running
             if (speedLevel != 2) {
                 //locationManager.removeUpdates(locListener);
@@ -428,8 +428,7 @@ public class GoogleMaps extends SupportMapFragment {
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 startPoll();
             }
-        }
-        else if (speed > 20.0) {
+        } else if (speed > 20.0) {
             //do stuff for driving
             if (speedLevel != 3) {
                 //locationManager.removeUpdates(locListener);
@@ -442,14 +441,16 @@ public class GoogleMaps extends SupportMapFragment {
         }
     }
 
-    public static void AddToLocList (LatLng nextLatLng) {
+    public static void AddToLocList(LatLng nextLatLng) {
         locList.add(nextLatLng);
     }
 
-    public static void AddToSecondaryLocList (LatLng nextLatlng) { secondaryLocList.add(nextLatlng); }
+    public static void AddToSecondaryLocList(LatLng nextLatlng) {
+        secondaryLocList.add(nextLatlng);
+    }
 
-    public static boolean PlotAttackOnMap (String severity, Location location){
-        switch(severity){
+    public static boolean PlotAttackOnMap(String severity, Location location) {
+        switch (severity) {
             case "MILD_ATTACK":
                 googleMap.addMarker(new MarkerOptions()
                         .flat(true)
@@ -478,7 +479,7 @@ public class GoogleMaps extends SupportMapFragment {
         return true;
     }
 
-    public static boolean PlotInhalerOnMap(Location location){
+    public static boolean PlotInhalerOnMap(Location location) {
         googleMap.addMarker(new MarkerOptions()
                 .flat(true)
                 .position(new LatLng(location.getLatitude(), location.getLongitude()))
@@ -488,7 +489,7 @@ public class GoogleMaps extends SupportMapFragment {
         return true;
     }
 
-    public static void RefreshMapAfterUpload(){
+    public static void RefreshMapAfterUpload() throws IOException {
         trackLine = new PolylineOptions()
                 .width(5)
                 .color(Color.BLUE)
@@ -498,11 +499,11 @@ public class GoogleMaps extends SupportMapFragment {
         try {
             db.plotSecondaryTxtPoints();
         } catch (IOException e) {
-            e.printStackTrace();
-            //Toast.makeText(mContext, "could not read from secondary_loc.txt", Toast.LENGTH_SHORT).show();
+            Log.i("error", "error reading from secondary text file");
+            throw new IOException("could not read from secondary text file" + e);
         }
 
-        secondaryTrackline =new PolylineOptions()
+        secondaryTrackline = new PolylineOptions()
                 .width(5)
                 .color(Color.RED)
                 .geodesic(true);
@@ -511,7 +512,6 @@ public class GoogleMaps extends SupportMapFragment {
         secondaryMarkers = new ArrayList<>();
 
         //Toast.makeText(mContext, "inside secondary_loc.txt read", Toast.LENGTH_SHORT).show();
-        Log.i("secondaryloc", secondaryLocList.toString());
 
         for (LatLng nextLoc : secondaryLocList) {
             Log.i("RefreshLocPlot", nextLoc.toString());
@@ -524,6 +524,7 @@ public class GoogleMaps extends SupportMapFragment {
             secondaryMarkers.add(nextMarker);
         }
 
+        Log.i("secondaryloc", secondaryLocList.toString());
         secondaryPolyline = googleMap.addPolyline(secondaryTrackline);
     }
 }

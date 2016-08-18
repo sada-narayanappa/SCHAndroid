@@ -22,11 +22,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -181,6 +183,8 @@ public class UploadData extends ActionBarActivity{
         heartBeatReceiver.setAct(UploadData.this);
 
         mContext = this;
+
+        GpsStatusCheck(mContext);
 
     }
 
@@ -812,6 +816,31 @@ public class UploadData extends ActionBarActivity{
     protected void onPause() {
         super.onPause();
 
+    }
+
+    public void GpsStatusCheck(Context context){
+        LocationManager locationManager = (LocationManager)context.getSystemService((Context.LOCATION_SERVICE));
+        if ( !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+    }
+
+    private void buildAlertMessageNoGps() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setMessage("Your GPS is disabled, and SCHAS needs your locations to run.\nWould you like to enable GPS?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
 }
