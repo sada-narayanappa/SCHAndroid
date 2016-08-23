@@ -407,39 +407,39 @@ public class db {
         }
     }
 
-    //use to compare the location values from a clicked marker with
-    //values in the text file
-    public void compareLocation(double markerLat, double markerLon) throws IOException {
-        //if the marker is clicked, find the location in the text file and mark invalid
-        File file = db.getFile(db.FILE_NAME);
-        BufferedReader in = new BufferedReader(new FileReader(file));
-        String nextLine = in.readLine();
-        int lineCount = 1;
-
-        //while the next line to be read does not return null (empty line, or EOF)
-        while (nextLine != null) {
-            if (nextLine.contains("lat=")) {
-                //get the indices of the known substrings
-                int indexLat = nextLine.indexOf("lat=");
-                int indexLon = nextLine.indexOf("lon=");
-                int indexAlt = nextLine.indexOf("alt=");
-                //create substrings for the values of the lat and lon floats between known indices
-                String latString = nextLine.substring(indexLat + 4, indexLon-1);
-                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
-
-                //cast the strings to floats and put into the static array in GoogleMaps for plotting
-                double thisLat = Double.valueOf(latString);
-                double thisLon = Double.valueOf(lonString);
-
-                if ((thisLat == markerLat) && (thisLon == markerLon)) {
-
-                }
-            }
-            nextLine = in.readLine();
-            lineCount++;
-        }
-        in.close();
-    }
+//    //use to compare the location values from a clicked marker with
+//    //values in the text file
+//    public void compareLocation(double markerLat, double markerLon) throws IOException {
+//        //if the marker is clicked, find the location in the text file and mark invalid
+//        File file = db.getFile(db.FILE_NAME);
+//        BufferedReader in = new BufferedReader(new FileReader(file));
+//        String nextLine = in.readLine();
+//        int lineCount = 1;
+//
+//        //while the next line to be read does not return null (empty line, or EOF)
+//        while (nextLine != null) {
+//            if (nextLine.contains("lat=")) {
+//                //get the indices of the known substrings
+//                int indexLat = nextLine.indexOf("lat=");
+//                int indexLon = nextLine.indexOf("lon=");
+//                int indexAlt = nextLine.indexOf("alt=");
+//                //create substrings for the values of the lat and lon floats between known indices
+//                String latString = nextLine.substring(indexLat + 4, indexLon-1);
+//                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
+//
+//                //cast the strings to floats and put into the static array in GoogleMaps for plotting
+//                double thisLat = Double.valueOf(latString);
+//                double thisLon = Double.valueOf(lonString);
+//
+//                if ((thisLat == markerLat) && (thisLon == markerLon)) {
+//
+//                }
+//            }
+//            nextLine = in.readLine();
+//            lineCount++;
+//        }
+//        in.close();
+//    }
 
     //use a readbuffer to read in from the txt and plot the points
     public static void plotTxtPoints() throws IOException

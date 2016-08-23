@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -15,12 +16,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
 import org.geospaces.schas.utils.SCHASApplication;
+import org.geospaces.schas.utils.db;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -43,6 +44,36 @@ public class Welcome extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
+        String filename = "DEBUG_STACKTRACE.txt";
+        boolean waitForEmail = false;
+        File file = db.getFile(filename);
+
+        if(firstTime && file.exists())
+        {
+            Uri uri = Uri.fromFile(file);
+
+            //send to email here
+            Intent mailIntent = new Intent();
+            mailIntent.setAction(Intent.ACTION_SENDTO);
+            mailIntent.setData(Uri.parse("mailto:"));
+            mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"schas.debug@gmail.com"});
+            mailIntent.putExtra(Intent.EXTRA_SUBJECT, "Application has Crashed!");
+            mailIntent.putExtra(Intent.EXTRA_TEXT, "There has been a crash within the android application,  " +
+                    "please fix this issue Mr. Dev!");
+            mailIntent.putExtra(Intent.EXTRA_STREAM, uri);
+
+            try
+            {
+                startActivityForResult(Intent.createChooser(mailIntent, "Your SCHAS Application has recently crashed.\nPlease choose a mail client to send an error report."), 1);
+            }
+            catch (android.content.ActivityNotFoundException exception)
+            {
+                Toast.makeText(this, "No email clients installed.", Toast.LENGTH_SHORT).show();
+            }
+            waitForEmail = true;
+        }
+
+
         //Creates an intent that will launch the heartBeatReceiver Class
         Intent alarmIntent = new Intent(getApplicationContext(),heartBeatReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,0);
@@ -61,22 +92,22 @@ public class Welcome extends ActionBarActivity {
         }
 
         //If this is the first time the app is launched it will set up/wait 5 seconds and then move from splash screen to UploadData activity
-        if ( firstTime ) {
+        if (!waitForEmail) {
             new Timer().schedule(new TimerTask() {
-                                     @Override
-                                     public void run() {
-                                         Intent intent = new Intent(Welcome.this, UploadData.class);
-                                         startActivity(intent);
-                                         this.cancel();
-                                     }
-                                 }, 5000
+                 @Override
+                 public void run() {
+                     Intent intent = new Intent(Welcome.this, UploadData.class);
+                     startActivity(intent);
+                     this.cancel();
+                 }
+             }, 5000
             );
-
 
             startAlarm();
 
             firstTime = false;
         }
+
         try {
             PackageInfo pInfo = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0);
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
@@ -90,6 +121,29 @@ public class Welcome extends ActionBarActivity {
             ((TextView)findViewById(R.id.version)).setText(version);
         } catch(Exception e){
             Log.e("Welcome", e.toString());
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == 1) {
+            // Make sure the request was successful
+            String filename = "DEBUG_STACKTRACE.txt";
+            File file = db.getFile(filename);
+            if(file.exists())
+                file.delete();
+
+            new Timer().schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    Intent intent = new Intent(Welcome.this, UploadData.class);
+                    startActivity(intent);
+                    this.cancel();
+                }
+            }, 5000);
         }
     }
 

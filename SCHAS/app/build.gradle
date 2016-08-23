@@ -37,7 +37,7 @@ android {
         applicationId "org.geospaces.schas01"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 47
+        versionCode 48
         versionName "1.090"
     }
     buildTypes {

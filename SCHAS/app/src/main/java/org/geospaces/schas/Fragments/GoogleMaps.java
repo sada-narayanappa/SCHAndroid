@@ -230,6 +230,11 @@ public class GoogleMaps extends SupportMapFragment {
                 .color(Color.BLUE)
                 .geodesic(true);
 
+        secondaryTrackline = new PolylineOptions()
+                .width(5)
+                .color(Color.RED)
+                .geodesic(true);
+
         locList = new ArrayList<>();
         markers = new ArrayList<>();
         secondaryLocList = new ArrayList<>();
@@ -238,8 +243,15 @@ public class GoogleMaps extends SupportMapFragment {
         try {
             db.plotTxtPoints();
         } catch (IOException e) {
+            Log.i("plotting primary", "could not read from primary text file");
             e.printStackTrace();
             //Toast.makeText(mContext, "could not read from loc.txt", Toast.LENGTH_SHORT).show();
+        }
+        try {
+            db.plotSecondaryTxtPoints();
+        } catch (IOException e) {
+            Log.i("plotting secondary", "could not read from secondary text file");
+            e.printStackTrace();
         }
 
         for (LatLng nextLoc : locList) {
@@ -253,15 +265,27 @@ public class GoogleMaps extends SupportMapFragment {
             markers.add(nextMarker);
         }
 
-        try {
-            RefreshMapAfterUpload();
-        } catch (IOException e) {
-            //nothing, handles in refresh method
+        for (LatLng nextLoc: secondaryLocList) {
+            Log.i("startingSecondaryPlot", nextLoc.toString());
+            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
+                    .flat(true)
+                    .position(nextLoc)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker))
+                    .anchor(.5f, .5f));
+            secondaryTrackline.add(nextLoc);
+            secondaryMarkers.add(nextMarker);
         }
+//        try {
+//            RefreshMapAfterUpload();
+//        } catch (IOException e) {
+//            //nothing, handles in refresh method
+//        }
 
         Log.i("locList", locList.toString());
+        Log.i("secondaryLocList", secondaryLocList.toString());
 
         polyLine = googleMap.addPolyline(trackLine);
+        secondaryPolyline = googleMap.addPolyline(secondaryTrackline);
 
         // Enable MyLocation Layer of Google Map
         googleMap.setMyLocationEnabled(true);
@@ -289,6 +313,7 @@ public class GoogleMaps extends SupportMapFragment {
         // Create a LatLng object for the current location
         LatLng latLng = new LatLng(lat, lon);
 
+        trackLine.add(latLng);
         //if (latLng != null) locList.add(latLng);
 
         googleMap.addMarker(new MarkerOptions()
@@ -490,11 +515,19 @@ public class GoogleMaps extends SupportMapFragment {
     }
 
     public static void RefreshMapAfterUpload() throws IOException {
+        googleMap.clear();
+
+        locList = new ArrayList<>();
+        markers = new ArrayList<>();
+
         trackLine = new PolylineOptions()
                 .width(5)
                 .color(Color.BLUE)
                 .geodesic(true);
         polyLine = googleMap.addPolyline(trackLine);
+
+        secondaryLocList = new ArrayList<>();
+        secondaryMarkers = new ArrayList<>();
 
         try {
             db.plotSecondaryTxtPoints();
@@ -508,9 +541,7 @@ public class GoogleMaps extends SupportMapFragment {
                 .color(Color.RED)
                 .geodesic(true);
 
-        secondaryLocList = new ArrayList<>();
-        secondaryMarkers = new ArrayList<>();
-
+        //the lines were here... dumb me
         //Toast.makeText(mContext, "inside secondary_loc.txt read", Toast.LENGTH_SHORT).show();
 
         for (LatLng nextLoc : secondaryLocList) {
