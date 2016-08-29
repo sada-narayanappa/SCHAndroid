@@ -69,13 +69,6 @@
             android:label="Legal Notices" >
         </activity>
 
-
-        <service
-            android:name=".UploadService"
-            android:enabled="true"
-            android:exported="true" >
-        </service>
-
         <receiver
             android:name=".Broadcast_Receivers.heartBeatReceiver"
             android:enabled="true"

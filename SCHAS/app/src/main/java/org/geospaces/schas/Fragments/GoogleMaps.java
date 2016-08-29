@@ -1,16 +1,19 @@
 package org.geospaces.schas.Fragments;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,8 +73,6 @@ public class GoogleMaps extends SupportMapFragment {
     public static List<Marker> markers;
     public static List<Marker> secondaryMarkers;
     public static int lineCount = 0;
-
-    public boolean appIsRunning;
     //
     String provider;
     //
@@ -84,7 +85,7 @@ public class GoogleMaps extends SupportMapFragment {
     //
     float newLocDist;
 
-    /*private ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -99,7 +100,7 @@ public class GoogleMaps extends SupportMapFragment {
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
         }
-    };*/
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -118,8 +119,7 @@ public class GoogleMaps extends SupportMapFragment {
     }
 
     private void setUpMap() {
-
-        appIsRunning = true;
+        LocationService.appIsRunning = false;
 
         mContext = getActivity().getApplicationContext();
 
@@ -158,15 +158,15 @@ public class GoogleMaps extends SupportMapFragment {
 //        locReq.setSmallestDisplacement(minDistance);
 
         //set up the tigger event for the sigmotionsensor to start updates
-        mListener = new TriggerEventListener() {
-            @Override
-            public void onTrigger(TriggerEvent event) {
-                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
-                startPoll();
-            }
-        };
+//        mListener = new TriggerEventListener() {
+//            @Override
+//            public void onTrigger(TriggerEvent event) {
+//                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
+//                startPoll();
+//            }
+//        };
 
-        locListener = new LocationListener() {
+        /*locListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 //add location lat and lon to LatLng and add to list
@@ -219,10 +219,10 @@ public class GoogleMaps extends SupportMapFragment {
             public void onProviderDisabled(String provider) {
                 stopPoll();
             }
-        };
+        };*/
 
-        //Intent startLocationService = new Intent(mContext, LocationService.class);
-        //mContext.startService(startLocationService);
+        Intent startLocationService = new Intent(mContext, LocationService.class);
+        mContext.startService(startLocationService);
 
         //create the trackline
         trackLine = new PolylineOptions()
@@ -275,17 +275,9 @@ public class GoogleMaps extends SupportMapFragment {
             secondaryTrackline.add(nextLoc);
             secondaryMarkers.add(nextMarker);
         }
-//        try {
-//            RefreshMapAfterUpload();
-//        } catch (IOException e) {
-//            //nothing, handles in refresh method
-//        }
 
         Log.i("locList", locList.toString());
         Log.i("secondaryLocList", secondaryLocList.toString());
-
-        polyLine = googleMap.addPolyline(trackLine);
-        secondaryPolyline = googleMap.addPolyline(secondaryTrackline);
 
         // Enable MyLocation Layer of Google Map
         googleMap.setMyLocationEnabled(true);
@@ -339,12 +331,14 @@ public class GoogleMaps extends SupportMapFragment {
 //                .geodesic(true);
 //        polyLine = googleMap.addPolyline(trackLine);
 
+        polyLine = googleMap.addPolyline(trackLine);
+        secondaryPolyline = googleMap.addPolyline(secondaryTrackline);
 
         //mSensorManager.requestTriggerSensor(mListener, mSigMotion);
 
         //request location updates at the given minTime or 30 meters
         //LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
-        startPoll();
+        //startPoll();
 
         //retain the fragment across orientation changes
         setRetainInstance(true);
@@ -367,7 +361,7 @@ public class GoogleMaps extends SupportMapFragment {
 
     @Override
     public void onDetach() {
-        //LocationService.appIsRunning = false;
+        LocationService.appIsRunning = false;
         super.onDetach();
         //remove the location listener when the app during onDetach
         //locationManager.removeUpdates(locListener);
@@ -541,7 +535,6 @@ public class GoogleMaps extends SupportMapFragment {
                 .color(Color.RED)
                 .geodesic(true);
 
-        //the lines were here... dumb me
         //Toast.makeText(mContext, "inside secondary_loc.txt read", Toast.LENGTH_SHORT).show();
 
         for (LatLng nextLoc : secondaryLocList) {
