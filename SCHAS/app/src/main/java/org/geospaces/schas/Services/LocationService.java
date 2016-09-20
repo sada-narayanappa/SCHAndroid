@@ -21,7 +21,6 @@ import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.R;
@@ -120,11 +119,6 @@ public class LocationService extends Service {
         locListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                //add location lat and lon to LatLng and add to list
-                double newLat = location == null ? 0 : location.getLatitude();
-                double newLon = location == null ? 0 : location.getLongitude();
-                LatLng newlatLng = new LatLng(newLat, newLon);
-
                 if (location != null) {
                     if (prevLocation != null) {
                         newLocDist = location.distanceTo(prevLocation);
@@ -135,7 +129,7 @@ public class LocationService extends Service {
                     //if the new location is more than 25 meters away (for accuracy purposes)
                     if (newLocDist >= 25) {
                         if (appIsRunning) {
-                            GoogleMaps.plotNewPoint(newlatLng);
+                            GoogleMaps.plotNewPoint(location);
                         }
 
                         db.getLocationData(location, location.getProvider());

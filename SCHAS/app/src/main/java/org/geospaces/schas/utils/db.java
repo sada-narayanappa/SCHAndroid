@@ -23,6 +23,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.geospaces.schas.AsyncTasks.PostToServer;
 import org.geospaces.schas.Fragments.GoogleMaps;
+import org.geospaces.schas.utils.GetGoogleLocations.Entry;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -44,6 +45,7 @@ public class db {
     public final static String FILE_NAME = "LOC.txt";
     public final static String SECONDARY_FILE_NAME = "SECONDARY_LOC.txt";
     public final static String FILE_READY = "LOC_ready.txt";
+    public final static String GOOGLE_FILE_NAME = "GOOGLE_LOCS.TXT";
     public final static int FILE_SIZE = 8 * 1024;
 
 
@@ -540,5 +542,28 @@ public class db {
         }
         in.close();
         out.close();
+    }
+
+    public static void CreateGoogleLocationFile(List<Entry> trackList){
+        for (Entry entry : trackList){
+            String[] coords = entry.location.trim().split("\\s+");
+            //location string format from Google:
+            //longitude+" "+latitude+" "+alt(?)
+            StringBuffer sb = new StringBuffer(512);
+
+            sb.append(
+                "lat=" + coords[1] + "," +
+                "lon=" + coords[0] + "," +
+                "record_type=" + "goog"
+            );
+
+            String writeString = sb.toString();
+
+            try {
+                Write(writeString + "\n");
+            } catch (IOException e) {
+                Log.e("ERROR", "Exception appending to log file", e);
+            }
+        }
     }
 }

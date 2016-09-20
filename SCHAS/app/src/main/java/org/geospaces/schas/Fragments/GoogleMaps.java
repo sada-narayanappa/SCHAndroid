@@ -23,6 +23,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.geospaces.schas.CustomMarker;
 import org.geospaces.schas.R;
 import org.geospaces.schas.Services.LocationService;
 import org.geospaces.schas.utils.CustomExceptionHandler;
@@ -43,7 +45,7 @@ import java.util.List;
 //import com.google.android.gms.location.LocationListener;
 
 
-public class GoogleMaps extends SupportMapFragment {
+public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
 
     LocationService mService;
     boolean mBound;
@@ -111,22 +113,25 @@ public class GoogleMaps extends SupportMapFragment {
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
 
-        googleMap = getMap();
+        getMapAsync(this);
 
-        setUpMap();
+        //setUpMap();
 
         return v;
     }
 
-    private void setUpMap() {
-        LocationService.appIsRunning = false;
+    @Override
+    public void onMapReady(GoogleMap map) {
+        googleMap = map;
+
+        LocationService.appIsRunning = true;
 
         mContext = getActivity().getApplicationContext();
 
         // Create a criteria object to retrieve provider
         criteria = new Criteria();
 
-        //instantiate the managers for getting locations and using the sigmotionsensor
+        //instantiate the managers for getting locations and using the sigMotionSensor
         locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
@@ -261,6 +266,7 @@ public class GoogleMaps extends SupportMapFragment {
                     .position(nextLoc)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                     .anchor(.5f, .5f));
+            nextMarker.setTag(new CustomMarker(null, true));
             trackLine.add(nextLoc);
             markers.add(nextMarker);
         }
@@ -272,6 +278,7 @@ public class GoogleMaps extends SupportMapFragment {
                     .position(nextLoc)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker))
                     .anchor(.5f, .5f));
+            nextMarker.setTag(new CustomMarker(null, false));
             secondaryTrackline.add(nextLoc);
             secondaryMarkers.add(nextMarker);
         }
@@ -308,11 +315,12 @@ public class GoogleMaps extends SupportMapFragment {
         trackLine.add(latLng);
         //if (latLng != null) locList.add(latLng);
 
-        googleMap.addMarker(new MarkerOptions()
+        Marker firstMarker = googleMap.addMarker(new MarkerOptions()
                 .flat(true)
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                 .anchor(.5f, .5f));
+        firstMarker.setTag(new CustomMarker(lastLocation, true));
 
         // Show the current location in Google Map
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -374,20 +382,25 @@ public class GoogleMaps extends SupportMapFragment {
         googleMap.clear();
     }
 
-    public static void plotNewPoint(LatLng newPoint) {
+    public static void plotNewPoint(Location newPoint) {
+        double newLat = newPoint.getLatitude();
+        double newLon = newPoint.getLongitude();
+        LatLng newLatLng = new LatLng(newLat, newLon);
+
         //move the camera to the new location
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(newPoint));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
 
         //add a marker at the new location
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
                 .flat(true)
-                .position(newPoint)
+                .position(newLatLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                 .anchor(.5f, .5f));
+        newMarker.setTag(new CustomMarker(newPoint, true));
         markers.add(newMarker);
 
         //add new location to the trackline
-        trackLine.add(newPoint);
+        trackLine.add(newLatLng);
 
         polyLine = googleMap.addPolyline(trackLine);
     }
@@ -550,6 +563,11 @@ public class GoogleMaps extends SupportMapFragment {
 
         Log.i("secondaryloc", secondaryLocList.toString());
         secondaryPolyline = googleMap.addPolyline(secondaryTrackline);
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
     }
 }
 

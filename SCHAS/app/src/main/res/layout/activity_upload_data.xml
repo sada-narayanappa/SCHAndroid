@@ -24,161 +24,51 @@
             android:layout_alignParentTop="true"
             android:layout_above="@+id/linearLayout2" />
 
-<!--
-        <EditText
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:ems="10"
-            android:id="@+id/statusText"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="0.5"
-            android:background="@color/ColorLightPrimary"
-            android:maxLines="1000"
-            android:editable="false"
-            android:enabled="true"
-            android:text="Status Text"
-            android:clickable="false" />-->
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/linearLayout3"
-            android:layout_above="@+id/linearLayout4"
-            android:layout_alignParentStart="true"
-            android:visibility="invisible"
-            android:layout_alignTop="@+id/linearLayout4">
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="MILD\nATTACK"
-                android:id="@+id/attack1"
-                android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="MEDIUM\nATTACK"
-                android:id="@+id/attack2"
-                android:layout_below="@+id/graphButton"
-                android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="SEVERE\nATTACK"
-                android:id="@+id/attack3"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:id="@+id/linearLayout4"
-            android:layout_alignParentStart="true"
-            android:visibility="invisible"
-            android:layout_alignParentBottom="true">
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="I USED\nInhaler"
-                android:id="@+id/inhlaerButton"
-                android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Status"
-                android:id="@+id/updateStatus"
-                android:layout_below="@+id/graphButton"
-                android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2"
-                android:visibility="invisible"/>
-
-            <Button
-
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="0dip"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="I USED\nPeakFlow"
-                android:id="@+id/PFMButton"
-                android:layout_below="@+id/graphButton"
-                android:layout_alignLeft="@+id/textView2"
-                android:layout_alignStart="@+id/textView2"
-                android:layout_marginBottom="-5dp"
-                android:layout_marginLeft="-8dp"
-                android:layout_marginRight="-8dp"
-                />
-
-
-        </LinearLayout>
-
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/linearLayout2"
             android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true">
-
+            android:layout_alignParentBottom="true"
+            android:background="#000000">
 
             <Button
                 android:layout_width="0dip"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:text="Stop"
                 android:id="@+id/homeButton"
-                android:layout_toRightOf="@+id/uploaded"
-                android:layout_toEndOf="@+id/uploaded"
-                android:background="@color/red" />
+                android:background="@color/red"
+                android:layout_margin="5dp" />
+
+            <Button
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:text="Google\nLocations"
+                android:id="@+id/googleLocationsButton"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:background="#14c53a" />
 
             <Button
                 android:layout_width="0dip"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="RESET\nALL"
-                android:id="@+id/resetButton"
-                />
+                android:layout_height="fill_parent"
+                android:text="Upload"
+                android:id="@+id/graphButton"
+                android:background="#ffffff"
+                android:layout_margin="5dp" />
+
             <Button
                 android:layout_width="0dip"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Upload"
-                android:id="@+id/graphButton"/>
+                android:layout_height="fill_parent"
+                android:text="RESET\nALL"
+                android:id="@+id/resetButton"
+                android:layout_margin="5dp"
+                android:background="#ffffff" />
+
         </LinearLayout>
 
         <RelativeLayout

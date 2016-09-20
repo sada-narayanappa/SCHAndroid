@@ -1,6 +1,7 @@
 package org.geospaces.schas;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,6 +25,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,15 +49,21 @@ import android.widget.Toast;
 import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
 import org.geospaces.schas.Services.LocationService;
 import org.geospaces.schas.utils.CustomExceptionHandler;
+import org.geospaces.schas.utils.GetGoogleLocations;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -108,9 +116,11 @@ public class UploadData extends ActionBarActivity{
     public static Button startStop;
     public static Button uploadButton;
 
-    private Context mContext;
+    public Button googleLocsButton;
 
+    private static Context mContext;
 
+    public static String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,6 +189,8 @@ public class UploadData extends ActionBarActivity{
         findViewById(R.id.severeAttackButton).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhalerButton).setOnClickListener(inhaler_button);
         findViewById(R.id.manualPeakflow).setOnClickListener(manual_PF_enter);
+        googleLocsButton = (Button) findViewById(R.id.googleLocationsButton);
+        googleLocsButton.setOnClickListener(getGoogleData);
 
         heartBeatReceiver.setAct(UploadData.this);
 
@@ -186,6 +198,14 @@ public class UploadData extends ActionBarActivity{
 
         GpsStatusCheck(mContext);
 
+    }
+
+    public static Context GetContext(){
+        return mContext;
+    }
+
+    public static Activity GetActivity() {
+        return GetActivity();
     }
 
     public void mobiledataenable(boolean enabled) {
@@ -317,6 +337,53 @@ public class UploadData extends ActionBarActivity{
         }
     };
 
+    private View.OnClickListener getGoogleData = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (db.isWIFIOn(mContext) != null){
+                String url = buildGoogleLocationURL();
+                new DownloadXmlTask().execute(url);
+            }
+            else {
+                Toast.makeText(mContext, "Please Connect Wi-Fi and Retry Download\nof Google Locations",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
+    //example url from google help forum                        year   M   D       year   M   D
+    //https://www.google.com/maps/timeline/kml?=0&pb=!1m8!1m3!1i2015!2i7!3i1!2m3!1i2015!2i7!3i8
+    private String buildGoogleLocationURL(){
+        //get current data in a string format
+        Calendar now = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        String formattedDate = df.format(now.getTime());
+        String[] date = formattedDate.split("-");
+
+        //format the date fields for use in the url
+        int year = Integer.valueOf(date[2]);
+        String yearMinus1 = String.valueOf(year - 1);
+
+        if(date[1].charAt(0) == '0'){
+            date[1] = date[1].substring(1);
+        }
+
+        if(date[0].charAt(0) == '0'){
+            date[0] = date[0].substring(1);
+        }
+
+
+        url = "https://www.google.com/maps/timeline/kml?authuser=gundy.goo@gmail.com&pb=!1m8!1m3!1i"
+                + date[2] + "!2i"
+                + date[1] + "!3i"
+                + date[0] + "!2m3!1i"
+                + yearMinus1 + "!2i"
+                + date[1] + "!3i"
+                + date[0];
+
+        return url;
+    }
+
     public void setIntent( Intent i) {
         super.setIntent(i);
         String str = "SetResult: " + i.getStringExtra("result");
@@ -366,6 +433,7 @@ public class UploadData extends ActionBarActivity{
                     String msg = db.getAttack(severity);
                     try {
                         db.Write(msg + "\n");
+                        db.Upload(mContext, UploadData.this);
                     } catch (IOException e) {
                         Log.e("ERROR", "Exception appending to log file", e);
                     }
@@ -408,8 +476,8 @@ public class UploadData extends ActionBarActivity{
     private View.OnClickListener inhaler_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          //  AttackConfirmPopUpCreator("Confirm Inhaler Used","INHALER",true);
-           scanLeDevice(true);
+            AttackConfirmPopUpCreator("Confirm Inhaler Used","INHALER",true);
+            scanLeDevice(true);
         }
     };
 
@@ -847,4 +915,55 @@ public class UploadData extends ActionBarActivity{
         alert.show();
     }
 
+    private class DownloadXmlTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                loadXmlFromNetwork(params[0]);
+                return "Finished Downloading Google Points Successfully";
+            } catch (IOException e){
+            } catch (XmlPullParserException e) {
+                return "Error: Parsing XML";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(mContext, result, Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+    private void loadXmlFromNetwork(String urlString) throws XmlPullParserException, IOException {
+        InputStream in = null;
+
+        GetGoogleLocations parser = new GetGoogleLocations();
+        List entries = null;
+
+        try {
+            in = downloadUrl(urlString);
+            entries = parser.parse(in);
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
+
+        //do stuff with db class text file creation here
+        db.CreateGoogleLocationFile(entries);
+        db.Upload(mContext, UploadData.this);
+    }
+
+    private InputStream downloadUrl(String urlString) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setReadTimeout(10000 /* milliseconds */);
+        conn.setConnectTimeout(15000 /* milliseconds */);
+        conn.setRequestMethod("GET");
+        conn.setDoInput(true);
+        // Starts the query
+        conn.connect();
+        return conn.getInputStream();
+    }
 }
