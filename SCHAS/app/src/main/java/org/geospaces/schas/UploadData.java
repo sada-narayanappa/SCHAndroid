@@ -373,6 +373,7 @@ public class UploadData extends ActionBarActivity{
         }
 
 
+
         url = "https://www.google.com/maps/timeline/kml?authuser=gundy.goo@gmail.com&pb=!1m8!1m3!1i"
                 + date[2] + "!2i"
                 + date[1] + "!3i"
@@ -923,6 +924,7 @@ public class UploadData extends ActionBarActivity{
                 loadXmlFromNetwork(params[0]);
                 return "Finished Downloading Google Points Successfully";
             } catch (IOException e){
+                return "Error: Connection with URL";
             } catch (XmlPullParserException e) {
                 return "Error: Parsing XML";
             }
