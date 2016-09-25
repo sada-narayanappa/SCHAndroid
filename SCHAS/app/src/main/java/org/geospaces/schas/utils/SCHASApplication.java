@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
+import android.support.multidex.MultiDex;
 
 public class SCHASApplication extends Application {
 
@@ -27,5 +28,11 @@ public class SCHASApplication extends Application {
         Context context = getApplicationContext();
         String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         SCHASSettings.deviceID = ID;
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }
