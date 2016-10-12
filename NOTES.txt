@@ -14,3 +14,22 @@ Open "Gradle Scripts"/build.gradle (Module: app)
 Change: versionCode 43 (to next number)
 build
 
+TO DO
+=====
+Events:
+Create a Log file and upload the logfile of Events
+Core Attributes:
+
+EventName
+Dttm_GMT 	Millisecond is fine
+EventCode	Specific Code that will have description else where)
+AppName
+Location	Some Location info where log originated
+Significance	Error, Warning, Info, Debug
+Desc		Description 
+
+Macros in Java?
+
+What does "UploadService" class used for?
+
+

@@ -11,24 +11,16 @@ import org.geospaces.schas.utils.db;
 import java.io.IOException;
 
 public class heartBeatReceiver extends BroadcastReceiver {
-    private Context cntx;
     private static Activity act;
 
-    public heartBeatReceiver() {
-
-    }
+    public heartBeatReceiver() {}
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
-       // Toast.makeText(context, "I'm running", Toast.LENGTH_SHORT).show();
-        cntx = context;
-
-
-        String msg = db.getHeartBeat(cntx);
+        String msg = db.getHeartBeat(context);
         try {
             db.Write(msg + "\n");
-            db.Upload(cntx, act);
+            db.Upload(context, act);
         } catch (IOException e) {
             Log.e("ERROR", "Exception appending to or uploading file", e);
         }
@@ -37,6 +29,4 @@ public class heartBeatReceiver extends BroadcastReceiver {
     public static void setAct(Activity active){
         act = active;
     }
-
-
 }

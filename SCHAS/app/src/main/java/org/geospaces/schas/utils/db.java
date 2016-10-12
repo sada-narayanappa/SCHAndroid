@@ -364,9 +364,12 @@ public class db {
         }
         String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
+        //String msg1 = msg.substring(0, Math.min(msg.length(), 1024 * 1024 * 1 ));
         nv.add(new BasicNameValuePair("api_key", ID));
         nv.add(new BasicNameValuePair("mobile_id", ID));
         nv.add(new BasicNameValuePair("text", msg));
+        nv.add(new BasicNameValuePair("maxPostSize", ""+msg.length()));
+        //nv.add(new BasicNameValuePair("maxPostSize", "-1"));
 
         String ns = "Sending: " + url + "\n" + msg.substring(0, Math.min(msg.length() - 1, 256));
         Log.i("", ns);

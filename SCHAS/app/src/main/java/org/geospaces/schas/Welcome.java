@@ -33,10 +33,10 @@ import java.util.TimerTask;
 
 public class Welcome extends ActionBarActivity {
 
-    boolean firstTime = true;
+    private boolean firstTime = true;
     private PendingIntent pendingIntent;
     private AlarmManager manager;
-    Context context;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,7 +148,7 @@ public class Welcome extends ActionBarActivity {
     }
 
     //Set's alarm manager to trigger each hour for a 'heartbeat' of the device
-    public void startAlarm(){
+    private void startAlarm(){
         manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
         Calendar calendar = Calendar.getInstance();
