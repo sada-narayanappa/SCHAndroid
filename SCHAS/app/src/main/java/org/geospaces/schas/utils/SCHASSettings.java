@@ -2,7 +2,6 @@ package org.geospaces.schas.utils;
 
 import android.location.Location;
 import android.os.AsyncTask;
-import android.provider.Settings;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,7 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 
 public class SCHASSettings {
     public static String    host            = "www.geospaces.org";
@@ -19,6 +17,7 @@ public class SCHASSettings {
     public static String    deviceID        = "ID";
     private static String    urls            = "www.geospaces.org;10.0.0.3";
     public static String    lastLoc         = "";
+    public static boolean   useCellular     = false;
     public static long      lastRecorded    = -1;
     public static Location  location        = new Location("LAST");
 
@@ -35,6 +34,7 @@ public class SCHASSettings {
                     "deviceID=" +   deviceID    + "\n"  +
                     "urls="     +   urls        + "\n"  +
                     "lastLoc="  +   lastLoc     + "\n"  +
+                    "useCellular" + useCellular + "\n"  +
                      ""
         );
         return sb.toString();
@@ -72,6 +72,7 @@ public class SCHASSettings {
         deviceID    = m.get("deviceID");
         //urls        = m.get("urls");
         lastLoc     = m.get("lastLoc");
+        useCellular = Boolean.valueOf(m.get("useCellular"));
 
         if ( lastLoc != null ) {
             String[] ll = lastLoc.split(",");

@@ -24,7 +24,12 @@ import com.google.android.gms.location.LocationRequest;
 
 import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.R;
+import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.db;
+
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Erik on 3/14/2016.
@@ -59,6 +64,8 @@ public class LocationService extends Service {
     float newLocDist;
 
     public static boolean appIsRunning = false;
+
+    private static Timer timer = new Timer();
 
     public class LocalBinder extends Binder {
             public LocationService getService() {
@@ -129,10 +136,24 @@ public class LocationService extends Service {
                     //if the new location is more than 25 meters away (for accuracy purposes)
                     if (newLocDist >= 25) {
                         if (appIsRunning) {
-                            GoogleMaps.plotNewPoint(location);
-                        }
+                            long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
-                        db.getLocationData(location, location.getProvider());
+                            GoogleMaps.plotNewPoint(new DatabaseLocationObject(
+                                    String.valueOf(System.currentTimeMillis() / 1000),
+                                    (float) location.getLatitude(),
+                                    (float) location.getLongitude(),
+                                    String.valueOf(location.getAltitude()),
+                                    String.valueOf(location.getSpeed()),
+                                    String.valueOf(location.getBearing()),
+                                    String.valueOf(location.getAccuracy()),
+                                    String.valueOf(location.getProvider()),
+                                    String.valueOf(sessionNum),
+                                    true
+                            ));
+                        }
+                        else{
+                            db.getLocationData(location, location.getProvider());
+                        }
 
                         prevLocation = location;
 
@@ -173,7 +194,25 @@ public class LocationService extends Service {
             }
         };
 
+        //launches a recorder method for a heartbeat once per hour 3600000
+        timer.scheduleAtFixedRate(new heartBeatRecord(), 0, 3600000);
+
         startPoll();
+    }
+
+    private class heartBeatRecord extends TimerTask{
+        public void run(){
+            String msg = db.getHeartBeat(mContext);
+            try {
+                db.Write(msg + "\n");
+                if (appIsRunning) {
+                    db.Upload(mContext, null);
+                }
+            } catch (IOException e) {
+                Log.e("ERROR", "Exception appending to or uploading file", e);
+            }
+            Log.d("Heartbeat", "Heartbeat occured");
+        }
     }
 
     @Override

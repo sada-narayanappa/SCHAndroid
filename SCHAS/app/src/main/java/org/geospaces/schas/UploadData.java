@@ -46,7 +46,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
 import org.geospaces.schas.Services.LocationService;
 import org.geospaces.schas.utils.CustomExceptionHandler;
 import org.geospaces.schas.utils.GetGoogleLocations;
@@ -192,7 +191,7 @@ public class UploadData extends ActionBarActivity{
         googleLocsButton = (Button) findViewById(R.id.googleLocationsButton);
         googleLocsButton.setOnClickListener(getGoogleData);
 
-        heartBeatReceiver.setAct(UploadData.this);
+        //heartBeatReceiver.setAct(UploadData.this);
 
         mContext = this;
 

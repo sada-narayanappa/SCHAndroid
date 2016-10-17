@@ -23,6 +23,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.geospaces.schas.AsyncTasks.PostToServer;
 import org.geospaces.schas.Fragments.GoogleMaps;
+import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.GetGoogleLocations.Entry;
 
 import java.io.BufferedReader;
@@ -51,6 +52,8 @@ public class db {
 
     public static Location lastLocation;
     public final static String FILE_SETTINGS = "Settings.txt";
+
+    public static List<String> otherDataLines = new ArrayList<>();
 
 
     public static String read(String fileName) {
@@ -218,7 +221,6 @@ public class db {
         String stringUName = SP.getString("username", "NA");
         PackageInfo pInfo = null;
         String versionStuff = null;
-        GoogleMaps.lineCount++;
 
         try {
             pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
@@ -294,12 +296,16 @@ public class db {
         //from.delete();
     }
 
-    public static String isWIFIOn(Context ctx) {
+    public static String canUploadData(Context ctx) {
         ConnectivityManager connManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
         WifiManager wifiman = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         HashMap m = new HashMap();
+
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(ctx);
+        String useCell = SP.getString("useCellular", "NA");
+        boolean useCellular = Boolean.valueOf(useCell);
 
         if (mWifi.isConnected()) {
             int linkSpeed = wifiman.getConnectionInfo().getLinkSpeed();
@@ -308,14 +314,21 @@ public class db {
             String str = "SPEED: " + linkSpeed + "Mbps, STRENGTH: " + wifiman.getConnectionInfo().getRssi() + "dBm";
             return str;
         }
+        else if (useCellular){
+            ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            String str = "CONNECTION TYPE: " + info.getType();
+            return str;
+        }
         return null;
     }
 
     public static synchronized String Upload(Context ctx, Activity act) throws IOException {
+        db.PrepareTextFile();
         db.CreateDuplicateFile();
 
         String str;
-        if (null == (str = db.isWIFIOn(ctx))) {
+        if (null == (str = db.canUploadData(ctx))) {
             return "NO Wireless Connection! Please check back";
         }
         str = db.Post(act, ctx, "/aura/webroot/loc.jsp");
@@ -327,8 +340,7 @@ public class db {
         GoogleMaps.removeMarkers();
         try {
             GoogleMaps.RefreshMapAfterUpload();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IOException("could not refresh google map" + e);
         }
         return null;
@@ -344,7 +356,7 @@ public class db {
 
         String host = SCHASSettings.host;
 
-        if (host == null || null == isWIFIOn(context) || host.equals("null")) {
+        if (host == null || null == canUploadData(context) || host.equals("null")) {
             SCHASSettings.Initialize();
             return "Warning: Cannot find host: ";
         }
@@ -383,7 +395,7 @@ public class db {
     public static void getLocationData(Location location, String provider) {
         lastLocation = location;
         StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
+        float sessionNum = System.currentTimeMillis() / 1000000 * 60;
         boolean isValid = true;
         GoogleMaps.lineCount++;
 
@@ -406,6 +418,75 @@ public class db {
             Write(writeString + "\n");
         } catch (IOException e) {
             Log.e("ERROR", "Exception appending to log file", e);
+        }
+    }
+
+    public static List ReadFromLocationsFile() throws IOException{
+        List locationList = new ArrayList();
+
+        //open the file that has all of the location values stored within it
+        File file = db.getFile(db.FILE_NAME);
+
+        if (!file.exists()) {
+            return locationList;
+        }
+
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String nextLine = in.readLine();
+
+        //while the next line to be read does not return null (empty line, or EOF)
+        while (nextLine != null) {
+            //check to see if this line is a location or a heartbeat
+            if (nextLine.contains("lat=")) {
+                //split the string by the '=' and ',' delimiters
+                String[] currentLine = nextLine.split("=|,");
+
+                DatabaseLocationObject dlo = new DatabaseLocationObject(
+                        currentLine[1],
+                        Float.valueOf(currentLine[3]),
+                        Float.valueOf(currentLine[5]),
+                        currentLine[7],
+                        currentLine[9],
+                        currentLine[11],
+                        currentLine[13],
+                        currentLine[15],
+                        currentLine[17],
+                        Boolean.valueOf(currentLine[19])
+                );
+
+                locationList.add(dlo);
+            }
+
+            else{
+                otherDataLines.add(nextLine);
+            }
+            nextLine = in.readLine();
+        }
+
+        in.close();
+
+        return locationList;
+    }
+
+    //take the information from the DLO's and create the info for the text file
+    //wipe the file at the start of this method
+    public static void PrepareTextFile() {
+        File file;
+
+        if ((file = db.getFile(db.FILE_NAME)).exists()){
+            file.delete();
+        }
+
+        List<DatabaseLocationObject> locationList = GoogleMaps.GetDLOList();
+
+        for (DatabaseLocationObject dlo : locationList) {
+            String writeString = dlo.ToString();
+
+            try {
+                Write(writeString + "\n");
+            } catch (IOException e) {
+                Log.e("ERROR", "Exception appending to log file", e);
+            }
         }
     }
 
@@ -443,43 +524,44 @@ public class db {
 //        in.close();
 //    }
 
+    //Old method, new one is above
     //use a readbuffer to read in from the txt and plot the points
-    public static void plotTxtPoints() throws IOException
-    {
-        //open the file that has all of the location values stored within it
-        File file = db.getFile(db.FILE_NAME);
-
-        if (!file.exists()) {
-            return;
-        }
-
-        BufferedReader in = new BufferedReader(new FileReader(file));
-        String nextLine = in.readLine();
-
-        //while the next line to be read does not return null (empty line, or EOF)
-        while (nextLine != null) {
-            GoogleMaps.lineCount++;
-            //check to see if this line is a location or a heartbeat
-            if (nextLine.contains("lat=")) {
-                //get the indices of the known substrings
-                int indexLat = nextLine.indexOf("lat=");
-                int indexLon = nextLine.indexOf("lon=");
-                int indexAlt = nextLine.indexOf("alt=");
-                //create substrings for the values of the lat and lon floats between known indices
-                String latString = nextLine.substring(indexLat + 4, indexLon-1);
-                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
-
-                //cast the strings to floats and put into the static array in GoogleMaps for plotting
-                double nextLat = Double.valueOf(latString);
-                double nextLon = Double.valueOf(lonString);
-                LatLng nextlatLng = new LatLng(nextLat, nextLon);
-                GoogleMaps.AddToLocList(nextlatLng);
-            }
-            nextLine = in.readLine();
-        }
-
-        in.close();
-    }
+//    public static void plotTxtPoints() throws IOException
+//    {
+//        //open the file that has all of the location values stored within it
+//        File file = db.getFile(db.FILE_NAME);
+//
+//        if (!file.exists()) {
+//            return;
+//        }
+//
+//        BufferedReader in = new BufferedReader(new FileReader(file));
+//        String nextLine = in.readLine();
+//
+//        //while the next line to be read does not return null (empty line, or EOF)
+//        while (nextLine != null) {
+//            GoogleMaps.lineCount++;
+//            //check to see if this line is a location or a heartbeat
+//            if (nextLine.contains("lat=")) {
+//                //get the indices of the known substrings
+//                int indexLat = nextLine.indexOf("lat=");
+//                int indexLon = nextLine.indexOf("lon=");
+//                int indexAlt = nextLine.indexOf("alt=");
+//                //create substrings for the values of the lat and lon floats between known indices
+//                String latString = nextLine.substring(indexLat + 4, indexLon-1);
+//                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
+//
+//                //cast the strings to floats and put into the static array in GoogleMaps for plotting
+//                double nextLat = Double.valueOf(latString);
+//                double nextLon = Double.valueOf(lonString);
+//                LatLng nextlatLng = new LatLng(nextLat, nextLon);
+//                GoogleMaps.AddToLocList(nextlatLng);
+//            }
+//            nextLine = in.readLine();
+//        }
+//
+//        in.close();
+//    }
 
     //use a readbuffer to read in from the secondary txt and plot the points
     public static void plotSecondaryTxtPoints() throws IOException

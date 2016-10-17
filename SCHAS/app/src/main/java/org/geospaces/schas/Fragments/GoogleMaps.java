@@ -32,9 +32,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.geospaces.schas.CustomMarker;
 import org.geospaces.schas.R;
 import org.geospaces.schas.Services.LocationService;
+import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.CustomExceptionHandler;
 import org.geospaces.schas.utils.db;
 
@@ -64,7 +64,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     //    //set min update distance to 30 meters
     static float minDistance = 25;
     //    //list to hold LatLng values
-    public static List<LatLng> locList;
+    public static List<DatabaseLocationObject> locList;
     public static List<LatLng> secondaryLocList;
     static PolylineOptions trackLine;
     static PolylineOptions secondaryTrackline;
@@ -124,7 +124,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     public void onMapReady(GoogleMap map) {
         googleMap = map;
 
-        LocationService.appIsRunning = true;
+        //LocationService.appIsRunning = true;
 
         mContext = getActivity().getApplicationContext();
 
@@ -246,7 +246,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         secondaryMarkers = new ArrayList<>();
 
         try {
-            db.plotTxtPoints();
+            locList = db.ReadFromLocationsFile();
         } catch (IOException e) {
             Log.i("plotting primary", "could not read from primary text file");
             e.printStackTrace();
@@ -259,16 +259,31 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
             e.printStackTrace();
         }
 
-        for (LatLng nextLoc : locList) {
+        for (DatabaseLocationObject dlo : locList) {
+            LatLng nextLoc = new LatLng(dlo.lat, dlo.lon);
             Log.i("StartingLocPlot", nextLoc.toString());
-            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .position(nextLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
-                    .anchor(.5f, .5f));
-            nextMarker.setTag(new CustomMarker(null, true));
-            trackLine.add(nextLoc);
-            markers.add(nextMarker);
+
+            if (dlo.GetValidity()){
+                Marker nextMarker = googleMap.addMarker(new MarkerOptions()
+                        .flat(true)
+                        .position(nextLoc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+                        .anchor(.5f, .5f));
+                nextMarker.setTag(dlo);
+                trackLine.add(nextLoc);
+                markers.add(nextMarker);
+            }
+            else{
+                Marker nextMarker = googleMap.addMarker(new MarkerOptions()
+                        .flat(true)
+                        .position(nextLoc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker))
+                        .anchor(.5f, .5f));
+                nextMarker.setTag(dlo);
+                trackLine.add(nextLoc);
+                markers.add(nextMarker);
+            }
+
         }
 
         for (LatLng nextLoc: secondaryLocList) {
@@ -278,13 +293,13 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                     .position(nextLoc)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker))
                     .anchor(.5f, .5f));
-            nextMarker.setTag(new CustomMarker(null, false));
+            //nextMarker.setTag(new CustomMarker(null, false));
             secondaryTrackline.add(nextLoc);
             secondaryMarkers.add(nextMarker);
         }
 
-        Log.i("locList", locList.toString());
-        Log.i("secondaryLocList", secondaryLocList.toString());
+        //Log.i("locList", locList.toString());
+        //Log.i("secondaryLocList", secondaryLocList.toString());
 
         // Enable MyLocation Layer of Google Map
         googleMap.setMyLocationEnabled(true);
@@ -320,7 +335,18 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                 .anchor(.5f, .5f));
-        firstMarker.setTag(new CustomMarker(lastLocation, true));
+        firstMarker.setTag(new DatabaseLocationObject(
+                String.valueOf(System.currentTimeMillis() / 1000),
+                (float) latLng.latitude,
+                (float) latLng.longitude,
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                true
+        ));
 
         // Show the current location in Google Map
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -348,8 +374,32 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         //LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
         //startPoll();
 
+        googleMap.setOnMarkerClickListener(this);
+
+        LocationService.appIsRunning = true;
+
         //retain the fragment across orientation changes
         setRetainInstance(true);
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker){
+        DatabaseLocationObject dlo = (DatabaseLocationObject) marker.getTag();
+
+        if (dlo.GetValidity()) {
+            dlo.isValid = false;
+            //change marker color here
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker));
+            Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
+        }
+        else{
+            dlo.isValid = true;
+            //change marker color here
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker));
+            Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
+        }
+
+        return false;
     }
 
     @Override
@@ -370,6 +420,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     @Override
     public void onDetach() {
         LocationService.appIsRunning = false;
+        db.PrepareTextFile();
         super.onDetach();
         //remove the location listener when the app during onDetach
         //locationManager.removeUpdates(locListener);
@@ -382,9 +433,9 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         googleMap.clear();
     }
 
-    public static void plotNewPoint(Location newPoint) {
-        double newLat = newPoint.getLatitude();
-        double newLon = newPoint.getLongitude();
+    public static void plotNewPoint(DatabaseLocationObject dlo) {
+        double newLat = dlo.lat;
+        double newLon = dlo.lon;
         LatLng newLatLng = new LatLng(newLat, newLon);
 
         //move the camera to the new location
@@ -396,7 +447,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                 .position(newLatLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
                 .anchor(.5f, .5f));
-        newMarker.setTag(new CustomMarker(newPoint, true));
+        newMarker.setTag(dlo);
         markers.add(newMarker);
 
         //add new location to the trackline
@@ -473,9 +524,9 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         }
     }
 
-    public static void AddToLocList(LatLng nextLatLng) {
-        locList.add(nextLatLng);
-    }
+//    public static void AddToLocList(LatLng nextLatLng) {
+//        locList.add(nextLatLng);
+//    }
 
     public static void AddToSecondaryLocList(LatLng nextLatlng) {
         secondaryLocList.add(nextLatlng);
@@ -565,9 +616,8 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         secondaryPolyline = googleMap.addPolyline(secondaryTrackline);
     }
 
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        return false;
+    public static List<DatabaseLocationObject> GetDLOList(){
+        return locList;
     }
 }
 

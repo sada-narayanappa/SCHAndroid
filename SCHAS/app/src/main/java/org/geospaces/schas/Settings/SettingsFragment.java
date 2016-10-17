@@ -1,6 +1,5 @@
 package org.geospaces.schas.Settings;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
@@ -18,6 +17,4 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences);
 
     }
-
-
 }

@@ -1,4 +1,4 @@
-package org.geospaces.schas;
+package org.geospaces.schas.UtilityObjectClasses;
 
 import android.location.Location;
 

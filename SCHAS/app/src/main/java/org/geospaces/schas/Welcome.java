@@ -19,13 +19,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.geospaces.schas.Broadcast_Receivers.heartBeatReceiver;
 import org.geospaces.schas.utils.SCHASApplication;
 import org.geospaces.schas.utils.db;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -58,8 +56,11 @@ public class Welcome extends ActionBarActivity {
             mailIntent.setData(Uri.parse("mailto:"));
             mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"schas.debug@gmail.com"});
             mailIntent.putExtra(Intent.EXTRA_SUBJECT, "Application has Crashed!");
-            mailIntent.putExtra(Intent.EXTRA_TEXT, "There has been a crash within the android application,  " +
-                    "please fix this issue Mr. Dev!");
+            mailIntent.putExtra(Intent.EXTRA_TEXT, "The SCHAS application has crashed.  Attached to this email is" +
+                    " a file which will be sent to our developers to work to solve this issue.  Please" +
+                    " consider sending this email to help us solve any and all issues.\n\n" +
+                    "Thank you for your time and help,\n" +
+                    "\t- SCHAS app developers");
             mailIntent.putExtra(Intent.EXTRA_STREAM, uri);
 
             try
@@ -74,10 +75,10 @@ public class Welcome extends ActionBarActivity {
         }
 
 
-        //Creates an intent that will launch the heartBeatReceiver Class
-        Intent alarmIntent = new Intent(getApplicationContext(),heartBeatReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,0);
-        context = getApplicationContext();
+//        //Creates an intent that will launch the heartBeatReceiver Class
+//        Intent alarmIntent = new Intent(getApplicationContext(),heartBeatReceiver.class);
+//        pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,0);
+//        context = getApplicationContext();
 
         SCHASApplication.getInstance();
         //Creates a SCHAS directory on the external storage portion of the Device to keep data files
@@ -103,7 +104,7 @@ public class Welcome extends ActionBarActivity {
              }, 5000
             );
 
-            startAlarm();
+            //startAlarm();
 
             firstTime = false;
         }
@@ -148,17 +149,18 @@ public class Welcome extends ActionBarActivity {
     }
 
     //Set's alarm manager to trigger each hour for a 'heartbeat' of the device
-    public void startAlarm(){
-        manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//    public void startAlarm(){
+//        manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//
+//        Calendar calendar = Calendar.getInstance();
+//
+//        //Time in ms 60*60*1000 = 1 hour
+//        int hourHeartBeat = 3600000;
+//        int testHeartBeat = 5000;
+//
+//        manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
+//    }
 
-        Calendar calendar = Calendar.getInstance();
-
-        //Time in ms 60*60*1000 = 1 hour
-        int hourHeartBeat = 3600000;
-        int testHeartBeat = 5000;
-
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
