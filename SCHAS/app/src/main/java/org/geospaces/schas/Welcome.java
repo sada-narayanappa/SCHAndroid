@@ -31,10 +31,10 @@ import java.util.TimerTask;
 
 public class Welcome extends ActionBarActivity {
 
-    boolean firstTime = true;
+    private boolean firstTime = true;
     private PendingIntent pendingIntent;
     private AlarmManager manager;
-    Context context;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

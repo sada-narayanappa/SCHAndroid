@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PostToServer extends AsyncTask<String, Integer, String>{
@@ -40,9 +41,41 @@ public class PostToServer extends AsyncTask<String, Integer, String>{
         nameValuePairs =nv;
         callDBDelete = dbDelete;
     }
+
+    public String postResultsChunks(List<NameValuePair> nameValuePairs, String postUrl) {
+        NameValuePair nm = nameValuePairs.get(2);
+        String text = nm.getValue();
+
+        String[] lines = text.split("\n");
+
+        int idx = 0;
+        StringBuffer sb = new StringBuffer(512 * 1024);
+        int remains = lines.length;
+
+        int chunkSize = 2000;
+        int curIndex  = 0;
+        String ret = "";
+
+        for (int i =0; i < lines.length ; ) {
+            sb.setLength(0);
+            for (int j = 0; j < chunkSize; j++) {
+                if ( (j+curIndex) > lines.length) {
+                    break;
+                }
+                sb.append(lines[j+curIndex] + "\n");
+            }
+            curIndex += chunkSize;
+            NameValuePair nm1 = new BasicNameValuePair("text", sb.toString());
+            nameValuePairs.set(2,nm1);
+            ret = postResults( nameValuePairs, postUrl);
+        }
+
+        return ret;
+    }
+
     public String postResults(List<NameValuePair> nameValuePairs, String postUrl) {
         final HttpParams httpParams = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(httpParams, 10000);
+        HttpConnectionParams.setConnectionTimeout(httpParams, 100000);
 
         HttpClient  httpclient = new DefaultHttpClient(httpParams);
         HttpPost    httppost = new HttpPost(postUrl);
