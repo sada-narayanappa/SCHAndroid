@@ -142,9 +142,9 @@ public class Test extends ActionBarActivity implements AdapterView.OnItemClickLi
             public void onClick(View v) {
                 checkBluetoothActive();
 
-                    btDeviceList.clear();
-                    itemsAdapter.clear();
-                    itemsAdapter.notifyDataSetChanged();
+                btDeviceList.clear();
+                itemsAdapter.clear();
+                itemsAdapter.notifyDataSetChanged();
 
                 btAdapter.startLeScan(leScanCallback);
                 Log.d("btSearch", "Device search began");
@@ -228,11 +228,11 @@ public class Test extends ActionBarActivity implements AdapterView.OnItemClickLi
             mBluetoothLeService.connect(device.getAddress());
         }
 
-     //   final Intent intent = new Intent(this, DeviceDetailsActivity.class);
-     //   intent.putExtra(DeviceDetailsActivity.EXTRA_DEVICE, device);
+        //   final Intent intent = new Intent(this, DeviceDetailsActivity.class);
+        //   intent.putExtra(DeviceDetailsActivity.EXTRA_DEVICE, device);
 
-     //   startActivity(intent);
-     //   Toast.makeText(this,"OnClickWorks :)",Toast.LENGTH_SHORT);
+        //   startActivity(intent);
+        //   Toast.makeText(this,"OnClickWorks :)",Toast.LENGTH_SHORT);
     }
 
     @Override

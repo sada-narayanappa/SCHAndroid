@@ -16,7 +16,9 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -99,6 +101,11 @@ public class UploadData extends ActionBarActivity{
     private static final long SCAN_PERIOD = 10000;
     private ScanSettings settings;
     private List<ScanFilter> filters;
+    private boolean deviceFound = false;
+    private int currentTimestamp = 0;
+    private Calendar[] inhalerCapPresses = new Calendar[64];
+    private int[] buttonDurations = new int[64];
+    private Calendar now;
 
 
 
@@ -295,7 +302,7 @@ public class UploadData extends ActionBarActivity{
         public void onClick(View v) {
             Context ctx = UploadData.this.getApplicationContext();
             String str;
-            if ( null == (str = db.isWIFIOn(ctx))) {
+            if ( null == (str = db.canUploadData(ctx))) {
                 Toast( "NO Wireless Connection! Please check back");
             }
 
@@ -339,7 +346,7 @@ public class UploadData extends ActionBarActivity{
     private View.OnClickListener getGoogleData = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (db.isWIFIOn(mContext) != null){
+            if (db.canUploadData(mContext) != null){
                 String url = buildGoogleLocationURL();
                 new DownloadXmlTask().execute(url);
             }
@@ -476,7 +483,15 @@ public class UploadData extends ActionBarActivity{
     private View.OnClickListener inhaler_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            AttackConfirmPopUpCreator("Confirm Inhaler Used","INHALER",true);
+            //AttackConfirmPopUpCreator("Confirm Inhaler Used","INHALER",true);
+            if (Build.VERSION.SDK_INT >= 21) {
+                mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
+                settings = new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                        .build();
+                filters = new ArrayList<ScanFilter>();
+            }
+
             scanLeDevice(true);
         }
     };
@@ -792,18 +807,84 @@ public class UploadData extends ActionBarActivity{
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
+            if (mBluetoothAdapter.getScanMode() !=
+                    android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+                android.content.Intent discoverableIntent =
+                        new android.content.Intent(
+                                android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                discoverableIntent.putExtra(
+                        android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,
+                        300); // You are able to set how long it is discoverable.
+                startActivity(discoverableIntent);
+            }
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    if (Build.VERSION.SDK_INT < 21) {
                         mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    } else {
+                        mLEScanner.stopScan(mScanCallback);
+
+                    }
                 }
             }, SCAN_PERIOD);
-
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
+            if (Build.VERSION.SDK_INT < 21) {
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
+            } else {
+                mLEScanner.startScan(filters, settings, mScanCallback);
+            }
         } else {
+            if (Build.VERSION.SDK_INT < 21) {
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            } else {
+                mLEScanner.stopScan(mScanCallback);
+            }
         }
     }
+
+    private ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            Log.i("callbackType", String.valueOf(callbackType));
+            Log.i("result", result.toString());
+            BluetoothDevice btDevice = result.getDevice();
+            String deviceName = btDevice.getName();
+
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+            String familiarMAC = sharedPref.getString("Familiar_MAC_Address", "");
+
+            if(familiarMAC.equals("") && deviceName != null && deviceName.startsWith("Inhaler Cap"))
+            {
+                deviceFound = true;
+
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("Familiar_MAC_Address", btDevice.getAddress());
+                editor.commit();
+
+                connectToDevice(btDevice);
+            }
+            else if(deviceName != null && deviceName.startsWith("Inhaler Cap"))
+            {
+                if(btDevice.getAddress() == familiarMAC)
+                {
+                    connectToDevice(btDevice);
+                }
+            }
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            for (ScanResult sr : results)
+            {
+                Log.i("ScanResult - Results", sr.toString());
+            }
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            Log.e("Scan Failed", "Error Code: " + errorCode);
+        }
+    };
 
     public void connectToDevice(BluetoothDevice device) {
         if (mGatt == null) {
@@ -819,7 +900,36 @@ public class UploadData extends ActionBarActivity{
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
                     Log.i("gattCallback", "STATE_CONNECTED");
-                    gatt.discoverServices();
+                    if(deviceFound)
+                    {
+                        deviceFound = false;
+                        gatt.disconnect();
+
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which){
+                                    case DialogInterface.BUTTON_POSITIVE:
+                                        // Do Nothing
+                                        break;
+
+                                    case DialogInterface.BUTTON_NEGATIVE:
+                                        // Clear the shared preference
+                                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+                                        SharedPreferences.Editor editor = sharedPref.edit();
+                                        editor.remove("Familiar_MAC_Address");
+                                        editor.commit();
+                                        break;
+                                }
+                            }
+                        };
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                        builder.setMessage("Did the green light on the device turn off?").setPositiveButton("Yes", dialogClickListener)
+                                .setNegativeButton("No", dialogClickListener).show();
+                    }
+                    else
+                        gatt.discoverServices();
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.e("gattCallback", "STATE_DISCONNECTED");
@@ -831,21 +941,135 @@ public class UploadData extends ActionBarActivity{
         }
 
         @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            List<BluetoothGattService> services = gatt.getServices();
-            Log.i("onServicesDiscovered", services.toString());
-            gatt.readCharacteristic(services.get(1).getCharacteristics().get
-                    (0));
+        public void onServicesDiscovered(BluetoothGatt gatt, int status)
+        {
+            BluetoothGattCharacteristic characteristic = gatt.getServices().get(3).getCharacteristics().get(1);
+            characteristic.setValue("1");
+            if(inhalerCapPresses != null) Log.i("", inhalerCapPresses[0].toString());
+
+            if(gatt.writeCharacteristic(characteristic)) // SET COMMAND
+            {
+                now = Calendar.getInstance();
+            }
+            else
+            {
+                Log.i("BLE", "Unable to initiate write command");
+            }
         }
 
         @Override
-        public void onCharacteristicRead(BluetoothGatt gatt,
-                                         BluetoothGattCharacteristic
-                                                 characteristic, int status) {
-            Log.i("onCharacteristicRead", characteristic.toString());
-            gatt.disconnect();
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status)
+        {
+            if(characteristic.getUuid() == gatt.getServices().get(3).getCharacteristics().get(1).getUuid()) // SET COMMAND
+            {
+                if(status == BluetoothGatt.GATT_SUCCESS)
+                {
+                    gatt.readCharacteristic(gatt.getServices().get(3).getCharacteristics().get(0));
+                }
+                else
+                {
+                    Log.i("BLE", "Set command unsuccessful.");
+                }
+            }
+            else if(characteristic.getUuid() == gatt.getServices().get(2).getCharacteristics().get(1).getUuid()) // CLEAR TIMESTAMP LIST COMMAND
+            {
+                if(status == BluetoothGatt.GATT_SUCCESS)
+                {
+                    gatt.readCharacteristic(gatt.getServices().get(4).getCharacteristics().get(0));
+                }
+                else
+                {
+                    Log.i("BLE", "Clear command unsuccessful.");
+                }
+            }
+            else if(characteristic.getUuid() == gatt.getServices().get(4).getCharacteristics().get(1).getUuid()) // CLEAR DURATION LIST COMMAND
+            {
+                if(status == BluetoothGatt.GATT_SUCCESS)
+                {
+                    gatt.close();
+
+                    deviceFound = false;
+
+                    mGatt = null;
+                }
+                else
+                {
+                    Log.i("BLE", "Clear command unsuccessful.");
+                }
+            }
+        }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status)
+        {
+            if(characteristic.getUuid() == gatt.getServices().get(3).getCharacteristics().get(0).getUuid()) // read current time
+            {
+                currentTimestamp = characteristic.getValue()[0]<<24
+                        + characteristic.getValue()[1]<<16
+                        + characteristic.getValue()[2]<<8
+                        + characteristic.getValue()[3];
+
+                if(!gatt.readCharacteristic(gatt.getServices().get(2).getCharacteristics().get(0)))
+                {
+                    Log.i("BLE", "Unable to read timestamp list");
+                }
+            }
+            else if(characteristic.getUuid() == gatt.getServices().get(2).getCharacteristics().get(0).getUuid()) // read timestamp list
+            {
+                byte[] values = characteristic.getValue();
+
+                calculateTimestamps(values);
+
+                BluetoothGattCharacteristic wCh = gatt.getServices().get(2).getCharacteristics().get(1);
+                wCh.setValue("1");
+                if(!gatt.writeCharacteristic(wCh))
+                {
+                    Log.i("BLE", "Unable to execute write command");
+                }
+            }
+            else if(characteristic.getUuid() == gatt.getServices().get(4).getCharacteristics().get(0).getUuid())
+            {
+                byte[] values = characteristic.getValue();
+
+                calculateDurations(values);
+
+                BluetoothGattCharacteristic wCh = gatt.getServices().get(4).getCharacteristics().get(1);
+                wCh.setValue("1");
+                if(!gatt.writeCharacteristic(wCh))
+                {
+                    Log.i("BLE", "Unable to execute write command");
+                }
+            }
         }
     };
+
+    private void calculateTimestamps(byte[] values)
+    {
+        int[] timestamps = new int[64];
+        for(int i = 0; i < 64; i++)
+        {
+            timestamps[i] = values[i*4]<<24
+                    + values[i*4 + 1]<<16
+                    + values[i*4 + 2]<<8
+                    + values[i*4 + 3];
+        }
+
+        long timeSince1970InSeconds = now.getTimeInMillis()/1000;
+
+        for(int i = 0; timestamps[i] != 0 && i < 64; i++)
+        {
+            inhalerCapPresses[i] = Calendar.getInstance();
+            inhalerCapPresses[i].setTimeInMillis((timeSince1970InSeconds - currentTimestamp + timestamps[i])*1000);
+        }
+    }
+
+    private void calculateDurations(byte[] values)
+    {
+        for(int i = 0; i < 64; i++)
+        {
+            buttonDurations[i] = values[i*2]<<8 + values[i*2 + 1];
+        }
+    }
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {

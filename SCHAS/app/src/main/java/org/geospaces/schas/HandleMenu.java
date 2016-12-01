@@ -1,7 +1,11 @@
 package org.geospaces.schas;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -39,6 +43,31 @@ public class HandleMenu  {
                 }
                 Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
                 return false;
+            case R.id.action_ForgetInhalerCap:
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                // Do Nothing
+                                break;
+
+                            case DialogInterface.BUTTON_POSITIVE:
+                                // Clear the shared preference
+                                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(UploadData.GetContext());
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.remove("Familiar_MAC_Address");
+                                editor.commit();
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(UploadData.GetContext());
+                builder.setMessage("Are you sure you want to forget the Inhaler Cap?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
+                return false;
+
             case R.id.action_UploadData:
                 if(a.getClass() != UploadData.class) {
                     intent = new Intent(a, UploadData.class);
