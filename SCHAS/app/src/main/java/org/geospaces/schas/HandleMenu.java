@@ -43,7 +43,6 @@ public class HandleMenu  {
                 if(a.getClass() != UploadData.class) {
                     intent = new Intent(a, UploadData.class);
                     a.startActivity(intent);
-                    //a.setContentView(R.layout.activity_web);
                     return true;
                 }
                 Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
@@ -63,11 +62,19 @@ public class HandleMenu  {
                 if(a.getClass() != Welcome.class) {
                     intent = new Intent(a, Welcome.class);
                     a.startActivity(intent);
-                    //a.setContentView(R.layout.activity_web);
                     return true;
                 }
             Toast.makeText(a.getBaseContext(), "Current activity", Toast.LENGTH_SHORT).show();
             return false;
+
+            case R.id.action_patientData:
+                if(a.getClass() != ViewPatientInhalerData.class) {
+                    intent = new Intent(a, ViewPatientInhalerData.class);
+                    a.startActivity(intent);
+                    return true;
+                }
+                Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
+                return false;
 
         }
         return false;

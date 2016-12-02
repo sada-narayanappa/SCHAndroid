@@ -41,6 +41,7 @@ public class Welcome extends ActionBarActivity {
         //Creates layout via XML file 'activity_welcome'
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+        context = this;
 
         String filename = "DEBUG_STACKTRACE.txt";
         boolean waitForEmail = false;

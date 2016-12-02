@@ -42,14 +42,14 @@
                 android:background="@color/red"
                 android:layout_margin="5dp" />
 
-            <Button
+            <!--<Button
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:text="Google\nLocations"
                 android:id="@+id/googleLocationsButton"
                 android:layout_weight="1"
                 android:layout_margin="5dp"
-                android:background="#14c53a" />
+                android:background="#14c53a" />-->
 
             <Button
                 android:layout_width="0dip"

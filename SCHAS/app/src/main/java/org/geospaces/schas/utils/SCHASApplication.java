@@ -3,8 +3,8 @@ package org.geospaces.schas.utils;
 import android.app.Application;
 import android.content.Context;
 import android.provider.Settings;
-import android.util.Log;
 import android.support.multidex.MultiDex;
+import android.util.Log;
 
 public class SCHASApplication extends Application {
 

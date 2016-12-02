@@ -47,14 +47,19 @@ public class db {
     public final static String SECONDARY_FILE_NAME = "SECONDARY_LOC.txt";
     public final static String FILE_READY = "LOC_ready.txt";
     public final static String GOOGLE_FILE_NAME = "GOOGLE_LOCS.TXT";
+    public static String tempFileName = "schasTempFile";
     public final static int FILE_SIZE = 8 * 1024;
 
+    public static int numberOfSplitFiles;
+    public static int numberOfFilesUploaded;
+    public static int numberOfFailedUploads;
 
     public static Location lastLocation;
     public final static String FILE_SETTINGS = "Settings.txt";
 
     public static List<String> otherDataLines = new ArrayList<>();
 
+    public static Context contextForUpload;
 
     public static String read(String fileName) {
         File file = getFile(fileName);
@@ -103,10 +108,10 @@ public class db {
         out.close();
     }
 
-    public static String getUploadableText(Context context) throws Exception {
+    public static String getUploadableText(Context context, String fileName) throws Exception {
         File file = getFile(FILE_READY);
         if (!file.exists()) {
-            boolean b = db.rename(false);
+            boolean b = db.rename(false, fileName);
             if (!b) {
                 throw new Exception("File not found: " + FILE_READY);
             }
@@ -272,8 +277,8 @@ public class db {
         return to.exists();
     }
 
-    public synchronized static boolean rename(boolean force) {
-        File from = getFile(FILE_NAME);
+    public synchronized static boolean rename(boolean force, String fileName) {
+        File from = getFile(fileName);
         File to = getFile(FILE_READY);
 
         if (!from.exists()) {
@@ -304,8 +309,8 @@ public class db {
         HashMap m = new HashMap();
 
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(ctx);
-        String useCell = SP.getString("useCellular", "NA");
-        boolean useCellular = Boolean.valueOf(useCell);
+        boolean useCell = SP.getBoolean("CellularData", false);
+        SCHASSettings.useCellular = useCell;
 
         if (mWifi.isConnected()) {
             int linkSpeed = wifiman.getConnectionInfo().getLinkSpeed();
@@ -314,41 +319,48 @@ public class db {
             String str = "SPEED: " + linkSpeed + "Mbps, STRENGTH: " + wifiman.getConnectionInfo().getRssi() + "dBm";
             return str;
         }
-        else if (useCellular){
+        else if (useCell){
             ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo info = cm.getActiveNetworkInfo();
-            String str = "CONNECTION TYPE: " + info.getType();
+            String str;
+            if (info != null){
+                str = "CONNECTION TYPE: " + info.getType();
+            }
+            else{
+                str = "Null Network Connection Info";
+            }
+
             return str;
         }
         return null;
     }
 
     public static synchronized String Upload(Context ctx, Activity act) throws IOException {
-        db.PrepareTextFile();
-        db.CreateDuplicateFile();
-
+        contextForUpload = ctx;
         String str;
         if (null == (str = db.canUploadData(ctx))) {
-            return "NO Wireless Connection! Please check back";
+            return "NO Wireless Connection and no cellular upload enabled! Please check back";
         }
-        str = db.Post(act, ctx, "/aura/webroot/loc.jsp");
-        if (null != str) {
-            return str;
+        else{
+            db.PrepareTextFile();
+            db.CreateDuplicateFile();
+            db.splitFileIntoUploadableChunks();
         }
-        Log.w("DB:post:", " Post succeeded");
 
-        GoogleMaps.removeMarkers();
-        try {
-            GoogleMaps.RefreshMapAfterUpload();
-        } catch (Exception e) {
-            throw new IOException("could not refresh google map" + e);
+        numberOfFilesUploaded = 1;
+        numberOfFailedUploads = 0;
+        String fileName = tempFileName + numberOfFilesUploaded + ".TXT";
+        str = db.Post(act, ctx, "/aura/webroot/loc.jsp", fileName);
+        if (str != null){
+            numberOfFailedUploads++;
         }
+
         return null;
     }
 
     private static PostToServer POST_TO_SERVER = null;
 
-    private static synchronized String Post(Activity act, Context context, String service) {
+    private static synchronized String Post(Activity act, Context context, String service, String fileName) {
 
         if (POST_TO_SERVER != null && !POST_TO_SERVER.COMPLETED) {   // Avoid race condition
             return "Message: One upload in progress, please wait ...";
@@ -360,7 +372,14 @@ public class db {
             SCHASSettings.Initialize();
             return "Warning: Cannot find host: ";
         }
-        db.rename(false);
+        File from = getFile(fileName);
+        File ready = getFile(FILE_READY);
+        if (ready.exists()){
+            ready.delete();
+        }
+        from.renameTo(ready);
+
+        //db.rename(false, fileName);
         if (!db.fileReady()) {
             return "Message: " + SCHASSettings.host + " No files to upload!!";
         }
@@ -370,7 +389,7 @@ public class db {
         String msg = "";
 
         try {
-            msg = getUploadableText(context);
+            msg = getUploadableText(context, fileName);
         } catch (Exception e) {
             return "ERROR: exception while reading input file " + e;
         }
@@ -389,6 +408,25 @@ public class db {
         POST_TO_SERVER = null;
         POST_TO_SERVER = new PostToServer(nv, act, true);
         POST_TO_SERVER.execute(url);
+
+        return null;
+    }
+
+    public static String ContinueUpload(Activity act){
+        numberOfFilesUploaded++;
+        String str;
+
+        if(numberOfFilesUploaded > numberOfSplitFiles){
+            Log.w("DB:post:", " Post succeeded");
+            contextForUpload = null;
+            return "upload was completed, number of failed uploads: " + numberOfFailedUploads;
+        }
+
+        String fileName = tempFileName + numberOfFilesUploaded + ".TXT";
+        str = db.Post(act, contextForUpload, "/aura/webroot/loc.jsp", fileName);
+        if (str != null){
+            numberOfFailedUploads++;
+        }
 
         return null;
     }
@@ -467,6 +505,7 @@ public class db {
         }
 
         in.close();
+        file.delete();
 
         return locationList;
     }
@@ -474,13 +513,16 @@ public class db {
     //take the information from the DLO's and create the info for the text file
     //wipe the file at the start of this method
     public static void PrepareTextFile() {
-        File file;
+        File file = db.getFile(db.FILE_NAME);
 
-        if ((file = db.getFile(db.FILE_NAME)).exists()){
-            file.delete();
+        List<DatabaseLocationObject> locationList = new ArrayList<>();
+        try{
+            locationList = GoogleMaps.GetDLOList();
+        } catch(Exception e){
+            Log.i("upload", "there was an exception getting locations from google map fragment");
         }
 
-        List<DatabaseLocationObject> locationList = GoogleMaps.GetDLOList();
+
 
         for (DatabaseLocationObject dlo : locationList) {
             String writeString = dlo.ToString();
@@ -491,6 +533,15 @@ public class db {
                 Log.e("ERROR", "Exception appending to log file", e);
             }
         }
+
+        for (String otherData : otherDataLines){
+            try {
+                Write(otherData + "\n");
+            } catch (IOException e) {
+                Log.e("ERROR", "Exception appending to log file", e);
+            }
+        }
+
     }
 
 //    //use to compare the location values from a clicked marker with
@@ -627,6 +678,14 @@ public class db {
         }
         in.close();
         out.close();
+
+        GoogleMaps.removeMarkers();
+
+        try {
+            GoogleMaps.RefreshMapAfterUpload();
+        } catch (Exception e) {
+            throw new IOException("could not refresh google map" + e);
+        }
     }
 
     public static void CreateGoogleLocationFile(List<Entry> trackList){
@@ -650,5 +709,65 @@ public class db {
                 Log.e("ERROR", "Exception appending to log file", e);
             }
         }
+    }
+
+    public static int GetNumberOfLocations() throws IOException
+    {
+        //open the file that has all of the location values stored within it
+        File file = db.getFile(db.FILE_NAME);
+
+        int count = 0;
+
+        if (!file.exists()) {
+            return count;
+        }
+
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String nextLine = in.readLine();
+
+        //while the next line to be read does not return null (empty line, or EOF)
+        while (nextLine != null) {
+            //check to see if this line is a location or a heartbeat
+            if (nextLine.contains("lat=")) {
+               count++;
+            }
+            nextLine = in.readLine();
+        }
+        in.close();
+
+        return count;
+    }
+
+    public static void splitFileIntoUploadableChunks() throws IOException{
+        int numberOfLines = 0;
+        numberOfSplitFiles = 1;
+
+        File file = db.getFile(db.FILE_NAME);
+
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String nextLine = in.readLine();
+
+        File tempFile = db.getFile(tempFileName + numberOfSplitFiles + ".TXT");
+        OutputStream out = new FileOutputStream(tempFile);
+
+        //while the next line to be read does not return null (empty line, or EOF)
+        while (nextLine != null) {
+            numberOfLines++;
+            nextLine += "\n";
+            out.write(nextLine.getBytes());
+
+            nextLine = in.readLine();
+            if (numberOfLines >= 50){
+                out.close();
+                numberOfSplitFiles++;
+                tempFile = getFile(tempFileName + numberOfSplitFiles + ".TXT");
+                out = new FileOutputStream(tempFile);
+                numberOfLines = 0;
+            }
+        }
+        in.close();
+        out.close();
+
+        file.delete();
     }
 }

@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationRequest;
 
 import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.R;
+import org.geospaces.schas.UploadData;
 import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.db;
 
@@ -81,7 +82,7 @@ public class LocationService extends Service {
         Notification notification = new Notification.Builder(mContext)
                 .setContentTitle("SCHAS Location Polling Service")
                 //.setContentText("Location Polling Currently Enabled!")
-                .setSmallIcon(R.drawable.ic_location_on_black)
+                .setSmallIcon(R.drawable.ic_place_white_36dp)
                 .build();
 
         startForeground(7, notification);
@@ -135,7 +136,27 @@ public class LocationService extends Service {
 
                     //if the new location is more than 25 meters away (for accuracy purposes)
                     if (newLocDist >= 25) {
+
+                        int numberOfTextLocations = 0;
+                        try{
+                            numberOfTextLocations = db.GetNumberOfLocations();
+                        }
+                        catch (IOException e){
+                            e.printStackTrace();
+                        }
+                        Log.v("locations amounts", String.valueOf(GoogleMaps.markers.size() + numberOfTextLocations));
                         if (appIsRunning) {
+                            if (db.canUploadData(mContext) != null) {
+                                if (GoogleMaps.markers.size() + numberOfTextLocations >= 50) {
+
+                                    try {
+                                        db.Upload(mContext, UploadData.GetActivity());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
                             long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
                             GoogleMaps.plotNewPoint(new DatabaseLocationObject(
@@ -195,7 +216,7 @@ public class LocationService extends Service {
         };
 
         //launches a recorder method for a heartbeat once per hour 3600000
-        timer.scheduleAtFixedRate(new heartBeatRecord(), 0, 3600000);
+        //timer.scheduleAtFixedRate(new heartBeatRecord(), 0, 3600000);
 
         startPoll();
     }
@@ -239,17 +260,17 @@ public class LocationService extends Service {
     //call this function before making a call to request location updates
     public void setMinTime ()
     {
-        //if walking, set minTime to 20 seconds
+        //if walking, set minTime to 30 seconds
         if (speedLevel == 1) {
-            minTime = 20000;
+            minTime = 30000;
         }
-        //if running, set minTime to 15 seconds
+        //if running, set minTime to 25 seconds
         if (speedLevel == 2) {
-            minTime = 15000;
+            minTime = 25000;
         }
-        //if driving, set minTime to 5 seconds
+        //if driving, set minTime to 15 seconds
         if (speedLevel == 3) {
-            minTime = 5000;
+            minTime = 15000;
         }
         //Toast.makeText(mContext, "setMinTime called", Toast.LENGTH_SHORT).show();
     }

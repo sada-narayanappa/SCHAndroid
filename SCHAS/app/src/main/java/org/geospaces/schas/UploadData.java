@@ -33,7 +33,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -68,7 +68,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class UploadData extends ActionBarActivity{
+public class UploadData extends AppCompatActivity{
 
     private int PERIOD = 1 * 1000 * 60;  // 1 min
     private PendingIntent pi = null;
@@ -118,6 +118,7 @@ public class UploadData extends ActionBarActivity{
     public Button googleLocsButton;
 
     private static Context mContext;
+    private static Activity mActivity;
 
     public static String url;
 
@@ -188,12 +189,13 @@ public class UploadData extends ActionBarActivity{
         findViewById(R.id.severeAttackButton).setOnClickListener(severe_attack_button);
         findViewById(R.id.inhalerButton).setOnClickListener(inhaler_button);
         findViewById(R.id.manualPeakflow).setOnClickListener(manual_PF_enter);
-        googleLocsButton = (Button) findViewById(R.id.googleLocationsButton);
-        googleLocsButton.setOnClickListener(getGoogleData);
+        //googleLocsButton = (Button) findViewById(R.id.googleLocationsButton);
+        //googleLocsButton.setOnClickListener(getGoogleData);
 
         //heartBeatReceiver.setAct(UploadData.this);
 
         mContext = this;
+        mActivity = this;
 
         GpsStatusCheck(mContext);
 
@@ -204,7 +206,7 @@ public class UploadData extends ActionBarActivity{
     }
 
     public static Activity GetActivity() {
-        return GetActivity();
+        return mActivity;
     }
 
     public void mobiledataenable(boolean enabled) {
@@ -295,7 +297,7 @@ public class UploadData extends ActionBarActivity{
         public void onClick(View v) {
             Context ctx = UploadData.this.getApplicationContext();
             String str;
-            if ( null == (str = db.isWIFIOn(ctx))) {
+            if ( null == (str = db.canUploadData(ctx))) {
                 Toast( "NO Wireless Connection! Please check back");
             }
 
@@ -336,19 +338,19 @@ public class UploadData extends ActionBarActivity{
         }
     };
 
-    private View.OnClickListener getGoogleData = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (db.isWIFIOn(mContext) != null){
-                String url = buildGoogleLocationURL();
-                new DownloadXmlTask().execute(url);
-            }
-            else {
-                Toast.makeText(mContext, "Please Connect Wi-Fi and Retry Download\nof Google Locations",
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
+//    private View.OnClickListener getGoogleData = new View.OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//            if (db.canUploadData(mContext) != null){
+//                String url = buildGoogleLocationURL();
+//                new DownloadXmlTask().execute(url);
+//            }
+//            else {
+//                Toast.makeText(mContext, "Please Connect Wi-Fi and Retry Download\nof Google Locations",
+//                        Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    };
 
     //example url from google help forum                        year   M   D       year   M   D
     //https://www.google.com/maps/timeline/kml?=0&pb=!1m8!1m3!1i2015!2i7!3i1!2m3!1i2015!2i7!3i8

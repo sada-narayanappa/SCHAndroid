@@ -267,7 +267,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                 Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                         .flat(true)
                         .position(nextLoc)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue))
                         .anchor(.5f, .5f));
                 nextMarker.setTag(dlo);
                 trackLine.add(nextLoc);
@@ -277,7 +277,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                 Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                         .flat(true)
                         .position(nextLoc)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballred))
                         .anchor(.5f, .5f));
                 nextMarker.setTag(dlo);
                 trackLine.add(nextLoc);
@@ -291,7 +291,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
             Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(nextLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange))
                     .anchor(.5f, .5f));
             //nextMarker.setTag(new CustomMarker(null, false));
             secondaryTrackline.add(nextLoc);
@@ -333,7 +333,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         Marker firstMarker = googleMap.addMarker(new MarkerOptions()
                 .flat(true)
                 .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue))
                 .anchor(.5f, .5f));
         firstMarker.setTag(new DatabaseLocationObject(
                 String.valueOf(System.currentTimeMillis() / 1000),
@@ -389,13 +389,13 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         if (dlo.GetValidity()) {
             dlo.isValid = false;
             //change marker color here
-            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker));
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballred));
             Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
         }
         else{
             dlo.isValid = true;
             //change marker color here
-            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker));
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue));
             Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
         }
 
@@ -434,6 +434,8 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     }
 
     public static void plotNewPoint(DatabaseLocationObject dlo) {
+        //locList.add(dlo);
+
         double newLat = dlo.lat;
         double newLon = dlo.lon;
         LatLng newLatLng = new LatLng(newLat, newLon);
@@ -445,7 +447,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
                 .flat(true)
                 .position(newLatLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mapmarker))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue))
                 .anchor(.5f, .5f));
         newMarker.setTag(dlo);
         markers.add(newMarker);
@@ -606,7 +608,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
             Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(nextLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.red_map_marker))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange))
                     .anchor(.5f, .5f));
             secondaryTrackline.add(nextLoc);
             secondaryMarkers.add(nextMarker);
@@ -617,6 +619,11 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     }
 
     public static List<DatabaseLocationObject> GetDLOList(){
+        locList = new ArrayList<>();
+        for (Marker marker: markers) {
+            DatabaseLocationObject markerTag = (DatabaseLocationObject) marker.getTag();
+            locList.add(markerTag);
+        }
         return locList;
     }
 }
