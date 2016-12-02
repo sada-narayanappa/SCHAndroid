@@ -6,6 +6,10 @@
         android:title="@string/title_activity_upload_data"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/action_ForgetInhalerCap"
+    android:title="Forget Inhaler Cap"
+    android:orderInCategory="100"
+    android:showAsAction="never" />
 
 <!--<item android:id="@+id/action_test"
     android:title="@string/action_test"
