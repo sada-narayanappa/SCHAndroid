@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -206,8 +207,7 @@ public class db {
                         "accuracy=" + lastLocation.getAccuracy() + "," +
                         "pef=" + pef + "," +
                         "fev=" + fev + "," +
-                        "session_num=" + sessionNum + "" +
-                        ""
+                        "session_num=" + sessionNum
         );
 
         String writeString = sb.toString();
@@ -270,6 +270,25 @@ public class db {
         );
 
         return sb.toString();
+    }
+
+    public static void writeInhalerDataToFile(int pressDuration, Calendar pressTime){
+        StringBuffer sb = new StringBuffer(512);
+        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
+
+        StringBuffer append = sb.append(
+                "measured_at=" + pressTime.getTimeInMillis() / 1000 + "," +
+                        "record_type=" + ("INHALER") + "," +
+                        "pef=" + pressDuration
+                        // + "," + "inhaler_press_duration=" + pressDuration
+        );
+
+        try {
+            Write(append.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.i("Text File Write Error", "Error writing inhaler data to text file");
+        }
     }
 
     public static boolean fileReady() {
@@ -431,7 +450,7 @@ public class db {
         return null;
     }
 
-    //retrives a location from the maps fragment when called there, and pushes in a location
+    //retrieves a location from the maps fragment when called there, and pushes in a location
     //to be written to the data file
     public static void getLocationData(Location location, String provider) {
         lastLocation = location;
@@ -477,8 +496,8 @@ public class db {
 
         //while the next line to be read does not return null (empty line, or EOF)
         while (nextLine != null) {
-            //check to see if this line is a location or a heartbeat
-            if (nextLine.contains("lat=")) {
+            //check to see if this line is a location or a heartbeat or a peakflow reading
+            if (nextLine.contains("lat=") && !nextLine.contains("peakflow")) {
                 //split the string by the '=' and ',' delimiters
                 String[] currentLine = nextLine.split("=|,");
 

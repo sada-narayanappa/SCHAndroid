@@ -848,20 +848,21 @@ public class UploadData extends AppCompatActivity{
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
             String familiarMAC = sharedPref.getString("Familiar_MAC_Address", "");
 
-            if(familiarMAC.equals("") && deviceName != null && deviceName.startsWith("Inhaler Cap"))
+            if(deviceName != null && deviceName.startsWith("Inhaler Cap"))
             {
-                deviceFound = true;
-
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("Familiar_MAC_Address", btDevice.getAddress());
-                editor.commit();
-
-                connectToDevice(btDevice);
-            }
-            else if(deviceName != null && deviceName.startsWith("Inhaler Cap"))
-            {
-                if(btDevice.getAddress() == familiarMAC)
+                if(familiarMAC.equals(""))
                 {
+                    deviceFound = true;
+
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("Familiar_MAC_Address", btDevice.getAddress());
+                    editor.commit();
+
+                    connectToDevice(btDevice);
+                }
+                else if(familiarMAC.equals(btDevice.getAddress()))
+                {
+                    deviceFound = false;
                     connectToDevice(btDevice);
                 }
             }
@@ -986,6 +987,8 @@ public class UploadData extends AppCompatActivity{
                     deviceFound = false;
 
                     mGatt = null;
+
+                    inhalerCapToTextFile();
                 }
                 else
                 {
@@ -1080,6 +1083,25 @@ public class UploadData extends AppCompatActivity{
                     });
                 }
             };
+
+    private void inhalerCapToTextFile(){
+        int i = 0;
+
+        while (inhalerCapPresses[i] != null){
+            db.writeInhalerDataToFile(buttonDurations[i], inhalerCapPresses[i]);
+            i++;
+        }
+
+        buttonDurations = new int[64];
+        inhalerCapPresses = new Calendar[64];
+
+        try {
+            db.Upload(mContext, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.i("Upload Error", "Error uploading after inhaler cap write");
+        }
+    }
 
 
     @Override

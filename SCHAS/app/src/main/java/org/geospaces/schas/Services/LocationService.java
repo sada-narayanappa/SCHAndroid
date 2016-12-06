@@ -24,7 +24,6 @@ import com.google.android.gms.location.LocationRequest;
 
 import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.R;
-import org.geospaces.schas.UploadData;
 import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.db;
 
@@ -150,7 +149,7 @@ public class LocationService extends Service {
                                 if (GoogleMaps.markers.size() + numberOfTextLocations >= 50) {
 
                                     try {
-                                        db.Upload(mContext, UploadData.GetActivity());
+                                        db.Upload(mContext, null);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
