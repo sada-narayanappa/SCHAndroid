@@ -899,7 +899,8 @@ public class UploadData extends AppCompatActivity{
                     if(deviceFound)
                     {
                         deviceFound = false;
-                        gatt.disconnect();
+                        gatt.close();
+                        mGatt = null;
 
                         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                             @Override
@@ -941,7 +942,6 @@ public class UploadData extends AppCompatActivity{
         {
             BluetoothGattCharacteristic characteristic = gatt.getServices().get(3).getCharacteristics().get(1);
             characteristic.setValue("1");
-            if(inhalerCapPresses != null) Log.i("", inhalerCapPresses[0].toString());
 
             if(gatt.writeCharacteristic(characteristic)) // SET COMMAND
             {

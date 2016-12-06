@@ -2,9 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference android:title="Your Name"
         android:key="username"
-        android:summary="Please provide your username"></EditTextPreference>
+        android:summary="Please provide your username" />
     <CheckBoxPreference android:title="Use Cellular Data"
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:summary="Allow phone to upload over carrier data network (data rates may apply)"
         android:key="CellularData" />
     <ListPreference     android:title="Update Frequency"
