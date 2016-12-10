@@ -25,26 +25,6 @@
         android:layout_alignParentStart="true" />
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Version\nLast Updated"
-        android:id="@+id/version"
-        android:gravity="center_horizontal"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/imageView" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Home"
-        android:id="@+id/button_to_home"
-        android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/imageView"
-        android:onClick="goToHomePage"/>
-
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,5 +41,27 @@
         android:src="@drawable/ashthma"
         android:layout_below="@+id/imageView"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="200dip"
+        android:layout_height="100dip"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Version\nLast Updated"
+        android:id="@+id/version"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/imageView2" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Home"
+        android:id="@+id/button_to_home"
+        android:onClick="goToHomePage"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/imageView2" />
 
 </RelativeLayout>

@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -189,12 +189,11 @@ public class db {
         if (lastLocation == null) {
             lastLocation = new Location("null_location");
         }
-        StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
-
-        if (lastLocation != null){
+        else {
             GoogleMaps.PlotInhalerOnMap(lastLocation);
         }
+        StringBuffer sb = new StringBuffer(512);
+        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
                 "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
@@ -272,15 +271,26 @@ public class db {
         return sb.toString();
     }
 
-    public static void writeInhalerDataToFile(int pressDuration, Calendar pressTime){
+    public static void writeInhalerDataToFile(int pressDuration, Date pressTime){
+        if (lastLocation == null) {
+            lastLocation = new Location("null_location");
+        }
+//        else {
+//            GoogleMaps.PlotInhalerOnMap(lastLocation);
+//        }
+
         StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
+
 
         StringBuffer append = sb.append(
-                "measured_at=" + pressTime.getTimeInMillis() / 1000 + "," +
+                "measured_at=" + pressTime.getTime() / 1000 + "," +
                         "record_type=" + ("INHALER") + "," +
+                        "lat=" + lastLocation.getLatitude() + "," +
+                        "lon=" + lastLocation.getLongitude() + "," +
+                        "is_valid=" + (1) + "," +
+                        "accuracy=" + (0) + "," +
+                        "session_num=" + (0) + "," +
                         "pef=" + pressDuration
-                        // + "," + "inhaler_press_duration=" + pressDuration
         );
 
         try {
@@ -497,7 +507,7 @@ public class db {
         //while the next line to be read does not return null (empty line, or EOF)
         while (nextLine != null) {
             //check to see if this line is a location or a heartbeat or a peakflow reading
-            if (nextLine.contains("lat=") && !nextLine.contains("peakflow")) {
+            if (nextLine.contains("lat=") && !nextLine.contains("peakflow") && !nextLine.contains("INHALER")) {
                 //split the string by the '=' and ',' delimiters
                 String[] currentLine = nextLine.split("=|,");
 
@@ -540,8 +550,6 @@ public class db {
         } catch(Exception e){
             Log.i("upload", "there was an exception getting locations from google map fragment");
         }
-
-
 
         for (DatabaseLocationObject dlo : locationList) {
             String writeString = dlo.ToString();
@@ -655,7 +663,7 @@ public class db {
         while (nextLine != null) {
             //GoogleMaps.lineCount++;
             //check to see if this line is a location or a heartbeat
-            if (nextLine.contains("lat=")) {
+            if (nextLine.contains("lat=") && !nextLine.contains("peakflow") && !nextLine.contains("INHALER")) {
                 //get the indices of the known substrings
                 int indexLat = nextLine.indexOf("lat=");
                 int indexLon = nextLine.indexOf("lon=");

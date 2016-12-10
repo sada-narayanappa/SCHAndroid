@@ -58,6 +58,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -90,15 +91,17 @@ public class UploadData extends AppCompatActivity{
     //More Bluetooth Variables for Inhlaer Cap
     private BluetoothLeScanner mLEScanner;
     BluetoothGatt mGatt;
+    List<BluetoothGatt> mGatts = new ArrayList<BluetoothGatt>();
     private Handler mHandler;
     private static final long SCAN_PERIOD = 10000;
     private ScanSettings settings;
     private List<ScanFilter> filters;
     private boolean deviceFound = false;
     private int currentTimestamp = 0;
-    private Calendar[] inhalerCapPresses = new Calendar[64];
+    private Date[] inhalerCapPresses = new Date[64];
     private int[] buttonDurations = new int[64];
     private Calendar now;
+    private boolean currentlyConnected = false;
 
 
 
@@ -632,7 +635,7 @@ public class UploadData extends AppCompatActivity{
                                     }
                                 });
                                 Intent intentOpenBluetoothSettings = new Intent();
-                                intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                                intentOpenBluetoothSettings.setAction(Settings.ACTION_BLUETOOTH_SETTINGS);
                                 startActivity(intentOpenBluetoothSettings);
                             }
                         }
@@ -803,12 +806,13 @@ public class UploadData extends AppCompatActivity{
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             if (mBluetoothAdapter.getScanMode() !=
-                    android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-                android.content.Intent discoverableIntent =
-                        new android.content.Intent(
-                                android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                    BluetoothAdapter.SCAN_MODE_CONNECTABLE) {
+                int x = mBluetoothAdapter.getScanMode();
+                Intent discoverableIntent =
+                        new Intent(
+                                BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
                 discoverableIntent.putExtra(
-                        android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,
+                        BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,
                         300); // You are able to set how long it is discoverable.
                 startActivity(discoverableIntent);
             }
@@ -848,21 +852,25 @@ public class UploadData extends AppCompatActivity{
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
             String familiarMAC = sharedPref.getString("Familiar_MAC_Address", "");
 
-            if(deviceName != null && deviceName.startsWith("Inhaler Cap"))
+            if(!currentlyConnected && deviceName != null && deviceName.startsWith("Inhaler Cap"))
             {
                 if(familiarMAC.equals(""))
                 {
                     deviceFound = true;
+
+                    currentlyConnected = true;
 
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("Familiar_MAC_Address", btDevice.getAddress());
                     editor.commit();
 
                     connectToDevice(btDevice);
+
+                    verifyDevice();
                 }
                 else if(familiarMAC.equals(btDevice.getAddress()))
                 {
-                    deviceFound = false;
+                    currentlyConnected = true;
                     connectToDevice(btDevice);
                 }
             }
@@ -883,10 +891,8 @@ public class UploadData extends AppCompatActivity{
     };
 
     public void connectToDevice(BluetoothDevice device) {
-        if (mGatt == null) {
-            mGatt = device.connectGatt(this, false, gattCallback);
-            scanLeDevice(false);// will stop after first device detection
-        }
+        mGatts.add(device.connectGatt(this, false, gattCallback));
+        scanLeDevice(false);// will stop after first device detection
     }
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
@@ -900,36 +906,15 @@ public class UploadData extends AppCompatActivity{
                     {
                         deviceFound = false;
                         gatt.close();
-                        mGatt = null;
-
-                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which){
-                                    case DialogInterface.BUTTON_POSITIVE:
-                                        // Do Nothing
-                                        break;
-
-                                    case DialogInterface.BUTTON_NEGATIVE:
-                                        // Clear the shared preference
-                                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
-                                        SharedPreferences.Editor editor = sharedPref.edit();
-                                        editor.remove("Familiar_MAC_Address");
-                                        editor.commit();
-                                        break;
-                                }
-                            }
-                        };
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                        builder.setMessage("Did the green light on the device turn off?").setPositiveButton("Yes", dialogClickListener)
-                                .setNegativeButton("No", dialogClickListener).show();
+                        currentlyConnected = false;
                     }
-                    else
+                    else {
                         gatt.discoverServices();
+                    }
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.e("gattCallback", "STATE_DISCONNECTED");
+                    currentlyConnected = false;
                     break;
                 default:
                     Log.e("gattCallback", "STATE_OTHER");
@@ -946,6 +931,7 @@ public class UploadData extends AppCompatActivity{
             if(gatt.writeCharacteristic(characteristic)) // SET COMMAND
             {
                 now = Calendar.getInstance();
+
             }
             else
             {
@@ -984,9 +970,9 @@ public class UploadData extends AppCompatActivity{
                 {
                     gatt.close();
 
-                    deviceFound = false;
+                    currentlyConnected = false;
 
-                    mGatt = null;
+                    deviceFound = false;
 
                     inhalerCapToTextFile();
                 }
@@ -1002,10 +988,14 @@ public class UploadData extends AppCompatActivity{
         {
             if(characteristic.getUuid() == gatt.getServices().get(3).getCharacteristics().get(0).getUuid()) // read current time
             {
-                currentTimestamp = characteristic.getValue()[0]<<24
-                        + characteristic.getValue()[1]<<16
-                        + characteristic.getValue()[2]<<8
-                        + characteristic.getValue()[3];
+                currentTimestamp = characteristic.getValue()[0] & 0xFF;
+                currentTimestamp <<= 8;
+                currentTimestamp |= characteristic.getValue()[1] & 0xFF;
+                currentTimestamp <<= 8;
+                currentTimestamp |= characteristic.getValue()[2] & 0xFF;
+                currentTimestamp <<= 8;
+                currentTimestamp |= characteristic.getValue()[3] & 0xFF;
+
 
                 if(!gatt.readCharacteristic(gatt.getServices().get(2).getCharacteristics().get(0)))
                 {
@@ -1041,23 +1031,54 @@ public class UploadData extends AppCompatActivity{
         }
     };
 
+    private void verifyDevice()
+    {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        // Do Nothing
+                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.remove("Familiar_MAC_Address");
+                        editor.commit();
+                        break;
+
+                    case DialogInterface.BUTTON_POSITIVE:
+                        // Clear the shared preference
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setMessage("Did the green light on the device turn off?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
     private void calculateTimestamps(byte[] values)
     {
         int[] timestamps = new int[64];
         for(int i = 0; i < 64; i++)
         {
-            timestamps[i] = values[i*4]<<24
-                    + values[i*4 + 1]<<16
-                    + values[i*4 + 2]<<8
-                    + values[i*4 + 3];
-        }
+            int val = 0;
+            val = (int)values[i*4] & 0xFF;
+            val <<= 8;
+            val |= (int)values[i*4 + 1] & 0xFF;
+            val <<= 8;
+            val |= (int)values[i*4 + 2] & 0xFF;
+            val <<= 8;
+            val |= (int)values[i*4 + 3] & 0xFF;
 
-        long timeSince1970InSeconds = now.getTimeInMillis()/1000;
+            timestamps[i] = val;
+        }
 
         for(int i = 0; timestamps[i] != 0 && i < 64; i++)
         {
-            inhalerCapPresses[i] = Calendar.getInstance();
-            inhalerCapPresses[i].setTimeInMillis((timeSince1970InSeconds - currentTimestamp + timestamps[i])*1000);
+            now.add(Calendar.SECOND, currentTimestamp - timestamps[i]);
+            inhalerCapPresses[i] = now.getTime();
+            now.add(Calendar.SECOND, timestamps[i] - currentTimestamp);
         }
     }
 
@@ -1065,7 +1086,11 @@ public class UploadData extends AppCompatActivity{
     {
         for(int i = 0; i < 64; i++)
         {
-            buttonDurations[i] = values[i*2]<<8 + values[i*2 + 1];
+            int val = 0;
+            val = (int)values[i*2] & 0xFF;
+            val <<= 8;
+            val |= (int)values[i*2 + 1] & 0xFF;
+            buttonDurations[i] = val;
         }
     }
 
@@ -1093,10 +1118,10 @@ public class UploadData extends AppCompatActivity{
         }
 
         buttonDurations = new int[64];
-        inhalerCapPresses = new Calendar[64];
+        inhalerCapPresses = new Date[64];
 
         try {
-            db.Upload(mContext, null);
+            db.Upload(mContext, UploadData.this);
         } catch (IOException e) {
             e.printStackTrace();
             Log.i("Upload Error", "Error uploading after inhaler cap write");
