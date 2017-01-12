@@ -7,12 +7,15 @@ import android.provider.Settings;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -31,6 +34,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -60,8 +64,16 @@ public class ViewPatientInhalerData extends AppCompatActivity {
         calendar.add(Calendar.DATE, -6);
         Date oneWeekAgo = calendar.getTime();
 
+        GridLabelRenderer labelRenderer = inhalerDataGraph.getGridLabelRenderer();
+        Viewport graphViewport = inhalerDataGraph.getViewport();
+
+        //set number formatter for y values
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(0);
+        nf.setMinimumIntegerDigits(1);
+
         //set date label formatter
-        inhalerDataGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+        labelRenderer.setLabelFormatter(new DefaultLabelFormatter(nf, nf) {
             @Override
             public String formatLabel(double value, boolean isValueX) {
                 if (isValueX){
@@ -69,7 +81,8 @@ public class ViewPatientInhalerData extends AppCompatActivity {
                     Date date = new Date((long) value);
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(date);
-                    return "\n" + calendar.get(Calendar.MONTH) + "/" + calendar.get(Calendar.DAY_OF_MONTH);
+                    String returnString = "\n" + (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.DAY_OF_MONTH);
+                    return returnString;
                 }
                 else {
                     //show the normal y values
@@ -77,19 +90,26 @@ public class ViewPatientInhalerData extends AppCompatActivity {
                 }
             }
         });
-        inhalerDataGraph.getGridLabelRenderer().setNumHorizontalLabels(7);
-        inhalerDataGraph.getGridLabelRenderer().setPadding(32);
+
+        labelRenderer.setNumHorizontalLabels(7);
+        labelRenderer.setNumVerticalLabels(6);
+        labelRenderer.setPadding(32);
         //inhalerDataGraph.getGridLabelRenderer().setVerticalAxisTitle("Inhaler Usage");
         //inhalerDataGraph.getGridLabelRenderer().setHorizontalAxisTitle("Date");
-        inhalerDataGraph.getGridLabelRenderer().setHorizontalLabelsAngle(50);
+        labelRenderer.setHorizontalLabelsAngle(50);
 
 
         //set max and min data labels
-        inhalerDataGraph.getViewport().setXAxisBoundsManual(true);
-        inhalerDataGraph.getViewport().setMinX(oneWeekAgo.getTime());
-        inhalerDataGraph.getViewport().setMaxX(today.getTime());
+        graphViewport.setXAxisBoundsManual(true);
+        graphViewport.setMinX(oneWeekAgo.getTime());
+        graphViewport.setMaxX(today.getTime());
 
-        inhalerDataGraph.getGridLabelRenderer().setHumanRounding(false);
+        //set y axis data labels
+        graphViewport.setYAxisBoundsManual(true);
+        graphViewport.setMinY(0);
+        graphViewport.setMaxY(10);
+
+        labelRenderer.setHumanRounding(false);
 
         new RetrieveInhalerDataFromServer().execute();
     }
@@ -145,10 +165,10 @@ public class ViewPatientInhalerData extends AppCompatActivity {
             }
         }
         catch(JSONException e){
-            Toast.makeText(mContext, "error creating json object", Toast.LENGTH_SHORT).show();
+            Log.i("JSON Parser", e.getMessage());
         }
         catch(Exception e){
-            Toast.makeText(mContext, "error creating date from json string", Toast.LENGTH_SHORT).show();
+            Log.i("JSON Parser", e.getMessage());
         }
 
 

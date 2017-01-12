@@ -49,30 +49,30 @@
         </activity>
         <activity
             android:name=".Test"
-            android:label="@string/title_activity_test"></activity>
+            android:label="@string/title_activity_test" />
         <activity
             android:name=".Web"
-            android:label="@string/title_activity_web"></activity>
+            android:label="@string/title_activity_web" />
         <activity
             android:name=".SettingsActivity"
-            android:label="Settings Menu"></activity>
+            android:label="Settings Menu" />
         <activity
             android:name=".UploadData"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_upload_data"></activity>
+            android:label="@string/title_activity_upload_data" />
         <activity
             android:name=".Settings.LegalNotices"
-            android:label="Legal Notices"></activity>
+            android:label="Legal Notices" />
 
         <receiver
             android:name=".Broadcast_Receivers.heartBeatReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true" />
 
         <service
             android:name=".Services.bleService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <receiver android:name=".Broadcast_Receivers.onBootReceiver">
             <intent-filter>
@@ -82,7 +82,15 @@
 
         <service
             android:name=".Services.LocationService"
-            android:exported="false"></service>
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".Services.StepCounter"
+            android:enabled="true"
+            android:exported="false" />
+
+
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -96,7 +104,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".ViewPatientInhalerData"></activity>
+        <activity android:name=".ViewPatientInhalerData" />
+        <activity android:name=".StepCounterView"></activity>
     </application>
 
 </manifest>

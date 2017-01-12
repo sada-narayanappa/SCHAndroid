@@ -1,6 +1,7 @@
 package org.geospaces.schas.Services;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +16,9 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -24,6 +27,7 @@ import com.google.android.gms.location.LocationRequest;
 
 import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.R;
+import org.geospaces.schas.UploadData;
 import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.db;
 
@@ -51,7 +55,7 @@ public class LocationService extends Service {
     private static float minDistance =25;
     //list to hold LatLng values
     //public static List<LatLng> locList;
-    private static LocationListener locListener;
+    private LocationListener locListener = new MyLocationListener();
     //boolean isFirstPoint = true;
     float speed;
     int speedLevel;
@@ -67,6 +71,11 @@ public class LocationService extends Service {
 
     private static Timer timer = new Timer();
 
+    private Thread locationThread = new LocationThread();
+    private static Looper threadLooper = null;
+
+    private static Handler mUIThreadHandler = null;
+
     public class LocalBinder extends Binder {
             public LocationService getService() {
                 return LocationService.this;
@@ -78,23 +87,30 @@ public class LocationService extends Service {
 
         mContext = getApplicationContext();
 
+        Intent clickedOnIntent = new Intent(this, UploadData.class);
+        PendingIntent clickedOnPendingIntent = PendingIntent.getActivity(this, 0, clickedOnIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         Notification notification = new Notification.Builder(mContext)
-                .setContentTitle("SCHAS Location Polling Service")
+                .setContentTitle("SCHAS Location Polling")
                 //.setContentText("Location Polling Currently Enabled!")
                 .setSmallIcon(R.drawable.ic_place_white_36dp)
+                .setContentIntent(clickedOnPendingIntent)
                 .build();
 
         startForeground(7, notification);
 
+        //start new code to create a new thread for location reading
+        locationThread.start();
+
         // Create a criteria object to retrieve provider
-        criteria = new Criteria();
+        //criteria = new Criteria();
 
-        //instantiate the managers for getting locations and using the sigmotionsensor
-        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
-
-        //set up the signmotion sensor and link with the sensor manager
-        mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+//        //instantiate the managers for getting locations and using the sigmotionsensor
+//        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+//        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+//
+//        //set up the signmotion sensor and link with the sensor manager
+//        mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
         // Get the name of the best provider
         //provider = locationManager.getBestProvider(criteria, true);
@@ -113,111 +129,113 @@ public class LocationService extends Service {
 //        locReq.setInterval(minTime);
 //        locReq.setSmallestDisplacement(minDistance);
 
-        //set up the tigger event for the sigmotionsensor to start updates
-        mListener = new TriggerEventListener() {
-            @Override
-            public void onTrigger(TriggerEvent event) {
-                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
-                startPoll();
-            }
-        };
+//        //set up the tigger event for the sigmotionsensor to start updates
+//        mListener = new TriggerEventListener() {
+//            @Override
+//            public void onTrigger(TriggerEvent event) {
+//                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
+//                startPoll();
+//            }
+//        };
 
         //create the location listener and begin location collection logic
-        locListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                if (location != null) {
-                    if (prevLocation != null) {
-                        newLocDist = location.distanceTo(prevLocation);
-                    } else {
-                        newLocDist = 25;
-                    }
 
-                    //if the new location is more than 25 meters away (for accuracy purposes)
-                    if (newLocDist >= 25) {
-
-                        int numberOfTextLocations = 0;
-                        try{
-                            numberOfTextLocations = db.GetNumberOfLocations();
-                        }
-                        catch (IOException e){
-                            e.printStackTrace();
-                        }
-                        Log.v("locations amounts", String.valueOf(GoogleMaps.markers.size() + numberOfTextLocations));
-                        if (appIsRunning) {
-                            if (db.canUploadData(mContext) != null) {
-                                if (GoogleMaps.markers.size() + numberOfTextLocations >= 50) {
-
-                                    try {
-                                        db.Upload(mContext, null);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-
-                            long sessionNum = System.currentTimeMillis() / 1000000 * 60;
-
-                            GoogleMaps.plotNewPoint(new DatabaseLocationObject(
-                                    String.valueOf(System.currentTimeMillis() / 1000),
-                                    (float) location.getLatitude(),
-                                    (float) location.getLongitude(),
-                                    String.valueOf(location.getAltitude()),
-                                    String.valueOf(location.getSpeed()),
-                                    String.valueOf(location.getBearing()),
-                                    String.valueOf(location.getAccuracy()),
-                                    String.valueOf(location.getProvider()),
-                                    String.valueOf(sessionNum),
-                                    true
-                            ));
-                        }
-                        else{
-                            db.getLocationData(location, location.getProvider());
-                        }
-
-                        prevLocation = location;
-
-                        //get the extra info generated by the locationManager
-                        speed = location.getSpeed();
-                        //Toast.makeText(mContext, "speed is currently: " + String.valueOf(speed), Toast.LENGTH_SHORT).show();
-
-                        Log.i("speed", String.valueOf(speed));
-                        //Toast.makeText(mContext, "speed is "+String.valueOf(speed), Toast.LENGTH_SHORT).show();
-
-                        //calculate the new minTime for the location updates if needed
-                        speedCalc();
-                    }
-                }
-                //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
-                //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                if (provider == LocationManager.GPS_PROVIDER) {
-                    if (status == LocationProvider.AVAILABLE) {
-                        startPoll();
-                    } else {
-                        stopPoll();
-                    }
-                }
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                startPoll();
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                stopPoll();
-            }
-        };
+//        locListener = new LocationListener() {
+//            @Override
+//            public void onLocationChanged(Location location) {
+//                if (location != null) {
+//                    if (prevLocation != null) {
+//                        newLocDist = location.distanceTo(prevLocation);
+//                    } else {
+//                        newLocDist = 25;
+//                    }
+//
+//                    //if the new location is more than 25 meters away (for accuracy purposes)
+//                    if (newLocDist >= 25 && newLocDist < 500) {
+//
+//                        int numberOfTextLocations = 0;
+//                        try{
+//                            numberOfTextLocations = db.GetNumberOfLocations();
+//                        }
+//                        catch (IOException e){
+//                            e.printStackTrace();
+//                        }
+//                        Log.v("locations amounts", String.valueOf(GoogleMaps.markers.size() + numberOfTextLocations));
+//                        if (appIsRunning) {
+//                            if (db.canUploadData(mContext) != null) {
+//                                if (GoogleMaps.markers.size() + numberOfTextLocations >= 50) {
+//
+//                                    try {
+//                                        db.Upload(mContext, null);
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                            }
+//
+//                            long sessionNum = System.currentTimeMillis() / 1000000 * 60;
+//
+//                            GoogleMaps.plotNewPoint(new DatabaseLocationObject(
+//                                    String.valueOf(System.currentTimeMillis() / 1000),
+//                                    (float) location.getLatitude(),
+//                                    (float) location.getLongitude(),
+//                                    String.valueOf(location.getAltitude()),
+//                                    String.valueOf(location.getSpeed()),
+//                                    String.valueOf(location.getBearing()),
+//                                    String.valueOf(location.getAccuracy()),
+//                                    String.valueOf(location.getProvider()),
+//                                    String.valueOf(sessionNum),
+//                                    true
+//                            ));
+//                            db.lastLocation = location;
+//                        }
+//                        else{
+//                            db.getLocationData(location, location.getProvider());
+//                        }
+//
+//                        prevLocation = location;
+//
+//                        //get the extra info generated by the locationManager
+//                        speed = location.getSpeed();
+//                        //Toast.makeText(mContext, "speed is currently: " + String.valueOf(speed), Toast.LENGTH_SHORT).show();
+//
+//                        Log.i("speed", String.valueOf(speed));
+//                        //Toast.makeText(mContext, "speed is "+String.valueOf(speed), Toast.LENGTH_SHORT).show();
+//
+//                        //calculate the new minTime for the location updates if needed
+//                        speedCalc();
+//                    }
+//                }
+//                //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
+//                //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
+//            }
+//
+//            @Override
+//            public void onStatusChanged(String provider, int status, Bundle extras) {
+//                if (provider == LocationManager.GPS_PROVIDER) {
+//                    if (status == LocationProvider.AVAILABLE) {
+//                        startPoll();
+//                    } else {
+//                        stopPoll();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onProviderEnabled(String provider) {
+//                startPoll();
+//            }
+//
+//            @Override
+//            public void onProviderDisabled(String provider) {
+//                stopPoll();
+//            }
+//        };
 
         //launches a recorder method for a heartbeat once per hour 3600000
         //timer.scheduleAtFixedRate(new heartBeatRecord(), 0, 3600000);
 
-        startPoll();
+//        startPoll();
     }
 
     private class heartBeatRecord extends TimerTask{
@@ -253,6 +271,7 @@ public class LocationService extends Service {
         Log.i("LocationService", "Location Service stopped");
         stopPoll();
         //client.disconnect();
+        threadLooper.quit();
         super.onDestroy();
     }
 
@@ -316,14 +335,147 @@ public class LocationService extends Service {
         }
     }
 
-    public static void startPoll() {
+    public void startPoll() {
         //LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, locListener);
     }
 
-    public static void stopPoll() {
+    public void stopPoll() {
         //LocationServices.FusedLocationApi.removeLocationUpdates(client, locListener);
         locationManager.removeUpdates(locListener);
+    }
+
+    private class MyLocationListener implements LocationListener {
+        @Override
+        public void onLocationChanged(Location newLocation) {
+            final Location location = newLocation;
+
+            if (location != null) {
+                if (prevLocation != null) {
+                    newLocDist = location.distanceTo(prevLocation);
+                } else {
+                    newLocDist = 25;
+                }
+
+                //if the new location is more than 25 meters away (for accuracy purposes)
+                if (newLocDist >= 25 && newLocDist < 500) {
+
+                    int numberOfTextLocations = 0;
+                    try{
+                        numberOfTextLocations = db.GetNumberOfLocations();
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    }
+                    Log.v("locations amounts", String.valueOf(GoogleMaps.markers.size() + numberOfTextLocations));
+                    if (appIsRunning) {
+                        if (db.canUploadData(mContext) != null) {
+                            if (GoogleMaps.markers.size() + numberOfTextLocations >= 50) {
+
+                                try {
+                                    db.Upload(mContext, null);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        final long sessionNum = System.currentTimeMillis() / 1000000 * 60;
+
+                        if (mUIThreadHandler == null){
+                            mUIThreadHandler = new Handler(Looper.getMainLooper());
+                        }
+                        mUIThreadHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                GoogleMaps.plotNewPoint(new DatabaseLocationObject(
+                                        String.valueOf(System.currentTimeMillis() / 1000),
+                                        (float) location.getLatitude(),
+                                        (float) location.getLongitude(),
+                                        String.valueOf(location.getAltitude()),
+                                        String.valueOf(location.getSpeed()),
+                                        String.valueOf(location.getBearing()),
+                                        String.valueOf(location.getAccuracy()),
+                                        String.valueOf(location.getProvider()),
+                                        String.valueOf(sessionNum),
+                                        true
+                                ));
+                            }
+                        });
+
+                        db.lastLocation = location;
+                    }
+                    else{
+                        db.getLocationData(location, location.getProvider());
+                    }
+
+                    prevLocation = location;
+
+                    //get the extra info generated by the locationManager
+                    speed = location.getSpeed();
+                    //Toast.makeText(mContext, "speed is currently: " + String.valueOf(speed), Toast.LENGTH_SHORT).show();
+
+                    Log.i("speed", String.valueOf(speed));
+                    //Toast.makeText(mContext, "speed is "+String.valueOf(speed), Toast.LENGTH_SHORT).show();
+
+                    //calculate the new minTime for the location updates if needed
+                    speedCalc();
+                }
+            }
+            //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
+            //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            if (provider == LocationManager.GPS_PROVIDER) {
+                if (status == LocationProvider.AVAILABLE) {
+                    startPoll();
+                } else {
+                    stopPoll();
+                }
+            }
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            startPoll();
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            stopPoll();
+        }
+    }
+
+    private class LocationThread extends Thread {
+        @Override
+        public void run() {
+            Looper.prepare();
+
+            //instantiate the managers for getting locations and using the sigmotionsensor
+            locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+            mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+
+            //set up the signmotion sensor and link with the sensor manager
+            mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+
+            //set up the tigger event for the sigmotionsensor to start updates
+            mListener = new TriggerEventListener() {
+                @Override
+                public void onTrigger(TriggerEvent event) {
+                    //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
+                    startPoll();
+                }
+            };
+
+            startPoll();
+
+            threadLooper = Looper.myLooper();
+            Looper.loop();
+
+            stopPoll();
+        }
     }
 }
 

@@ -37,7 +37,7 @@ android {
         applicationId "org.geospaces.schas01"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 52
+        versionCode 53
         versionName "1.090"
 
         multiDexEnabled true

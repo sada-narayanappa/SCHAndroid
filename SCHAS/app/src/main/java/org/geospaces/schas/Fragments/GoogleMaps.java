@@ -13,7 +13,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +37,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.geospaces.schas.R;
 import org.geospaces.schas.Services.LocationService;
+import org.geospaces.schas.Services.StepCounter;
 import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.CustomExceptionHandler;
 import org.geospaces.schas.utils.db;
@@ -86,6 +90,17 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     TriggerEventListener mListener;
     //
     float newLocDist;
+
+    Handler mHandler = new Handler (Looper.getMainLooper()) {
+        /*
+         * handleMessage() defines the operations to perform when
+         * the Handler receives a new Message to process.
+         */
+        @Override
+        public void handleMessage(Message inputMessage) {
+
+        }
+    };
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -229,6 +244,9 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         Intent startLocationService = new Intent(mContext, LocationService.class);
         mContext.startService(startLocationService);
 
+        Intent startStepCounterService = new Intent(mContext, StepCounter.class);
+        mContext.startService(startStepCounterService);
+
         //create the trackline
         trackLine = new PolylineOptions()
                 .width(5)
@@ -267,7 +285,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                 Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                         .flat(true)
                         .position(nextLoc)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue24))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue16))
                         .anchor(.5f, .5f));
                 nextMarker.setTag(dlo);
                 trackLine.add(nextLoc);
@@ -277,7 +295,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                 Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                         .flat(true)
                         .position(nextLoc)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballred24))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballred16))
                         .anchor(.5f, .5f));
                 nextMarker.setTag(dlo);
                 trackLine.add(nextLoc);
@@ -291,7 +309,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
             Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(nextLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange24))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
                     .anchor(.5f, .5f));
             //nextMarker.setTag(new CustomMarker(null, false));
             secondaryTrackline.add(nextLoc);
@@ -333,7 +351,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         Marker firstMarker = googleMap.addMarker(new MarkerOptions()
                 .flat(true)
                 .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue24))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue16))
                 .anchor(.5f, .5f));
         firstMarker.setTag(new DatabaseLocationObject(
                 String.valueOf(System.currentTimeMillis() / 1000),
@@ -390,13 +408,13 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         if (dlo.GetValidity()) {
             dlo.isValid = false;
             //change marker color here
-            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballred24));
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballred16));
             Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
         }
         else{
             dlo.isValid = true;
             //change marker color here
-            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue24));
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue16));
             Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
         }
 
@@ -448,7 +466,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
                 .flat(true)
                 .position(newLatLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue24))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue16))
                 .anchor(.5f, .5f));
         newMarker.setTag(dlo);
         markers.add(newMarker);
@@ -609,7 +627,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
             Marker nextMarker = googleMap.addMarker(new MarkerOptions()
                     .flat(true)
                     .position(nextLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange24))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
                     .anchor(.5f, .5f));
             secondaryTrackline.add(nextLoc);
             secondaryMarkers.add(nextMarker);

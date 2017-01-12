@@ -12,6 +12,8 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.format.Formatter;
@@ -61,6 +63,8 @@ public class db {
     public static List<String> otherDataLines = new ArrayList<>();
 
     public static Context contextForUpload;
+
+    private static Handler mUIThreadHandler = null;
 
     public static String read(String fileName) {
         File file = getFile(fileName);
@@ -132,6 +136,8 @@ public class db {
     }
 
     public static String getAttack(String severity) {
+        final String iSeverity = severity;
+
         if (lastLocation == null) {
             lastLocation = new Location("null_location");
         }
@@ -139,7 +145,15 @@ public class db {
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         if (lastLocation != null){
-            GoogleMaps.PlotAttackOnMap(severity, lastLocation);
+            if (mUIThreadHandler == null){
+                mUIThreadHandler = new Handler(Looper.getMainLooper());
+            }
+            mUIThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    GoogleMaps.PlotAttackOnMap(iSeverity, lastLocation);
+                }
+            });
         }
 
         StringBuffer append = sb.append(
@@ -162,12 +176,20 @@ public class db {
         if (lastLocation == null) {
             lastLocation = new Location("null_location");
         }
+        else {
+            if (mUIThreadHandler == null){
+                mUIThreadHandler = new Handler(Looper.getMainLooper());
+            }
+            mUIThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    GoogleMaps.PlotInhalerOnMap(lastLocation);
+                }
+            });
+        }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
-        if (lastLocation != null){
-            GoogleMaps.PlotInhalerOnMap(lastLocation);
-        }
 
         StringBuffer append = sb.append(
                 "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
@@ -190,7 +212,15 @@ public class db {
             lastLocation = new Location("null_location");
         }
         else {
-            GoogleMaps.PlotInhalerOnMap(lastLocation);
+            if (mUIThreadHandler == null){
+                mUIThreadHandler = new Handler(Looper.getMainLooper());
+            }
+            mUIThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    GoogleMaps.PlotInhalerOnMap(lastLocation);
+                }
+            });
         }
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
@@ -275,9 +305,17 @@ public class db {
         if (lastLocation == null) {
             lastLocation = new Location("null_location");
         }
-//        else {
-//            GoogleMaps.PlotInhalerOnMap(lastLocation);
-//        }
+        else {
+            if (mUIThreadHandler == null){
+                mUIThreadHandler = new Handler(Looper.getMainLooper());
+            }
+            mUIThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    GoogleMaps.PlotInhalerOnMap(lastLocation);
+                }
+            });
+        }
 
         StringBuffer sb = new StringBuffer(512);
 
@@ -368,7 +406,7 @@ public class db {
         contextForUpload = ctx;
         String str;
         if (null == (str = db.canUploadData(ctx))) {
-            return "NO Wireless Connection and no cellular upload enabled! Please check back";
+            return "No wireless connection and no cellular upload enabled! Please enable one and check back";
         }
         else{
             db.PrepareTextFile();
@@ -467,7 +505,7 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         float sessionNum = System.currentTimeMillis() / 1000000 * 60;
         boolean isValid = true;
-        GoogleMaps.lineCount++;
+        //GoogleMaps.lineCount++;
 
         sb.append(
                 "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
@@ -506,8 +544,8 @@ public class db {
 
         //while the next line to be read does not return null (empty line, or EOF)
         while (nextLine != null) {
-            //check to see if this line is a location or a heartbeat or a peakflow reading
-            if (nextLine.contains("lat=") && !nextLine.contains("peakflow") && !nextLine.contains("INHALER")) {
+            //check to see if this line is a location or a heartbeat or a peakflow reading or an inhaler/attack
+            if (nextLine.contains("lat=") && !nextLine.contains("peakflow") && !nextLine.contains("INHALER") && !nextLine.contains("ATTACK")) {
                 //split the string by the '=' and ',' delimiters
                 String[] currentLine = nextLine.split("=|,");
 
@@ -706,13 +744,21 @@ public class db {
         in.close();
         out.close();
 
-        GoogleMaps.removeMarkers();
-
-        try {
-            GoogleMaps.RefreshMapAfterUpload();
-        } catch (Exception e) {
-            throw new IOException("could not refresh google map" + e);
+        if (mUIThreadHandler == null){
+            mUIThreadHandler = new Handler(Looper.getMainLooper());
         }
+        mUIThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                GoogleMaps.removeMarkers();
+                try {
+                    GoogleMaps.RefreshMapAfterUpload();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.i("db", "could not refresh google map" + e);
+                }
+            }
+        });
     }
 
     public static void CreateGoogleLocationFile(List<Entry> trackList){

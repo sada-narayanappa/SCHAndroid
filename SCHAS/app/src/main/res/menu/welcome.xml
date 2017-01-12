@@ -35,4 +35,9 @@
         android:title="Patient Data"
         android:orderInCategory="100"
         android:showAsAction="never" />
+
+    <item android:id="@+id/action_step_counter"
+        android:title="Step Counter"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>

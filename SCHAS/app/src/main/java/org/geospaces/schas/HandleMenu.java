@@ -102,8 +102,17 @@ public class HandleMenu  {
                     a.startActivity(intent);
                     return true;
                 }
-                Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
-                return false;
+            Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
+            return false;
+
+            case R.id.action_step_counter:
+                if(a.getClass() != StepCounterView.class) {
+                    intent = new Intent(a, StepCounterView.class);
+                    a.startActivity(intent);
+                    return true;
+                }
+            Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
+            return false;
 
         }
         return false;

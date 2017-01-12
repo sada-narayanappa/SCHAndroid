@@ -201,7 +201,6 @@ public class UploadData extends AppCompatActivity{
         mActivity = this;
 
         GpsStatusCheck(mContext);
-
     }
 
     public static Context GetContext(){
