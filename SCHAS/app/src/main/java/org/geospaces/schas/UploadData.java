@@ -1075,9 +1075,9 @@ public class UploadData extends AppCompatActivity{
 
         for(int i = 0; timestamps[i] != 0 && i < 64; i++)
         {
-            now.add(Calendar.SECOND, currentTimestamp - timestamps[i]);
-            inhalerCapPresses[i] = now.getTime();
             now.add(Calendar.SECOND, timestamps[i] - currentTimestamp);
+            inhalerCapPresses[i] = now.getTime();
+            now.add(Calendar.SECOND, currentTimestamp - timestamps[i]);
         }
     }
 
