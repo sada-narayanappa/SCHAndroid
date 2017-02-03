@@ -38,10 +38,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 public class db {
     private static float batLevel;
@@ -157,7 +160,7 @@ public class db {
         }
 
         StringBuffer append = sb.append(
-                "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
+                "measured_at=" + convertToGMT(new Date(System.currentTimeMillis())) + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
                         "alt=" + lastLocation.getAltitude() + "," +
@@ -192,7 +195,7 @@ public class db {
 
 
         StringBuffer append = sb.append(
-                "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
+                "measured_at=" + convertToGMT(new Date(System.currentTimeMillis())) + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
                         "alt=" + lastLocation.getAltitude() + "," +
@@ -226,7 +229,7 @@ public class db {
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
-                "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
+                "measured_at=" + convertToGMT(new Date(System.currentTimeMillis())) + "," +
                         "record_type=" + ("peakflow") + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
@@ -250,7 +253,6 @@ public class db {
 
         StringBuffer sb = new StringBuffer(512);
         long sessionNum = System.currentTimeMillis() / 1000000 * 60;
-        long milliseconds = System.currentTimeMillis();
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(cntx);
         String stringUName = SP.getString("username", "NA");
         PackageInfo pInfo = null;
@@ -265,7 +267,7 @@ public class db {
         }
 
         StringBuffer append = sb.append(
-                "measured_at=" + (milliseconds / 1000) + "," +
+                "measured_at=" + convertToGMT(new Date(System.currentTimeMillis())) + "," +
                         "record_type=" + ("active") + "," +
                         "battery_level=" + batLevel + "," +
                         "session_num=" + sessionNum + "," +
@@ -321,7 +323,7 @@ public class db {
 
 
         StringBuffer append = sb.append(
-                "measured_at=" + pressTime.getTime() / 1000 + "," +
+                "measured_at=" + convertToGMT(new Date(pressTime.getTime()))+ "," +
                         "record_type=" + ("INHALER") + "," +
                         "lat=" + lastLocation.getLatitude() + "," +
                         "lon=" + lastLocation.getLongitude() + "," +
@@ -508,7 +510,7 @@ public class db {
         //GoogleMaps.lineCount++;
 
         sb.append(
-                "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
+                "measured_at=" + convertToGMT(new Date(System.currentTimeMillis())) + "," +
                         "lat=" + location.getLatitude() + "," +
                         "lon=" + location.getLongitude() + "," +
                         "alt=" + location.getAltitude() + "," +
@@ -842,5 +844,19 @@ public class db {
         out.close();
 
         file.delete();
+    }
+
+    public static String convertToGMT(Date timeToConvert){
+        SimpleDateFormat gmtFormat = new SimpleDateFormat();
+        TimeZone gmtTime = TimeZone.getTimeZone("GMT");
+        gmtFormat.setTimeZone(gmtTime);
+        String stringConverted = gmtFormat.format(timeToConvert);
+        Date convertedTime = null;
+        try {
+            convertedTime = gmtFormat.parse(stringConverted);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return String.valueOf(convertedTime.getTime() / 1000);
     }
 }

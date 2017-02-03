@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -21,8 +23,18 @@ import android.widget.Toast;
 
 import org.geospaces.schas.utils.SCHASApplication;
 import org.geospaces.schas.utils.db;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -180,5 +192,80 @@ public class Welcome extends ActionBarActivity {
     public void goToHomePage(View view) {
         Intent homeIntent = new Intent(this, UploadData.class);
         startActivity(homeIntent);
+    }
+
+    private class GetCurrentVersionCode extends AsyncTask<Context, String, String> {
+        @Override
+        protected String doInBackground(Context... params) {
+            String jsonStringFromQuery = "";
+            String queryUrl = "http://www.smartconnectedhealth.org/aura/webroot/db.jsp?q=SELECT%20version%20FROM%20loc%20WHERE%20record_type=%27active%27%20AND%20version%20LIKE%20%27%25-%25%27%20ORDER%20BY%20version%20DESC%20LIMIT%201";
+            HttpURLConnection urlConnection = null;
+
+            try {
+                URL url = new URL(queryUrl);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                StringBuilder builder = new StringBuilder(in.available());
+
+                String currentLine = reader.readLine();
+                while(currentLine != null){
+                    builder.append(currentLine);
+                    currentLine = reader.readLine();
+                }
+                jsonStringFromQuery = builder.toString();
+            }
+            catch (java.net.MalformedURLException exception){
+                Toast.makeText(params[0], "The URL for getting data was malformed", Toast.LENGTH_SHORT).show();
+            }
+            catch (IOException e){
+                Toast.makeText(params[0], "There was an exception opening the url connection", Toast.LENGTH_SHORT).show();
+            }
+            finally {
+                if (urlConnection != null){
+                    urlConnection.disconnect();
+                }
+            }
+
+            return jsonStringFromQuery;
+        }
+
+        @Override
+        protected void onPostExecute(String jsonString) {
+            int currentAppVersion = 0;
+            String newestAppVersionCode = "";
+            try {
+                currentAppVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                String[] splitJson = jsonString.split("=");
+                JSONObject jsonRootObject = new JSONObject(splitJson[1]);
+
+                JSONArray rowsArray = jsonRootObject.optJSONArray("rows");
+                JSONArray nextJSONArray = rowsArray.getJSONArray(0);
+
+                String versionComboString = nextJSONArray.getString(0);
+                String splitVersions[] = versionComboString.split("-");
+                newestAppVersionCode = splitVersions[1];
+            }
+            catch(JSONException e){
+                e.printStackTrace();
+            }
+
+            if ((currentAppVersion != 0) && (!newestAppVersionCode.equals(""))){
+                if (currentAppVersion < Integer.valueOf(newestAppVersionCode)){
+                    final String appPackageName = getPackageName();
+                    try{
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                    }
+                    catch (android.content.ActivityNotFoundException exception) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                    }
+                }
+            }
+        }
     }
 }

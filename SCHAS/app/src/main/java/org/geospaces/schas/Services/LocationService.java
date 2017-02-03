@@ -250,6 +250,11 @@ public class LocationService extends Service {
                 Log.e("ERROR", "Exception appending to or uploading file", e);
             }
             Log.d("Heartbeat", "Heartbeat occured");
+
+//            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(mContext);
+//            int timerInterval = SP.getInt("inhalerCapScan", 12);
+            int timerInterval = 1;
+            timer.schedule(new heartBeatRecord(), 0, (timerInterval * 3600000));
         }
     }
 
@@ -371,7 +376,6 @@ public class LocationService extends Service {
                     if (appIsRunning) {
                         if (db.canUploadData(mContext) != null) {
                             if (GoogleMaps.markers.size() + numberOfTextLocations >= 50) {
-
                                 try {
                                     db.Upload(mContext, null);
                                 } catch (IOException e) {
@@ -468,6 +472,12 @@ public class LocationService extends Service {
                     startPoll();
                 }
             };
+
+            //launches a recorder method for a heartbeat at the interval for inhaler cap update checks specified by the settings page
+//            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(mContext);
+//            int timerInterval = SP.getInt("inhalerCapScan", 12);
+            int timerInterval = 1;
+            timer.schedule(new heartBeatRecord(), 0, (timerInterval * 3600000));
 
             startPoll();
 

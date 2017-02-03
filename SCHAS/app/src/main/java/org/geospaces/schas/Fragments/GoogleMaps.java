@@ -35,12 +35,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.geospaces.schas.AsyncTasks.DownloadPrevLocations;
 import org.geospaces.schas.R;
 import org.geospaces.schas.Services.LocationService;
 import org.geospaces.schas.Services.StepCounter;
 import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.CustomExceptionHandler;
 import org.geospaces.schas.utils.db;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -397,6 +401,8 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
 
         LocationService.appIsRunning = true;
 
+        new DownloadPrevLocations().execute(mContext);
+
         //retain the fragment across orientation changes
         setRetainInstance(true);
     }
@@ -596,6 +602,8 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     public static void RefreshMapAfterUpload() throws IOException {
         googleMap.clear();
 
+        new DownloadPrevLocations().execute(mContext);
+
         locList = new ArrayList<>();
         markers = new ArrayList<>();
 
@@ -644,6 +652,42 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
             locList.add(markerTag);
         }
         return locList;
+    }
+
+    public static void buildLast24HoursData(String jsonString){
+        secondaryTrackline = new PolylineOptions()
+                .width(5)
+                .color(Color.RED)
+                .geodesic(true);
+        secondaryMarkers = new ArrayList<>();
+
+        try{
+            String[] splitJson = jsonString.split("=");
+            JSONObject jsonRootObject = new JSONObject(splitJson[1]);
+
+            JSONArray rowsArray = jsonRootObject.optJSONArray("rows");
+            JSONArray nextJSONArray = rowsArray.getJSONArray(0);
+            int i = 1;
+            while (nextJSONArray != null){
+                double nextLat = nextJSONArray.getDouble(11);
+                double nextLon = nextJSONArray.getDouble(12);
+
+                Marker newMarker = googleMap.addMarker(new MarkerOptions()
+                    .flat(true)
+                    .position(new LatLng(nextLat, nextLon))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
+                    .anchor(.5f, .5f));
+
+                secondaryTrackline.add(new LatLng(nextLat, nextLon));
+                secondaryMarkers.add(newMarker);
+
+                nextJSONArray = rowsArray.optJSONArray(i);
+                i++;
+            }
+        }
+        catch (JSONException e) {
+            Log.i("JSON Parser", e.getMessage());
+        }
     }
 }
 

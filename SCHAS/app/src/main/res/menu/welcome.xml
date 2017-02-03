@@ -27,17 +27,17 @@
     android:showAsAction="never" />
 
     <item android:id="@+id/action_splash"
-        android:title="About"
+        android:title="SCHAS Welcome Page"
         android:orderInCategory="100"
         android:showAsAction="never" />
 
     <item android:id="@+id/action_patientData"
-        android:title="Patient Data"
+        android:title="Patient Health Summary"
         android:orderInCategory="100"
         android:showAsAction="never" />
 
     <item android:id="@+id/action_step_counter"
-        android:title="Step Counter"
+        android:title="Pedometer"
         android:orderInCategory="100"
         android:showAsAction="never" />
 </menu>

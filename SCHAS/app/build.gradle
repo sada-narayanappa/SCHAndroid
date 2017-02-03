@@ -37,7 +37,7 @@ android {
         applicationId "org.geospaces.schas01"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 53
+        versionCode 54
         versionName "1.090"
 
         multiDexEnabled true
@@ -85,6 +85,7 @@ dependencies {
     compile 'com.google.android.gms:play-services:9.4.0'
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.jjoe64:graphview:4.2.1'
+    compile 'org.jsoup:jsoup:1.8.3'
 }
 
 configurations {

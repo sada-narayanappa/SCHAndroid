@@ -13,4 +13,11 @@
         android:defaultValue="3"
         android:entries="@array/listArray"
         android:entryValues="@array/listValues" />
+    <ListPreference
+        android:title="Inhaler Cap Update Frequency"
+        android:summary="select the interval at which you would like the phone to check for the inhaler cap"
+        android:key="inhalerCapScan"
+        android:defaultValue="24"
+        android:entries="@array/inhalerCapListArray"
+        android:entryValues="@array/inhalerCapListArrayValues" />
 </PreferenceScreen>

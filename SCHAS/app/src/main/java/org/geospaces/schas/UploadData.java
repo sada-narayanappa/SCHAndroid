@@ -480,6 +480,7 @@ public class UploadData extends AppCompatActivity{
     private View.OnClickListener inhaler_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Toast.makeText(UploadData.this, "Scanning for and attempting to pair with inhaler cap", Toast.LENGTH_SHORT).show();
             //AttackConfirmPopUpCreator("Confirm Inhaler Used","INHALER",true);
             if (Build.VERSION.SDK_INT >= 21) {
                 mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
@@ -593,7 +594,7 @@ public class UploadData extends AppCompatActivity{
 
             PFMConnectButton.setEnabled(false);
 
-            Toast("Attempting peakflow pairing");
+            Toast.makeText(UploadData.this, "Attempting bluetooth peakflow pairing", Toast.LENGTH_SHORT).show();
 
             Runnable runnable = new Runnable() {
                 @Override
