@@ -33,7 +33,6 @@ import org.geospaces.schas.utils.db;
 
 import java.io.IOException;
 import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by Erik on 3/14/2016.
@@ -236,26 +235,6 @@ public class LocationService extends Service {
         //timer.scheduleAtFixedRate(new heartBeatRecord(), 0, 3600000);
 
 //        startPoll();
-    }
-
-    private class heartBeatRecord extends TimerTask{
-        public void run(){
-            String msg = db.getHeartBeat(mContext);
-            try {
-                db.Write(msg + "\n");
-                if (appIsRunning) {
-                    db.Upload(mContext, null);
-                }
-            } catch (IOException e) {
-                Log.e("ERROR", "Exception appending to or uploading file", e);
-            }
-            Log.d("Heartbeat", "Heartbeat occured");
-
-//            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(mContext);
-//            int timerInterval = SP.getInt("inhalerCapScan", 12);
-            int timerInterval = 1;
-            timer.schedule(new heartBeatRecord(), 0, (timerInterval * 3600000));
-        }
     }
 
     @Override
@@ -472,12 +451,6 @@ public class LocationService extends Service {
                     startPoll();
                 }
             };
-
-            //launches a recorder method for a heartbeat at the interval for inhaler cap update checks specified by the settings page
-//            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(mContext);
-//            int timerInterval = SP.getInt("inhalerCapScan", 12);
-            int timerInterval = 1;
-            timer.schedule(new heartBeatRecord(), 0, (timerInterval * 3600000));
 
             startPoll();
 
