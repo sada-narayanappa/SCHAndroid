@@ -480,19 +480,44 @@ public class UploadData extends AppCompatActivity{
     private View.OnClickListener inhaler_button = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Toast.makeText(UploadData.this, "Scanning for and attempting to pair with inhaler cap", Toast.LENGTH_SHORT).show();
-            //AttackConfirmPopUpCreator("Confirm Inhaler Used","INHALER",true);
-            if (Build.VERSION.SDK_INT >= 21) {
-                mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
-                settings = new ScanSettings.Builder()
-                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                        .build();
-                filters = new ArrayList<ScanFilter>();
+            if(mBluetoothAdapter != null){
+                if (mBluetoothAdapter.isEnabled()){
+                    beginScanForInhaler();
+                }
+                else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    builder.setMessage("Your Bluetooth is disabled, and we cannot access inhaler cap data without it.\nWould you like to enable Bluetooth?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(final DialogInterface dialog, final int id) {
+                                    mBluetoothAdapter.enable();
+                                    beginScanForInhaler();
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                public void onClick(final DialogInterface dialog, final int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
             }
-
-            scanLeDevice(true);
         }
     };
+
+    private void beginScanForInhaler(){
+        Toast.makeText(UploadData.this, "Scanning for and attempting to pair with inhaler cap", Toast.LENGTH_SHORT).show();
+        if (Build.VERSION.SDK_INT >= 21) {
+            mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
+            settings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+            filters = new ArrayList<ScanFilter>();
+        }
+
+        scanLeDevice(true);
+    }
 
     /*
      * Controls animations for the floating action button for the dashboard screen

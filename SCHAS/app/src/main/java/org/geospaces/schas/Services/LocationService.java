@@ -32,7 +32,6 @@ import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
 import org.geospaces.schas.utils.db;
 
 import java.io.IOException;
-import java.util.Timer;
 
 /**
  * Created by Erik on 3/14/2016.
@@ -68,11 +67,6 @@ public class LocationService extends Service {
 
     public static boolean appIsRunning = false;
 
-    private static Timer timer = new Timer();
-
-    private Thread locationThread = new LocationThread();
-    private static Looper threadLooper = null;
-
     private static Handler mUIThreadHandler = null;
 
     public class LocalBinder extends Binder {
@@ -98,143 +92,25 @@ public class LocationService extends Service {
 
         startForeground(7, notification);
 
-        //start new code to create a new thread for location reading
-        locationThread.start();
+        //instantiate the managers for getting locations and using the sigmotionsensor
+        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 
-        // Create a criteria object to retrieve provider
-        //criteria = new Criteria();
+        //set up the signmotion sensor and link with the sensor manager
+        mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
 
-//        //instantiate the managers for getting locations and using the sigmotionsensor
-//        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-//        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
-//
-//        //set up the signmotion sensor and link with the sensor manager
-//        mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+        //set up the trigger event for the sigmotionsensor to start updates
+        mListener = new TriggerEventListener() {
+            @Override
+            public void onTrigger(TriggerEvent event) {
+                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
+                startPoll();
+            }
+        };
 
-        // Get the name of the best provider
-        //provider = locationManager.getBestProvider(criteria, true);
+        locListener = new MyLocationListener();
 
-//        //build a GoogleApiClient object that has access to the location API
-//        client = new GoogleApiClient.Builder(mContext)
-//                .addApi(LocationServices.API)
-//                .addConnectionCallbacks(this)
-//                .addOnConnectionFailedListener(this)
-//                .build();
-//        client.connect();
-//
-//        //build a LocationRequest object with the given parameters
-//        locReq = new LocationRequest();
-//        locReq.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//        locReq.setInterval(minTime);
-//        locReq.setSmallestDisplacement(minDistance);
-
-//        //set up the tigger event for the sigmotionsensor to start updates
-//        mListener = new TriggerEventListener() {
-//            @Override
-//            public void onTrigger(TriggerEvent event) {
-//                //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
-//                startPoll();
-//            }
-//        };
-
-        //create the location listener and begin location collection logic
-
-//        locListener = new LocationListener() {
-//            @Override
-//            public void onLocationChanged(Location location) {
-//                if (location != null) {
-//                    if (prevLocation != null) {
-//                        newLocDist = location.distanceTo(prevLocation);
-//                    } else {
-//                        newLocDist = 25;
-//                    }
-//
-//                    //if the new location is more than 25 meters away (for accuracy purposes)
-//                    if (newLocDist >= 25 && newLocDist < 500) {
-//
-//                        int numberOfTextLocations = 0;
-//                        try{
-//                            numberOfTextLocations = db.GetNumberOfLocations();
-//                        }
-//                        catch (IOException e){
-//                            e.printStackTrace();
-//                        }
-//                        Log.v("locations amounts", String.valueOf(GoogleMaps.markers.size() + numberOfTextLocations));
-//                        if (appIsRunning) {
-//                            if (db.canUploadData(mContext) != null) {
-//                                if (GoogleMaps.markers.size() + numberOfTextLocations >= 50) {
-//
-//                                    try {
-//                                        db.Upload(mContext, null);
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                            }
-//
-//                            long sessionNum = System.currentTimeMillis() / 1000000 * 60;
-//
-//                            GoogleMaps.plotNewPoint(new DatabaseLocationObject(
-//                                    String.valueOf(System.currentTimeMillis() / 1000),
-//                                    (float) location.getLatitude(),
-//                                    (float) location.getLongitude(),
-//                                    String.valueOf(location.getAltitude()),
-//                                    String.valueOf(location.getSpeed()),
-//                                    String.valueOf(location.getBearing()),
-//                                    String.valueOf(location.getAccuracy()),
-//                                    String.valueOf(location.getProvider()),
-//                                    String.valueOf(sessionNum),
-//                                    true
-//                            ));
-//                            db.lastLocation = location;
-//                        }
-//                        else{
-//                            db.getLocationData(location, location.getProvider());
-//                        }
-//
-//                        prevLocation = location;
-//
-//                        //get the extra info generated by the locationManager
-//                        speed = location.getSpeed();
-//                        //Toast.makeText(mContext, "speed is currently: " + String.valueOf(speed), Toast.LENGTH_SHORT).show();
-//
-//                        Log.i("speed", String.valueOf(speed));
-//                        //Toast.makeText(mContext, "speed is "+String.valueOf(speed), Toast.LENGTH_SHORT).show();
-//
-//                        //calculate the new minTime for the location updates if needed
-//                        speedCalc();
-//                    }
-//                }
-//                //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();
-//                //   Log.d("OnLocationChanged: ", String.valueOf(newLat) + ", " + String.valueOf(newLon));
-//            }
-//
-//            @Override
-//            public void onStatusChanged(String provider, int status, Bundle extras) {
-//                if (provider == LocationManager.GPS_PROVIDER) {
-//                    if (status == LocationProvider.AVAILABLE) {
-//                        startPoll();
-//                    } else {
-//                        stopPoll();
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onProviderEnabled(String provider) {
-//                startPoll();
-//            }
-//
-//            @Override
-//            public void onProviderDisabled(String provider) {
-//                stopPoll();
-//            }
-//        };
-
-        //launches a recorder method for a heartbeat once per hour 3600000
-        //timer.scheduleAtFixedRate(new heartBeatRecord(), 0, 3600000);
-
-//        startPoll();
+        startPoll();
     }
 
     @Override
@@ -255,7 +131,6 @@ public class LocationService extends Service {
         Log.i("LocationService", "Location Service stopped");
         stopPoll();
         //client.disconnect();
-        threadLooper.quit();
         super.onDestroy();
     }
 
@@ -286,7 +161,7 @@ public class LocationService extends Service {
                 mSensorManager.requestTriggerSensor(mListener, mSigMotion);
                 speedLevel = 0;
             }
-        } else if (speed >= .5 && speed < 6.0) {
+        } else if (speed >= .5 && speed < 5.0) {
             //do stuff for walking
             if (speedLevel != 1) {
                 //locationManager.removeUpdates(locListener);
@@ -296,7 +171,7 @@ public class LocationService extends Service {
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 startPoll();
             }
-        } else if (speed >= 10.0 && speed < 20.0) {
+        } else if (speed >= 5.0 && speed < 15.0) {
             //do stuff for running
             if (speedLevel != 2) {
                 //locationManager.removeUpdates(locListener);
@@ -306,7 +181,7 @@ public class LocationService extends Service {
                 //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, 30, locListener);
                 startPoll();
             }
-        } else if (speed > 20.0) {
+        } else if (speed > 15.0) {
             //do stuff for driving
             if (speedLevel != 3) {
                 //locationManager.removeUpdates(locListener);
@@ -342,7 +217,7 @@ public class LocationService extends Service {
                 }
 
                 //if the new location is more than 25 meters away (for accuracy purposes)
-                if (newLocDist >= 25 && newLocDist < 500) {
+                if (newLocDist >= 25) {
 
                     int numberOfTextLocations = 0;
                     try{
@@ -390,6 +265,15 @@ public class LocationService extends Service {
                     }
                     else{
                         db.getLocationData(location, location.getProvider());
+                        if (numberOfTextLocations >= 50){
+                            if (db.canUploadData(mContext) != null) {
+                                try {
+                                    db.Upload(mContext, null);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
                     }
 
                     prevLocation = location;
@@ -427,36 +311,6 @@ public class LocationService extends Service {
 
         @Override
         public void onProviderDisabled(String provider) {
-            stopPoll();
-        }
-    }
-
-    private class LocationThread extends Thread {
-        @Override
-        public void run() {
-            Looper.prepare();
-
-            //instantiate the managers for getting locations and using the sigmotionsensor
-            locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-            mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
-
-            //set up the signmotion sensor and link with the sensor manager
-            mSigMotion = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
-
-            //set up the tigger event for the sigmotionsensor to start updates
-            mListener = new TriggerEventListener() {
-                @Override
-                public void onTrigger(TriggerEvent event) {
-                    //Toast.makeText(mContext, "sig motion triggered", Toast.LENGTH_SHORT).show();
-                    startPoll();
-                }
-            };
-
-            startPoll();
-
-            threadLooper = Looper.myLooper();
-            Looper.loop();
-
             stopPoll();
         }
     }

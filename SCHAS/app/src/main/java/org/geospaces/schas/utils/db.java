@@ -703,7 +703,7 @@ public class db {
         while (nextLine != null) {
             //GoogleMaps.lineCount++;
             //check to see if this line is a location or a heartbeat
-            if (nextLine.contains("lat=") && !nextLine.contains("peakflow") && !nextLine.contains("INHALER")) {
+            if (nextLine.contains("lat=") && !nextLine.contains("peakflow") && !nextLine.contains("INHALER") && !nextLine.contains("ATTACK")) {
                 //get the indices of the known substrings
                 int indexLat = nextLine.indexOf("lat=");
                 int indexLon = nextLine.indexOf("lon=");
@@ -858,5 +858,25 @@ public class db {
             e.printStackTrace();
         }
         return String.valueOf(convertedTime.getTime() / 1000);
+    }
+
+    public static String getIncrementStepCount(Date startTime, Date endTime, int stepCount){
+        StringBuffer sb = new StringBuffer(512);
+
+        StringBuffer append = sb.append(
+                "measured_at=" + convertToGMT(new Date(System.currentTimeMillis())) + "," +
+                        "record_type=" + ("steps") + "," +
+                        "notes=" + formatTwoTimesIntoString(convertToGMT(startTime), convertToGMT(endTime)) + "," +
+                        "attr=" + stepCount
+        );
+
+        String writeString = sb.toString();
+
+        return writeString;
+    }
+
+    public static String formatTwoTimesIntoString(String gmtStart, String gmtEnd){
+        String returnString = gmtStart + ":" + gmtEnd;
+        return returnString;
     }
 }

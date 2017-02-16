@@ -47,6 +47,7 @@ public class Welcome extends ActionBarActivity {
     private PendingIntent pendingIntent;
     private AlarmManager manager;
     private Context context;
+    boolean waitForEmail = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +57,7 @@ public class Welcome extends ActionBarActivity {
         context = this;
 
         String filename = "DEBUG_STACKTRACE.txt";
-        boolean waitForEmail = false;
+
         File file = db.getFile(filename);
 
         if(firstTime && file.exists())
@@ -106,21 +107,21 @@ public class Welcome extends ActionBarActivity {
         }
 
         //If this is the first time the app is launched it will set up/wait 5 seconds and then move from splash screen to UploadData activity
-        if (!waitForEmail) {
-            new Timer().schedule(new TimerTask() {
-                 @Override
-                 public void run() {
-                     Intent intent = new Intent(Welcome.this, UploadData.class);
-                     startActivity(intent);
-                     this.cancel();
-                 }
-             }, 5000
-            );
-
-            //startAlarm();
-
-            firstTime = false;
-        }
+//        if (!waitForEmail) {
+//            new Timer().schedule(new TimerTask() {
+//                 @Override
+//                 public void run() {
+//                     Intent intent = new Intent(Welcome.this, UploadData.class);
+//                     startActivity(intent);
+//                     this.cancel();
+//                 }
+//             }, 5000
+//            );
+//
+//            //startAlarm();
+//
+//            firstTime = false;
+//        }
 
         try {
             PackageInfo pInfo = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -136,6 +137,8 @@ public class Welcome extends ActionBarActivity {
         } catch(Exception e){
             Log.e("Welcome", e.toString());
         }
+
+        new GetCurrentVersionCode().execute(context);
     }
 
     @Override
@@ -195,6 +198,8 @@ public class Welcome extends ActionBarActivity {
     }
 
     private class GetCurrentVersionCode extends AsyncTask<Context, String, String> {
+        private boolean shouldStartIntentTimer = true;
+
         @Override
         protected String doInBackground(Context... params) {
             String jsonStringFromQuery = "";
@@ -255,15 +260,34 @@ public class Welcome extends ActionBarActivity {
                 e.printStackTrace();
             }
 
+            Log.i("currentAppVersion", String.valueOf(currentAppVersion));
+            Log.i("newestAppVersion", newestAppVersionCode);
+
             if ((currentAppVersion != 0) && (!newestAppVersionCode.equals(""))){
                 if (currentAppVersion < Integer.valueOf(newestAppVersionCode)){
                     final String appPackageName = getPackageName();
+                    shouldStartIntentTimer = false;
                     try{
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
                     }
                     catch (android.content.ActivityNotFoundException exception) {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
                     }
+                }
+            }
+            if (shouldStartIntentTimer){
+                if (!waitForEmail) {
+                    new Timer().schedule(new TimerTask() {
+                         @Override
+                         public void run() {
+                             Intent intent = new Intent(Welcome.this, UploadData.class);
+                             startActivity(intent);
+                             this.cancel();
+                         }
+                    }, 5000 );
+                    //startAlarm();
+
+                    firstTime = false;
                 }
             }
         }

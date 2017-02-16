@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,6 +14,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -21,6 +23,7 @@ import org.geospaces.schas.StepCounterView;
 import org.geospaces.schas.utils.db;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -31,17 +34,20 @@ import java.util.TimerTask;
 public class StepCounter extends Service{
     IBinder mBinder = new LocalBinder();
     Context mContext;
-    private static Handler mUIThreadHandler = null;
+    private Handler mUIThreadHandler = null;
 
     SensorManager mSensorManager;
     Sensor mStepCounter;
     SensorEventListener mStepListener;
 
+    private static Timer timer = new Timer();
+    int timerInterval;
+
+    public Date stepIncrementStartTime = null;
+    public Date stepIncrementEndTime = null;
+    public int numberOfStepsAtLastUpload = 0;
     public static int currentNumberOfSteps;
     public static boolean viewerPageIsForeground = false;
-
-    private static Timer timer = new Timer();
-
 
     public class LocalBinder extends Binder {
         public StepCounter getService() { return StepCounter.this; }
@@ -97,30 +103,62 @@ public class StepCounter extends Service{
         }
 
         //launches a recorder method for a heartbeat at the interval for inhaler cap update checks specified by the settings page
-//            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(mContext);
-//            int timerInterval = SP.getInt("inhalerCapScan", 12);
-        //int timerInterval = 1;
-        //timer.schedule(new heartBeatRecord(), 0, (timerInterval * 3600000));
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(mContext);
+        timerInterval = Integer.valueOf(SP.getString("inhalerCapScan", "1"));
+        timer.scheduleAtFixedRate(new StepCounter.heartBeatRecord(), 0, (timerInterval * 3600000));
+
+        SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                Log.d("inhalerCapConfig", "new timerInterval = " + timerInterval);
+                if (Integer.valueOf(sharedPreferences.getString("inhalerCapScan", "1")) != timerInterval){
+                    timerInterval = Integer.valueOf(sharedPreferences.getString("inhalerCapScan", "1"));
+                    Log.d("inhalerCapConfig", "new timerInterval = " + timerInterval);
+                    launchNewTimer();
+                }
+            }
+        };
+        SP.registerOnSharedPreferenceChangeListener(listener);
     }
 
     private class heartBeatRecord extends TimerTask {
         public void run(){
+            //check for first heartbeat since starting
+            if (stepIncrementStartTime == null) {
+                stepIncrementStartTime = new Date();
+            }
+            //if not first heartbeat, find number of steps since last
+            else {
+                stepIncrementEndTime = new Date();
+                int numberOfStepsToReport = currentNumberOfSteps - numberOfStepsAtLastUpload;
+
+                String stepsMsg = db.getIncrementStepCount(stepIncrementStartTime, stepIncrementEndTime, numberOfStepsToReport);
+                try {
+                    db.Write(stepsMsg);
+                } catch (IOException e) {
+                    Log.e("ERROR", "Exception appending to or uploading file", e);
+                }
+
+                numberOfStepsAtLastUpload = currentNumberOfSteps;
+                stepIncrementStartTime = stepIncrementEndTime;
+            }
+
             String msg = db.getHeartBeat(mContext);
             try {
                 db.Write(msg + "\n");
-                if (LocationService.appIsRunning) {
+                if (db.canUploadData(mContext) != null){
                     db.Upload(mContext, null);
                 }
             } catch (IOException e) {
                 Log.e("ERROR", "Exception appending to or uploading file", e);
             }
             Log.d("Heartbeat", "Heartbeat occured");
-
-//            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(mContext);
-//            int timerInterval = SP.getInt("inhalerCapScan", 12);
-            int timerInterval = 1;
-            timer.schedule(new heartBeatRecord(), 0, (timerInterval * 3600000));
         }
+    }
+
+    private void launchNewTimer(){
+        timer.cancel();
+        timer.scheduleAtFixedRate(new StepCounter.heartBeatRecord(), 0, (timerInterval * 3600000));
     }
 
     @Override

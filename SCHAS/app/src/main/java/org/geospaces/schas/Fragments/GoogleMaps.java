@@ -375,7 +375,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
         // Zoom in the Google Map
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(14));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
         //   googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("You are here!"));
 
@@ -466,7 +466,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         LatLng newLatLng = new LatLng(newLat, newLon);
 
         //move the camera to the new location
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newLatLng, 15));
 
         //add a marker at the new location
         Marker newMarker = googleMap.addMarker(new MarkerOptions()
@@ -602,8 +602,6 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     public static void RefreshMapAfterUpload() throws IOException {
         googleMap.clear();
 
-        new DownloadPrevLocations().execute(mContext);
-
         locList = new ArrayList<>();
         markers = new ArrayList<>();
 
@@ -616,33 +614,14 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         secondaryLocList = new ArrayList<>();
         secondaryMarkers = new ArrayList<>();
 
-        try {
-            db.plotSecondaryTxtPoints();
-        } catch (IOException e) {
-            Log.i("error", "error reading from secondary text file");
-            throw new IOException("could not read from secondary text file" + e);
-        }
-
         secondaryTrackline = new PolylineOptions()
                 .width(5)
                 .color(Color.RED)
                 .geodesic(true);
 
+        new DownloadPrevLocations().execute(mContext);
+
         //Toast.makeText(mContext, "inside secondary_loc.txt read", Toast.LENGTH_SHORT).show();
-
-        for (LatLng nextLoc : secondaryLocList) {
-            Log.i("RefreshLocPlot", nextLoc.toString());
-            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .position(nextLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
-                    .anchor(.5f, .5f));
-            secondaryTrackline.add(nextLoc);
-            secondaryMarkers.add(nextMarker);
-        }
-
-        Log.i("secondaryloc", secondaryLocList.toString());
-        secondaryPolyline = googleMap.addPolyline(secondaryTrackline);
     }
 
     public static List<DatabaseLocationObject> GetDLOList(){
@@ -655,12 +634,6 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     }
 
     public static void buildLast24HoursData(String jsonString){
-        secondaryTrackline = new PolylineOptions()
-                .width(5)
-                .color(Color.RED)
-                .geodesic(true);
-        secondaryMarkers = new ArrayList<>();
-
         try{
             String[] splitJson = jsonString.split("=");
             JSONObject jsonRootObject = new JSONObject(splitJson[1]);
@@ -672,14 +645,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                 double nextLat = nextJSONArray.getDouble(11);
                 double nextLon = nextJSONArray.getDouble(12);
 
-                Marker newMarker = googleMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .position(new LatLng(nextLat, nextLon))
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
-                    .anchor(.5f, .5f));
-
-                secondaryTrackline.add(new LatLng(nextLat, nextLon));
-                secondaryMarkers.add(newMarker);
+                secondaryLocList.add(new LatLng(nextLat, nextLon));
 
                 nextJSONArray = rowsArray.optJSONArray(i);
                 i++;
@@ -688,6 +654,37 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         catch (JSONException e) {
             Log.i("JSON Parser", e.getMessage());
         }
+
+        try {
+            db.plotSecondaryTxtPoints();
+        } catch (IOException e) {
+            Log.i("error", "error reading from secondary text file");
+        }
+
+        for (LatLng nextLoc : secondaryLocList) {
+            Log.i("RefreshLocPlot", nextLoc.toString());
+            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
+                    .flat(true)
+                    .position(nextLoc)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
+                    .anchor(.5f, .5f));
+            nextMarker.setTag(new DatabaseLocationObject(
+                    String.valueOf(System.currentTimeMillis() / 1000),
+                    (float) nextLoc.latitude,
+                    (float) nextLoc.longitude,
+                    "null",
+                    "null",
+                    "null",
+                    "null",
+                    "null",
+                    "null",
+                    true));
+            secondaryTrackline.add(nextLoc);
+            secondaryMarkers.add(nextMarker);
+        }
+
+        Log.i("secondaryloc", secondaryLocList.toString());
+        secondaryPolyline = googleMap.addPolyline(secondaryTrackline);
     }
 }
 

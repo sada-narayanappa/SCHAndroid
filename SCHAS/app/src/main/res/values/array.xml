@@ -20,12 +20,12 @@
             <item>3 hours</item>
             <item>1 hour</item>
         </string-array>
-        <integer-array name="inhalerCapListArrayValues">
+        <string-array name="inhalerCapListArrayValues">
             <item>48</item>
             <item>24</item>
             <item>12</item>
             <item>6</item>
             <item>3</item>
             <item>1</item>
-        </integer-array>
+        </string-array>
     </resources>
