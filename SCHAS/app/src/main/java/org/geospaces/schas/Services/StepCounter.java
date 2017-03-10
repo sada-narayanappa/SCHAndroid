@@ -1,5 +1,6 @@
 package org.geospaces.schas.Services;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -18,11 +19,13 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.geospaces.schas.Broadcast_Receivers.MidnightAlarmReceiver;
 import org.geospaces.schas.R;
 import org.geospaces.schas.StepCounterView;
 import org.geospaces.schas.utils.db;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,14 +34,18 @@ import java.util.TimerTask;
  * Created by Erik on 1/11/2017.
  */
 
-public class StepCounter extends Service{
+public class StepCounter extends Service
+                         implements SharedPreferences.OnSharedPreferenceChangeListener {
     IBinder mBinder = new LocalBinder();
     Context mContext;
-    private Handler mUIThreadHandler = null;
+    private static Handler mUIThreadHandler = null;
 
     SensorManager mSensorManager;
     Sensor mStepCounter;
     SensorEventListener mStepListener;
+
+    SharedPreferences SP;
+    SharedPreferences.OnSharedPreferenceChangeListener spListener;
 
     private static Timer timer = new Timer();
     int timerInterval;
@@ -48,6 +55,18 @@ public class StepCounter extends Service{
     public int numberOfStepsAtLastUpload = 0;
     public static int currentNumberOfSteps;
     public static boolean viewerPageIsForeground = false;
+
+    //subtract this one from the total current number to get number for last day
+    public static int previousStepAmountNotLastDay = 0;
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (Integer.valueOf(sharedPreferences.getString("inhalerCapScan", "1")) != timerInterval){
+            timerInterval = Integer.valueOf(sharedPreferences.getString("inhalerCapScan", "1"));
+            Log.d("inhalerCapConfig", "new timerInterval = " + timerInterval);
+            launchNewTimer();
+        }
+    }
 
     public class LocalBinder extends Binder {
         public StepCounter getService() { return StepCounter.this; }
@@ -65,6 +84,7 @@ public class StepCounter extends Service{
                 //.setContentText("Location Polling Currently Enabled!")
                 .setSmallIcon(R.drawable.ic_directions_walk_white_36dp)
                 .setContentIntent(clickedOnPendingIntent)
+                .setGroup("schasGroup")
                 .build();
 
         startForeground(9, notification);
@@ -76,6 +96,7 @@ public class StepCounter extends Service{
             @Override
             public void onSensorChanged(SensorEvent event) {
                 currentNumberOfSteps = (int) event.values[0];
+                final int stepsForTheDay = currentNumberOfSteps - previousStepAmountNotLastDay;
 
                 if (viewerPageIsForeground) {
                     if (mUIThreadHandler == null) {
@@ -84,7 +105,7 @@ public class StepCounter extends Service{
                     mUIThreadHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            StepCounterView.updateStepsCounter(currentNumberOfSteps);
+                            StepCounterView.updateStepsCounter(stepsForTheDay);
                         }
                     });
                 }
@@ -96,29 +117,27 @@ public class StepCounter extends Service{
         };
 
         if (mStepCounter != null){
-            mSensorManager.registerListener(mStepListener, mStepCounter, SensorManager.SENSOR_DELAY_NORMAL);
+            startStepCounter();
         }
         else{
             Log.i("Step Counter", "step counter sensor not available");
         }
 
         //launches a recorder method for a heartbeat at the interval for inhaler cap update checks specified by the settings page
-        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SP = PreferenceManager.getDefaultSharedPreferences(mContext);
         timerInterval = Integer.valueOf(SP.getString("inhalerCapScan", "1"));
+        Log.d("inhalerCapConfig", "new timerInterval = " + timerInterval);
         timer.scheduleAtFixedRate(new StepCounter.heartBeatRecord(), 0, (timerInterval * 3600000));
+        SP.registerOnSharedPreferenceChangeListener(this);
 
-        SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                Log.d("inhalerCapConfig", "new timerInterval = " + timerInterval);
-                if (Integer.valueOf(sharedPreferences.getString("inhalerCapScan", "1")) != timerInterval){
-                    timerInterval = Integer.valueOf(sharedPreferences.getString("inhalerCapScan", "1"));
-                    Log.d("inhalerCapConfig", "new timerInterval = " + timerInterval);
-                    launchNewTimer();
-                }
-            }
-        };
-        SP.registerOnSharedPreferenceChangeListener(listener);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(mContext, MidnightAlarmReceiver.class).setAction("TRIGGER_MIDNIGHT_ALARM"), PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
     }
 
     private class heartBeatRecord extends TimerTask {
@@ -152,18 +171,40 @@ public class StepCounter extends Service{
             } catch (IOException e) {
                 Log.e("ERROR", "Exception appending to or uploading file", e);
             }
+
+
             Log.d("Heartbeat", "Heartbeat occured");
         }
     }
 
     private void launchNewTimer(){
         timer.cancel();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new StepCounter.heartBeatRecord(), 0, (timerInterval * 3600000));
+    }
+
+    public static void ResetStepCounterForNextDay(){
+        previousStepAmountNotLastDay = currentNumberOfSteps;
+        final int stepsForTheDay = currentNumberOfSteps - previousStepAmountNotLastDay;
+
+        if (viewerPageIsForeground) {
+            if (mUIThreadHandler == null) {
+                mUIThreadHandler = new Handler(Looper.getMainLooper());
+            }
+            mUIThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    StepCounterView.updateStepsCounter(stepsForTheDay);
+                }
+            });
+        }
     }
 
     @Override
     public void onDestroy(){
         Log.i("StepCounter", "Step Counter Service stopped");
+        SP.unregisterOnSharedPreferenceChangeListener(this);
+        stopStepCounter();
         super.onDestroy();
     }
 

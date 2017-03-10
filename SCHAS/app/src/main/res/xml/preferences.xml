@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference android:title="Your Name"
+    <EditTextPreference
+        android:title="Your Name"
         android:key="username"
         android:summary="Please provide your username" />
-    <CheckBoxPreference android:title="Use Cellular Data"
+    <CheckBoxPreference
+        android:title="Use Cellular Data"
         android:defaultValue="true"
         android:summary="Allow phone to upload over carrier data network (data rates may apply)"
         android:key="CellularData" />
-    <ListPreference     android:title="Update Frequency"
-        android:summary="Select the interval you want to update location information"
-        android:key="frequency"
-        android:defaultValue="3"
-        android:entries="@array/listArray"
-        android:entryValues="@array/listValues" />
+    <EditTextPreference
+        android:title="Location Update Frequency"
+        android:summary="Enter a location update frequency in seconds, or set to 'Auto' to let the app manage this."
+        android:key="locationFrequency"
+        android:defaultValue="Auto"/>
     <ListPreference
         android:title="Inhaler Cap Update Frequency"
         android:summary="select the interval at which you would like the phone to check for the inhaler cap"

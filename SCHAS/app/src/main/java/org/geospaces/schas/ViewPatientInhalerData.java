@@ -1,8 +1,12 @@
 package org.geospaces.schas;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +14,9 @@ import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.DefaultLabelFormatter;
@@ -22,6 +29,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
+import org.geospaces.schas.Services.StepCounter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,6 +58,29 @@ public class ViewPatientInhalerData extends AppCompatActivity {
     DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     DateFormat onClickFormat = new SimpleDateFormat("MM/dd/yyyy");
     public Calendar calendar;
+
+    StepCounter mService;
+    boolean mBound;
+
+    public Button startButton;
+    public Button stopButton;
+    public TextView stepsText;
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            StepCounter.LocalBinder binder = (StepCounter.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +142,15 @@ public class ViewPatientInhalerData extends AppCompatActivity {
 
         labelRenderer.setHumanRounding(false);
 
+        stepsText = (TextView) findViewById(R.id.stepsText);
+        stopButton = (Button) findViewById(R.id.stopButton);
+        startButton = (Button) findViewById(R.id.startButton);
+
+        stopButton.setOnClickListener(stopButtonListener);
+        startButton.setOnClickListener(startButtonListener);
+
+        stepsText.setText(StepCounter.currentNumberOfSteps + "\nSteps Taken");
+
         new RetrieveInhalerDataFromServer().execute();
     }
 
@@ -134,6 +174,18 @@ public class ViewPatientInhalerData extends AppCompatActivity {
             return super.onOptionsItemSelected(item);
         }
         return true;
+    }
+
+    @Override
+    protected void onResume(){
+        StepCounter.viewerPageIsForeground = true;
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause(){
+        StepCounter.viewerPageIsForeground = false;
+        super.onPause();
     }
 
     public void buildDataGraph(String jsonString) {
@@ -198,6 +250,26 @@ public class ViewPatientInhalerData extends AppCompatActivity {
             }
         });
         inhalerDataGraph.addSeries(series);
+    }
+
+    private View.OnClickListener stopButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent stopStepCounterIntent = new Intent(mContext, StepCounter.class);
+            stopService(stopStepCounterIntent);
+        }
+    };
+
+    private View.OnClickListener startButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent startStepCounterIntent = new Intent(mContext, StepCounter.class);
+            startService(startStepCounterIntent);
+        }
+    };
+
+    public void updateStepsCounter(int steps){
+        stepsText.setText(steps + "\nSteps Taken");
     }
 
     private class RetrieveInhalerDataFromServer extends AsyncTask<String, Void, String>{

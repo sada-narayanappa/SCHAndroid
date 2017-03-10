@@ -58,7 +58,7 @@ public class StepCounterView extends AppCompatActivity {
         stopButton.setOnClickListener(stopButtonListener);
         startButton.setOnClickListener(startButtonListener);
 
-        stepCounterText.setText(StepCounter.currentNumberOfSteps + "\nSteps Taken");
+        stepCounterText.setText(StepCounter.currentNumberOfSteps + "\nSteps Taken In Last Hour");
     }
 
     @Override

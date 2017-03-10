@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Properties;
 
 
 /**
@@ -16,20 +15,10 @@ public class CustomExceptionHandler extends Activity implements Thread.UncaughtE
 
     private Thread.UncaughtExceptionHandler defaultHandler;
 
-    private String emailDestination;
-
-    private String emailSource;
-
-    Properties properties;
-
     //include more here if needed for file and server url, this just covers sending to
 
     public CustomExceptionHandler() {
-//        this.emailDestination = "schas.debug@gmail.com";
-//        this.emailSource = "web@gmail.com";
-//        properties = System.getProperties();
-//        properties.setProperty("mail.smtp.host", "smtp.gmail.com");
-        //this.defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+        this.defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
     }
 
     @Override
@@ -49,6 +38,6 @@ public class CustomExceptionHandler extends Activity implements Thread.UncaughtE
             e.printStackTrace();
         }
 
-        System.exit(2);
+        defaultHandler.uncaughtException(thread, ex);
     }
 }

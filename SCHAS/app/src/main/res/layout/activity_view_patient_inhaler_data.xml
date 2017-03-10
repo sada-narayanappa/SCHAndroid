@@ -1,29 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_view_patient_inhaler_data"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.geospaces.schas.ViewPatientInhalerData">
+    tools:context="org.geospaces.schas.ViewPatientInhalerData"
+    android:fillViewport="true">
 
-    <TextView
-        android:text="Patient Inhaler Data"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:layout_weight=".5"
-        android:layout_margin="5dip"
-        android:gravity="center"
-        android:textSize="30sp"
-        tools:textColor="@color/ColorPrimaryText" />
+        android:orientation="vertical" >
 
-    <com.jjoe64.graphview.GraphView
-        android:layout_width="match_parent"
-        android:layout_height="200dip"
-        android:id="@+id/inhalerDataGraph"
-        android:layout_weight="1"
-        android:layout_margin="5dip" />
+        <TextView
+            android:text="Patient Health Summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView"
+            android:layout_weight=".05"
+            android:layout_margin="5dip"
+            android:gravity="center"
+            android:textSize="30sp"
+            tools:textColor="@color/ColorPrimaryText" />
 
-</LinearLayout>
+        <com.jjoe64.graphview.GraphView
+            android:layout_width="match_parent"
+            android:layout_height="200dip"
+            android:id="@+id/inhalerDataGraph"
+            android:layout_weight="1"
+            android:layout_margin="5dip" />
+
+        <TextView
+            android:text="Steps Number "
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/stepsText"
+            android:layout_weight=".3"
+            android:layout_margin="5dip"
+            android:textSize="30sp"
+            android:gravity="center"
+            android:textColor="@color/ColorPrimaryText" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".1"
+            android:layout_margin="5dip">
+
+            <Button
+                android:text="Start\nPedometer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/startPedometer"
+                android:layout_weight="1"
+                android:background="@color/green"
+                android:layout_margin="5dip" />
+
+            <Button
+                android:text="Stop\nPedometer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/stopPedometer"
+                android:layout_weight="1"
+                android:background="@color/red"
+                android:layout_margin="5dip" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

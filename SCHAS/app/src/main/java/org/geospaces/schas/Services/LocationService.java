@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.TriggerEvent;
@@ -19,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -36,7 +38,8 @@ import java.io.IOException;
 /**
  * Created by Erik on 3/14/2016.
  */
-public class LocationService extends Service {
+public class LocationService extends Service
+                             implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     IBinder mBinder = new LocalBinder();
 
@@ -63,11 +66,22 @@ public class LocationService extends Service {
     Sensor mSigMotion;
     TriggerEventListener mListener;
 
+    SharedPreferences SP;
+    String spLocationFreq;
+
     float newLocDist;
 
     public static boolean appIsRunning = false;
 
     private static Handler mUIThreadHandler = null;
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.i("SPLocFreq", "sharedPrefsLocationService");
+        spLocationFreq = SP.getString("locationFrequency", "Auto");
+        stopPoll();
+        startPoll();
+    }
 
     public class LocalBinder extends Binder {
             public LocationService getService() {
@@ -88,6 +102,7 @@ public class LocationService extends Service {
                 //.setContentText("Location Polling Currently Enabled!")
                 .setSmallIcon(R.drawable.ic_place_white_36dp)
                 .setContentIntent(clickedOnPendingIntent)
+                .setGroup("schasGroup")
                 .build();
 
         startForeground(7, notification);
@@ -110,6 +125,10 @@ public class LocationService extends Service {
 
         locListener = new MyLocationListener();
 
+        SP = PreferenceManager.getDefaultSharedPreferences(mContext);
+        spLocationFreq = SP.getString("locationFrequency", "Auto");
+        SP.registerOnSharedPreferenceChangeListener(this);
+
         startPoll();
     }
 
@@ -129,6 +148,7 @@ public class LocationService extends Service {
     @Override
     public void onDestroy() {
         Log.i("LocationService", "Location Service stopped");
+        SP.unregisterOnSharedPreferenceChangeListener(this);
         stopPoll();
         //client.disconnect();
         super.onDestroy();
@@ -195,8 +215,14 @@ public class LocationService extends Service {
     }
 
     public void startPoll() {
-        //LocationServices.FusedLocationApi.requestLocationUpdates(client, locReq, locListener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, locListener);
+        if(!(spLocationFreq.equalsIgnoreCase("Auto") || spLocationFreq.equalsIgnoreCase("Automatic"))){
+            int freq = Integer.valueOf(spLocationFreq.replaceAll("[^\\d]", ""));
+            Log.d("sharedPrefsLocFreq", String.valueOf(freq));
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, (freq * 1000), minDistance, locListener);
+        }
+        else {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, locListener);
+        }
     }
 
     public void stopPoll() {
@@ -286,7 +312,9 @@ public class LocationService extends Service {
                     //Toast.makeText(mContext, "speed is "+String.valueOf(speed), Toast.LENGTH_SHORT).show();
 
                     //calculate the new minTime for the location updates if needed
-                    speedCalc();
+                    if(spLocationFreq.equalsIgnoreCase("Auto")){
+                        speedCalc();
+                    }
                 }
             }
             //   Toast.makeText(mContext, String.valueOf(newLat)+", "+String.valueOf(newLon), Toast.LENGTH_SHORT).show();

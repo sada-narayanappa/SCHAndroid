@@ -80,6 +80,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".Broadcast_Receivers.MidnightAlarmReceiver">
+            <intent-filter>
+                <action android:name="TRIGGER_MIDNIGHT_ALARM" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".Services.LocationService"
             android:enabled="true"

@@ -471,12 +471,14 @@ public class db {
         nv.add(new BasicNameValuePair("maxPostSize", ""+msg.length()));
         //nv.add(new BasicNameValuePair("maxPostSize", "-1"));
 
-        String ns = "Sending: " + url + "\n" + msg.substring(0, Math.min(msg.length() - 1, 256));
-        Log.i("", ns);
+        if (msg.length() > 0){
+            String ns = "Sending: " + url + "\n" + msg.substring(0, Math.min(msg.length() - 1, 256));
+            Log.i("", ns);
 
-        POST_TO_SERVER = null;
-        POST_TO_SERVER = new PostToServer(nv, act, true);
-        POST_TO_SERVER.execute(url);
+            POST_TO_SERVER = null;
+            POST_TO_SERVER = new PostToServer(nv, act, true);
+            POST_TO_SERVER.execute(url);
+        }
 
         return null;
     }

@@ -147,16 +147,6 @@ public class UploadData extends AppCompatActivity{
         filters = new ArrayList<ScanFilter>();
 
         SP = PreferenceManager.getDefaultSharedPreferences(this);
-        if(!SP.getString("frequency","2").equals("0")) {
-            String stringT = SP.getString("frequency", "2");
-            intT = Integer.parseInt(stringT);
-
-            PERIOD = 1000 * 60 * intT;
-        }
-        else{
-            autoUpdate();
-        }
-
         SharedPreferences.OnSharedPreferenceChangeListener listener =
                 new SharedPreferences.OnSharedPreferenceChangeListener() {
                     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
@@ -225,14 +215,6 @@ public class UploadData extends AppCompatActivity{
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-
-    public void autoUpdate(){
-        String stringT = SP.getString("frequency", "2");
-        intT = Integer.parseInt(stringT);
-
-        PERIOD = 1000 * 60 * intT;
     }
 
     private void Toast(String msg) {
@@ -400,17 +382,6 @@ public class UploadData extends AppCompatActivity{
     public void onResume()
     {
         super.onResume();
-
-        SP = PreferenceManager.getDefaultSharedPreferences(this);
-        String stringT = SP.getString("frequency", "2");
-        if(!SP.getString("frequency","2").equals("0")){
-            intT = Integer.parseInt(stringT);
-
-            PERIOD = 1000 * 60 * intT;
-        }
-        else{
-            autoUpdate();
-        }
     }
 
     public void AttackConfirmPopUpCreator(String label,final String severity,boolean inhal) {

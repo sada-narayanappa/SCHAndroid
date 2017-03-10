@@ -35,9 +35,9 @@ android {
 
     defaultConfig {
         applicationId "org.geospaces.schas01"
-        minSdkVersion 18
+        minSdkVersion 20
         targetSdkVersion 21
-        versionCode 54
+        versionCode 55
         versionName "1.090"
 
         multiDexEnabled true
