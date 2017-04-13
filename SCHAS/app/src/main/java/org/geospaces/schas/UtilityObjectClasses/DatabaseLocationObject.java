@@ -16,6 +16,8 @@ public class DatabaseLocationObject {
     public String sessionNum;
     public boolean isValid;
 
+    public boolean isUploadedPreviously = false;
+
     public DatabaseLocationObject(String measuredAt,
                        float lat,
                        float lon,
@@ -56,5 +58,9 @@ public class DatabaseLocationObject {
 
     public boolean GetValidity() {
         return isValid;
+    }
+
+    public void setPreviouslyUploaded(){
+        isUploadedPreviously = true;
     }
 }

@@ -30,6 +30,7 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
 import org.geospaces.schas.Services.StepCounter;
+import org.geospaces.schas.utils.db;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -129,7 +130,6 @@ public class ViewPatientInhalerData extends AppCompatActivity {
         //inhalerDataGraph.getGridLabelRenderer().setHorizontalAxisTitle("Date");
         labelRenderer.setHorizontalLabelsAngle(50);
 
-
         //set max and min data labels
         graphViewport.setXAxisBoundsManual(true);
         graphViewport.setMinX(oneWeekAgo.getTime());
@@ -143,15 +143,20 @@ public class ViewPatientInhalerData extends AppCompatActivity {
         labelRenderer.setHumanRounding(false);
 
         stepsText = (TextView) findViewById(R.id.stepsText);
-        stopButton = (Button) findViewById(R.id.stopButton);
-        startButton = (Button) findViewById(R.id.startButton);
+        stopButton = (Button) findViewById(R.id.stopPedometer);
+        startButton = (Button) findViewById(R.id.startPedometer);
 
         stopButton.setOnClickListener(stopButtonListener);
         startButton.setOnClickListener(startButtonListener);
 
         stepsText.setText(StepCounter.currentNumberOfSteps + "\nSteps Taken");
 
-        new RetrieveInhalerDataFromServer().execute();
+        if (db.isNetworkAvailable(mContext)){
+            new RetrieveInhalerDataFromServer().execute();
+        }
+        else{
+            Toast.makeText(mContext, "Could not download inhaler data\nno network connection available", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

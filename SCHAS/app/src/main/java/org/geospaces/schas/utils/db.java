@@ -14,6 +14,7 @@ import android.os.BatteryManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.format.Formatter;
@@ -38,6 +39,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -259,8 +262,15 @@ public class db {
         String versionStuff = null;
 
         try {
+            //use this set if doing an alpha release
+            //ALPHA RELEASE SET
             pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
-            versionStuff = "version=" + pInfo.versionName + "-" + pInfo.versionCode;
+            versionStuff = "version=ALPHA" + pInfo.versionCode;
+
+            //use this set if doing a normal prod release
+            //PRODUCTION RELEASE SET
+//            pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
+//            versionStuff = "version=" + pInfo.versionName + "-" + pInfo.versionCode;
         }
         catch(Exception e) {
             Log.i("package", "could not get package info");
@@ -407,10 +417,15 @@ public class db {
     public static synchronized String Upload(Context ctx, Activity act) throws IOException {
         contextForUpload = ctx;
         String str;
-        if (null == (str = db.canUploadData(ctx))) {
+
+        if ((db.canUploadData(ctx) == null) || (isNetworkAvailable(ctx) == false)) {
             return "No wireless connection and no cellular upload enabled! Please enable one and check back";
         }
         else{
+            File file = db.getFile(db.FILE_NAME);
+            if (file.exists()){
+                file.delete();
+            }
             db.PrepareTextFile();
             db.CreateDuplicateFile();
             db.splitFileIntoUploadableChunks();
@@ -533,7 +548,7 @@ public class db {
         }
     }
 
-    public static List ReadFromLocationsFile() throws IOException{
+    public static List<DatabaseLocationObject> ReadFromLocationsFile() throws IOException{
         List locationList = new ArrayList();
 
         //open the file that has all of the location values stored within it
@@ -754,7 +769,7 @@ public class db {
         mUIThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                GoogleMaps.removeMarkers();
+                //GoogleMaps.removeMarkers();
                 try {
                     GoogleMaps.RefreshMapAfterUpload();
                 } catch (IOException e) {
@@ -882,11 +897,11 @@ public class db {
         return returnString;
     }
 
-    public static void writeFirebaseTokenIntoTextFile(String token){
+    public static void writeFirebaseTokenIntoTextFile(String token) {
         StringBuffer sb = new StringBuffer(512);
         sb.append(
                 "device_firebase_token=" + token + ","
-                    // + whatever other data needed to link to the user table (?)
+                // + whatever other data needed to link to the user table (?)
         );
 
         String writeString = sb.toString();
@@ -895,6 +910,39 @@ public class db {
             Write(writeString + "\n");
         } catch (IOException e) {
             Log.e("ERROR", "Exception appending to log file", e);
+        }
+    }
+
+    public static  boolean isNetworkAvailable(Context context) {
+        boolean haveConnectedWifi = false;
+        boolean haveConnectedMobile = false;
+
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+        for (NetworkInfo ni : netInfo) {
+            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+                if (ni.isConnected())
+                    haveConnectedWifi = true;
+            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+                if (ni.isConnected())
+                    haveConnectedMobile = true;
+        }
+        return ((haveConnectedWifi || haveConnectedMobile) && hasLiveInternetConnection());
+    }
+
+    public static boolean hasLiveInternetConnection(){
+        //not the best solution, but implements a synchronous blocking method for checking if there is a connection to the internet
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+        StrictMode.setThreadPolicy(policy);
+        try{
+            InetAddress ipAddr = InetAddress.getByName("google.com");
+            boolean hasInternet = !ipAddr.toString().equals("");
+            return hasInternet;
+        }
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

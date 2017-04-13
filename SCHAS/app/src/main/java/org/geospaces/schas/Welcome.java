@@ -143,8 +143,28 @@ public class Welcome extends ActionBarActivity {
         } catch(Exception e){
             Log.e("Welcome", e.toString());
         }
+        new GetCurrentVersionCode().execute(context);
+        if (db.isNetworkAvailable(context)){
+            new GetCurrentVersionCode().execute(context);
+        }
+        else{
+            Toast.makeText(context, "Could not download current version code\nno network connection available", Toast.LENGTH_SHORT).show();
 
-        //new GetCurrentVersionCode().execute(context);
+        }
+
+        if (!waitForEmail) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(Welcome.this, UploadData.class);
+                    startActivity(intent);
+                    this.cancel();
+                }
+            }, 5000 );
+            //startAlarm();
+
+            firstTime = false;
+        }
     }
 
     @Override
@@ -269,7 +289,7 @@ public class Welcome extends ActionBarActivity {
             Log.i("currentAppVersion", String.valueOf(currentAppVersion));
             Log.i("newestAppVersion", newestAppVersionCode);
 
-            if ((currentAppVersion != 0) && (!newestAppVersionCode.equals(""))){
+            if ((currentAppVersion != 0) && (!newestAppVersionCode.equals("")) && (!newestAppVersionCode.contains("ALPHA"))){
                 if (currentAppVersion < Integer.valueOf(newestAppVersionCode)){
                     final String appPackageName = getPackageName();
                     shouldStartIntentTimer = false;

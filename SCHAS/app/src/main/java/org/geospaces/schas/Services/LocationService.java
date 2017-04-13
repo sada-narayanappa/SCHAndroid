@@ -244,7 +244,6 @@ public class LocationService extends Service
 
                 //if the new location is more than 25 meters away (for accuracy purposes)
                 if (newLocDist >= 25) {
-
                     int numberOfTextLocations = 0;
                     try{
                         numberOfTextLocations = db.GetNumberOfLocations();
@@ -252,9 +251,10 @@ public class LocationService extends Service
                     catch (IOException e){
                         e.printStackTrace();
                     }
-                    Log.v("locations amounts", String.valueOf(GoogleMaps.markers.size() + numberOfTextLocations));
+
                     if (appIsRunning) {
                         if (db.canUploadData(mContext) != null) {
+                            Log.v("locations amounts", String.valueOf(GoogleMaps.markers.size() + numberOfTextLocations));
                             if (GoogleMaps.markers.size() + numberOfTextLocations >= 50) {
                                 try {
                                     db.Upload(mContext, null);
@@ -291,6 +291,7 @@ public class LocationService extends Service
                     }
                     else{
                         db.getLocationData(location, location.getProvider());
+                        Log.v("locations amounts", String.valueOf(numberOfTextLocations));
                         if (numberOfTextLocations >= 50){
                             if (db.canUploadData(mContext) != null) {
                                 try {
