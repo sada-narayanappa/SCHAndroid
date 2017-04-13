@@ -22,6 +22,7 @@ import android.util.Log;
 import org.geospaces.schas.Broadcast_Receivers.MidnightAlarmReceiver;
 import org.geospaces.schas.R;
 import org.geospaces.schas.StepCounterView;
+import org.geospaces.schas.ViewPatientInhalerData;
 import org.geospaces.schas.utils.db;
 
 import java.io.IOException;
@@ -44,10 +45,12 @@ public class StepCounter extends Service
     Sensor mStepCounter;
     SensorEventListener mStepListener;
 
+    AlarmManager alarmManager;
+
     SharedPreferences SP;
     SharedPreferences.OnSharedPreferenceChangeListener spListener;
 
-    private static Timer timer = new Timer();
+    private static Timer timer;
     int timerInterval;
 
     public Date stepIncrementStartTime = null;
@@ -76,7 +79,7 @@ public class StepCounter extends Service
     public void onCreate(){
         mContext = getApplicationContext();
 
-        Intent clickedOnIntent = new Intent(this, StepCounterView.class);
+        Intent clickedOnIntent = new Intent(this, ViewPatientInhalerData.class);
         PendingIntent clickedOnPendingIntent = PendingIntent.getActivity(this, 0, clickedOnIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new Notification.Builder(mContext)
@@ -127,6 +130,7 @@ public class StepCounter extends Service
         SP = PreferenceManager.getDefaultSharedPreferences(mContext);
         timerInterval = Integer.valueOf(SP.getString("inhalerCapScan", "1"));
         Log.d("inhalerCapConfig", "new timerInterval = " + timerInterval);
+        timer = new Timer();
         timer.scheduleAtFixedRate(new StepCounter.heartBeatRecord(), 0, (timerInterval * 3600000));
         SP.registerOnSharedPreferenceChangeListener(this);
 
@@ -136,7 +140,7 @@ public class StepCounter extends Service
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 0);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(mContext, MidnightAlarmReceiver.class).setAction("TRIGGER_MIDNIGHT_ALARM"), PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
     }
 
@@ -165,7 +169,7 @@ public class StepCounter extends Service
             String msg = db.getHeartBeat(mContext);
             try {
                 db.Write(msg + "\n");
-                if (db.canUploadData(mContext) != null){
+                if ((db.canUploadData(mContext) != null) && (db.isNetworkAvailable(mContext))){
                     db.Upload(mContext, null);
                 }
             } catch (IOException e) {
@@ -225,5 +229,8 @@ public class StepCounter extends Service
 
     public void stopStepCounter() {
         mSensorManager.unregisterListener(mStepListener);
+        timer.cancel();
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(mContext, MidnightAlarmReceiver.class).setAction("TRIGGER_MIDNIGHT_ALARM"), PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
     }
 }

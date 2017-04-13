@@ -71,6 +71,5 @@ public class DownloadPrevLocations extends AsyncTask<Context, Void, String> {
                 GoogleMaps.buildLast24HoursData(finalJsonString);
             }
         });
-
     }
 }

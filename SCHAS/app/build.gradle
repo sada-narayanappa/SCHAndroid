@@ -33,11 +33,20 @@ android {
         exclude 'META-INF/ASL2.0'
     }
 
+//    before preparing a build for release
+//    update the app version code
+//    and swap which set is being written into the db
+//    based on version name "1.090" or "ALPHA"
+//    in db.java
+//    in the section on sending heartbeats to server
+//    you can do a whole project search (ctrl + shift + f) for either
+//    ALPHA RELEASE SET or PRODUCTION RELEASE SET to find these sections
+
     defaultConfig {
         applicationId "org.geospaces.schas01"
         minSdkVersion 20
         targetSdkVersion 21
-        versionCode 55
+        versionCode 57
         versionName "1.090"
 
         multiDexEnabled true

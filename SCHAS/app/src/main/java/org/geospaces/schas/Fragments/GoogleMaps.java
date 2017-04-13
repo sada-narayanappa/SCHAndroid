@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -133,8 +134,6 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         View v = super.onCreateView(inflater, container, savedInstanceState);
 
         getMapAsync(this);
-
-        //setUpMap();
 
         return v;
     }
@@ -274,12 +273,12 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
             e.printStackTrace();
             //Toast.makeText(mContext, "could not read from loc.txt", Toast.LENGTH_SHORT).show();
         }
-        try {
-            db.plotSecondaryTxtPoints();
-        } catch (IOException e) {
-            Log.i("plotting secondary", "could not read from secondary text file");
-            e.printStackTrace();
-        }
+//        try {
+//            db.plotSecondaryTxtPoints();
+//        } catch (IOException e) {
+//            Log.i("plotting secondary", "could not read from secondary text file");
+//            e.printStackTrace();
+//        }
 
         for (DatabaseLocationObject dlo : locList) {
             LatLng nextLoc = new LatLng(dlo.lat, dlo.lon);
@@ -308,17 +307,17 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
 
         }
 
-        for (LatLng nextLoc: secondaryLocList) {
-            Log.i("startingSecondaryPlot", nextLoc.toString());
-            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .position(nextLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
-                    .anchor(.5f, .5f));
-            //nextMarker.setTag(new CustomMarker(null, false));
-            secondaryTrackline.add(nextLoc);
-            secondaryMarkers.add(nextMarker);
-        }
+//        for (LatLng nextLoc: secondaryLocList) {
+//            Log.i("startingSecondaryPlot", nextLoc.toString());
+//            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
+//                    .flat(true)
+//                    .position(nextLoc)
+//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
+//                    .anchor(.5f, .5f));
+//            //nextMarker.setTag(new CustomMarker(null, false));
+//            secondaryTrackline.add(nextLoc);
+//            secondaryMarkers.add(nextMarker);
+//        }
 
         //Log.i("locList", locList.toString());
         //Log.i("secondaryLocList", secondaryLocList.toString());
@@ -401,7 +400,13 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
 
         LocationService.appIsRunning = true;
 
-        new DownloadPrevLocations().execute(mContext);
+        if (db.isNetworkAvailable(mContext)){
+            Toast.makeText(mContext, "Retrieving locations from server", Toast.LENGTH_SHORT).show();
+            new DownloadPrevLocations().execute(mContext);
+        }
+        else{
+            Toast.makeText(mContext, "Could not download last 24 hours of locations \nno network connection available", Toast.LENGTH_SHORT).show();
+        }
 
         //retain the fragment across orientation changes
         setRetainInstance(true);
@@ -410,18 +415,18 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     @Override
     public boolean onMarkerClick(final Marker marker){
         DatabaseLocationObject dlo = (DatabaseLocationObject) marker.getTag();
-
-        if (dlo.GetValidity()) {
-            dlo.isValid = false;
-            //change marker color here
-            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballred16));
-            Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
-        }
-        else{
-            dlo.isValid = true;
-            //change marker color here
-            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue16));
-            Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
+        if (dlo.isUploadedPreviously == false) {
+            if (dlo.GetValidity()) {
+                dlo.isValid = false;
+                //change marker color here
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballred16));
+                Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
+            } else {
+                dlo.isValid = true;
+                //change marker color here
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ballblue16));
+                Log.i("marker clicked", String.valueOf(dlo.GetValidity()));
+            }
         }
 
         return false;
@@ -429,6 +434,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
 
     @Override
     public void onPause() {
+        db.PrepareTextFile();
         super.onPause();
     }
 
@@ -445,7 +451,6 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     @Override
     public void onDetach() {
         LocationService.appIsRunning = false;
-        db.PrepareTextFile();
         super.onDetach();
         //remove the location listener when the app during onDetach
         //locationManager.removeUpdates(locListener);
@@ -454,9 +459,9 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
         //mSensorManager.unregisterListener(this);
     }
 
-    public static void removeMarkers() {
-        googleMap.clear();
-    }
+//    public static void removeMarkers() {
+//        googleMap.clear();
+//    }
 
     public static void plotNewPoint(DatabaseLocationObject dlo) {
         //locList.add(dlo);
@@ -600,7 +605,35 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
     }
 
     public static void RefreshMapAfterUpload() throws IOException {
-        googleMap.clear();
+        //googleMap.clear();
+
+        for (Marker marker : markers){
+            DatabaseLocationObject nextDLO = (DatabaseLocationObject) marker.getTag();
+            LatLng nextLoc = new LatLng(nextDLO.lat, nextDLO.lon);
+
+            DatabaseLocationObject newDLO = new DatabaseLocationObject(
+                    String.valueOf(System.currentTimeMillis() / 1000),
+                    (float) nextLoc.latitude,
+                    (float) nextLoc.longitude,
+                    "null",
+                    "null",
+                    "null",
+                    "null",
+                    "null",
+                    "null",
+                    true);
+            newDLO.setPreviouslyUploaded();
+
+            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
+                    .flat(true)
+                    .position(nextLoc)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
+                    .anchor(.5f, .5f));
+            nextMarker.setTag(newDLO);
+
+            secondaryTrackline.add(nextLoc);
+            secondaryMarkers.add(nextMarker);
+        }
 
         locList = new ArrayList<>();
         markers = new ArrayList<>();
@@ -611,15 +644,20 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                 .geodesic(true);
         polyLine = googleMap.addPolyline(trackLine);
 
-        secondaryLocList = new ArrayList<>();
-        secondaryMarkers = new ArrayList<>();
+//        secondaryLocList = new ArrayList<>();
+//        secondaryMarkers = new ArrayList<>();
 
         secondaryTrackline = new PolylineOptions()
                 .width(5)
                 .color(Color.RED)
                 .geodesic(true);
 
-        new DownloadPrevLocations().execute(mContext);
+//        if (db.isNetworkAvailable(mContext)){
+//            new DownloadPrevLocations().execute(mContext);
+//        }
+//        else{
+//            Toast.makeText(mContext, "Could not download last 24 hours of locations \nno network connection available", Toast.LENGTH_SHORT).show();
+//        }
 
         //Toast.makeText(mContext, "inside secondary_loc.txt read", Toast.LENGTH_SHORT).show();
     }
@@ -663,12 +701,7 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
 
         for (LatLng nextLoc : secondaryLocList) {
             Log.i("RefreshLocPlot", nextLoc.toString());
-            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
-                    .flat(true)
-                    .position(nextLoc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
-                    .anchor(.5f, .5f));
-            nextMarker.setTag(new DatabaseLocationObject(
+            DatabaseLocationObject newDLO = new DatabaseLocationObject(
                     String.valueOf(System.currentTimeMillis() / 1000),
                     (float) nextLoc.latitude,
                     (float) nextLoc.longitude,
@@ -678,7 +711,15 @@ public class GoogleMaps extends SupportMapFragment implements GoogleMap.OnMarker
                     "null",
                     "null",
                     "null",
-                    true));
+                    true);
+            newDLO.setPreviouslyUploaded();
+            Marker nextMarker = googleMap.addMarker(new MarkerOptions()
+                    .flat(true)
+                    .position(nextLoc)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ballorange16))
+                    .anchor(.5f, .5f));
+            nextMarker.setTag(newDLO);
+
             secondaryTrackline.add(nextLoc);
             secondaryMarkers.add(nextMarker);
         }

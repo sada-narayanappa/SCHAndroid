@@ -36,8 +36,8 @@
         android:orderInCategory="100"
         android:showAsAction="never" />
 
-    <item android:id="@+id/action_step_counter"
-        android:title="Pedometer"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+    <!--<item android:id="@+id/action_step_counter"-->
+        <!--android:title="Pedometer"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:showAsAction="never" />-->
 </menu>
