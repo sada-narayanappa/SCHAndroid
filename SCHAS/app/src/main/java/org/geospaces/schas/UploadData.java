@@ -47,6 +47,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.geospaces.schas.Services.LocationService;
+import org.geospaces.schas.Services.MyFirebaseInstanceIDService;
 import org.geospaces.schas.utils.CustomExceptionHandler;
 import org.geospaces.schas.utils.SCHASSettings;
 import org.geospaces.schas.utils.db;

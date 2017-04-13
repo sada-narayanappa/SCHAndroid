@@ -5,11 +5,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.geospaces.schas.Settings.LegalNotices;
+
+import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
 /**
  * Created by snarayan on 11/3/14.
@@ -114,6 +118,25 @@ public class HandleMenu  {
             Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
             return false;
 
+            case R.id.action_emailFirebaseToken:
+                SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(a.getBaseContext());
+                String username = SP.getString("username", "NA");
+                String token = SP.getString("Firebase_Registration_Token","Not Generated");
+                Intent mailIntent = new Intent();
+                mailIntent.setData(Uri.parse("mailto:"));
+                mailIntent.setAction(Intent.ACTION_SENDTO);
+                mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] {"schas.debug@gmail.com"});
+                mailIntent.putExtra(Intent.EXTRA_SUBJECT, "Firebase Token ID");
+                mailIntent.putExtra(Intent.EXTRA_TEXT, "Username: " + username + "\nFirebase Token: " + token);
+
+                try
+                {
+                    startActivityForResult(a, Intent.createChooser(mailIntent, "Please choose a mail client to send the Firebase token from."), 1, new Bundle() );
+                }
+                catch (android.content.ActivityNotFoundException exception)
+                {
+                    Toast.makeText(a.getBaseContext(), "No email clients installed.", Toast.LENGTH_SHORT).show();
+                }
         }
         return false;
     }

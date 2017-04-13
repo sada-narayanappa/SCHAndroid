@@ -40,4 +40,9 @@
         android:title="Pedometer"
         android:orderInCategory="100"
         android:showAsAction="never" />
+
+    <item android:id="@+id/action_emailFirebaseToken"
+        android:title="Email Firebase Token"
+        android:orderInCategory="100"
+        android:showAsAction="never"/>
 </menu>

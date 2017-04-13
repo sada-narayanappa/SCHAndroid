@@ -86,6 +86,7 @@ dependencies {
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.jjoe64:graphview:4.2.1'
     compile 'org.jsoup:jsoup:1.8.3'
+    compile 'com.google.firebase:firebase-crash:9.4.0'
 }
 
 configurations {
@@ -93,5 +94,5 @@ configurations {
     all*.exclude module: 'httpclient'
 }
 
-
+apply plugin: 'com.google.gms.google-services'
 

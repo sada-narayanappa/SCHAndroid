@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1058701478984",
+    "firebase_url": "https://schas-51db8.firebaseio.com",
+    "project_id": "schas-51db8",
+    "storage_bucket": "schas-51db8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058701478984:android:01326bc199dd60bf",
+        "android_client_info": {
+          "package_name": "org.geospaces.schas01"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1058701478984-6li9qn43o2kd381865hkufp73mq40m7l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2YKlruzekxpfSFaA_9CkF9TX7wEuo0Ps"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

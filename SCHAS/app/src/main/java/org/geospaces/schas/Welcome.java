@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.geospaces.schas.Services.MyFirebaseInstanceIDService;
 import org.geospaces.schas.utils.SCHASApplication;
 import org.geospaces.schas.utils.db;
 import org.json.JSONArray;
@@ -122,13 +123,18 @@ public class Welcome extends ActionBarActivity {
 //
 //            firstTime = false;
 //        }
+        MyFirebaseInstanceIDService idService = new MyFirebaseInstanceIDService();
+        idService.getToken();
 
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = SP.edit();
+        editor.putString("Firebase_Registration_Token", idService.getToken());
+        editor.commit();
         try {
             PackageInfo pInfo = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0);
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
             String ID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
-            SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
             String stringUName = SP.getString("username", "NA");
 
             String version = pInfo.versionName + " Code:" + pInfo.versionCode + "\n"+
@@ -138,7 +144,7 @@ public class Welcome extends ActionBarActivity {
             Log.e("Welcome", e.toString());
         }
 
-        new GetCurrentVersionCode().execute(context);
+        //new GetCurrentVersionCode().execute(context);
     }
 
     @Override

@@ -881,4 +881,20 @@ public class db {
         String returnString = gmtStart + ":" + gmtEnd;
         return returnString;
     }
+
+    public static void writeFirebaseTokenIntoTextFile(String token){
+        StringBuffer sb = new StringBuffer(512);
+        sb.append(
+                "device_firebase_token=" + token + ","
+                    // + whatever other data needed to link to the user table (?)
+        );
+
+        String writeString = sb.toString();
+
+        try {
+            Write(writeString + "\n");
+        } catch (IOException e) {
+            Log.e("ERROR", "Exception appending to log file", e);
+        }
+    }
 }
