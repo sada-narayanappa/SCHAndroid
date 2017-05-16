@@ -17,6 +17,7 @@ public class DatabaseLocationObject {
     public boolean isValid;
 
     public boolean isUploadedPreviously = false;
+    public boolean isWrittenIntoFile;
 
     public DatabaseLocationObject(String measuredAt,
                        float lat,
@@ -38,6 +39,7 @@ public class DatabaseLocationObject {
         this.recordType = recordType;
         this.sessionNum = sessionNum;
         this.isValid = isValid;
+        this.isWrittenIntoFile = false;
     }
 
     public String ToString(){
@@ -62,5 +64,9 @@ public class DatabaseLocationObject {
 
     public void setPreviouslyUploaded(){
         isUploadedPreviously = true;
+    }
+
+    public void setWrittenIntoFile(){
+        isWrittenIntoFile = true;
     }
 }

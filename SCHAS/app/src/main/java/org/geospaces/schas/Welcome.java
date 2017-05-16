@@ -123,7 +123,9 @@ public class Welcome extends ActionBarActivity {
 //
 //            firstTime = false;
 //        }
+
         MyFirebaseInstanceIDService idService = new MyFirebaseInstanceIDService();
+        idService.callingContext = this;
         idService.getToken();
 
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(this);
@@ -143,7 +145,7 @@ public class Welcome extends ActionBarActivity {
         } catch(Exception e){
             Log.e("Welcome", e.toString());
         }
-        new GetCurrentVersionCode().execute(context);
+
         if (db.isNetworkAvailable(context)){
             new GetCurrentVersionCode().execute(context);
         }

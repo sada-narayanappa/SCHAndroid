@@ -27,10 +27,11 @@
 
         <com.jjoe64.graphview.GraphView
             android:layout_width="match_parent"
-            android:layout_height="200dip"
+            android:layout_height="250dip"
             android:id="@+id/inhalerDataGraph"
             android:layout_weight="1"
-            android:layout_margin="5dip" />
+            android:layout_margin="5dip"
+            android:paddingEnd="64dip"/>
 
         <TextView
             android:text="Steps Number "
@@ -41,7 +42,7 @@
             android:layout_margin="5dip"
             android:textSize="30sp"
             android:gravity="center"
-            android:textColor="@color/ColorPrimaryText" />
+            android:textColor="@color/darkred" />
 
         <LinearLayout
             android:orientation="horizontal"

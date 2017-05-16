@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/titleLinearLayout">
+        <TextView
+            android:text="Notification Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationTitle"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:textStyle="bold|italic"
+            android:layout_margin="5dip"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="Notification Sent Time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationSentTime"
+            android:layout_weight=".5"
+            android:layout_margin="5dip"
+            android:textColor="@color/black"
+            android:gravity="right" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tagLinearLayout">
+        <TextView
+            android:text="Notification Tag:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationTagHeader"
+            android:layout_weight=".05"
+            android:layout_margin="5dip"
+            android:textColor="@color/black"
+            android:textStyle="normal|bold" />
+
+        <TextView
+            android:text="Notification Tag Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationTagText"
+            android:layout_weight=".95"
+            android:layout_margin="5dip"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/bodyLinearLayout">
+        <TextView
+            android:text="Notification Message:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationBodyHeader"
+            android:layout_weight=".05"
+            android:layout_margin="5dip"
+            android:textColor="@color/black"
+            android:textStyle="normal|bold" />
+
+        <TextView
+            android:text="Notification Message Body Text "
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationBodyText"
+            android:layout_weight=".95"
+            android:layout_margin="5dip"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+</LinearLayout>

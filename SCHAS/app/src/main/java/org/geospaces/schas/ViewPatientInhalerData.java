@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -58,6 +59,7 @@ public class ViewPatientInhalerData extends AppCompatActivity {
     LineGraphSeries<DataPoint> series;
     DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     DateFormat onClickFormat = new SimpleDateFormat("MM/dd/yyyy");
+    DateFormat nameOfDayOfWeekFormat = new SimpleDateFormat("EEE");
     public Calendar calendar;
 
     StepCounter mService;
@@ -65,7 +67,7 @@ public class ViewPatientInhalerData extends AppCompatActivity {
 
     public Button startButton;
     public Button stopButton;
-    public TextView stepsText;
+    public static TextView stepsText;
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -113,7 +115,7 @@ public class ViewPatientInhalerData extends AppCompatActivity {
                     Date date = new Date((long) value);
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(date);
-                    String returnString = "\n" + (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.DAY_OF_MONTH);
+                    String returnString = nameOfDayOfWeekFormat.format(date) + " " + (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.DAY_OF_MONTH);
                     return returnString;
                 }
                 else {
@@ -125,10 +127,11 @@ public class ViewPatientInhalerData extends AppCompatActivity {
 
         labelRenderer.setNumHorizontalLabels(7);
         labelRenderer.setNumVerticalLabels(6);
-        labelRenderer.setPadding(32);
-        //inhalerDataGraph.getGridLabelRenderer().setVerticalAxisTitle("Inhaler Usage");
+        labelRenderer.setPadding(64);
+        inhalerDataGraph.getGridLabelRenderer().setVerticalAxisTitle("Inhaler Usage");
         //inhalerDataGraph.getGridLabelRenderer().setHorizontalAxisTitle("Date");
-        labelRenderer.setHorizontalLabelsAngle(50);
+        labelRenderer.setHorizontalLabelsAngle(90);
+        labelRenderer.setLabelsSpace(35);
 
         //set max and min data labels
         graphViewport.setXAxisBoundsManual(true);
@@ -142,6 +145,11 @@ public class ViewPatientInhalerData extends AppCompatActivity {
 
         labelRenderer.setHumanRounding(false);
 
+        //set up second scale for steps here
+        inhalerDataGraph.getSecondScale().setMinY(0);
+        inhalerDataGraph.getSecondScale().setMaxY(15000);
+        inhalerDataGraph.getGridLabelRenderer().setVerticalLabelsSecondScaleColor(Color.RED);
+
         stepsText = (TextView) findViewById(R.id.stepsText);
         stopButton = (Button) findViewById(R.id.stopPedometer);
         startButton = (Button) findViewById(R.id.startPedometer);
@@ -149,7 +157,7 @@ public class ViewPatientInhalerData extends AppCompatActivity {
         stopButton.setOnClickListener(stopButtonListener);
         startButton.setOnClickListener(startButtonListener);
 
-        stepsText.setText(StepCounter.currentNumberOfSteps + "\nSteps Taken");
+        stepsText.setText(StepCounter.currentNumberOfSteps + "\nSteps Taken Today");
 
         if (db.isNetworkAvailable(mContext)){
             new RetrieveInhalerDataFromServer().execute();
@@ -157,6 +165,8 @@ public class ViewPatientInhalerData extends AppCompatActivity {
         else{
             Toast.makeText(mContext, "Could not download inhaler data\nno network connection available", Toast.LENGTH_SHORT).show();
         }
+
+
     }
 
     @Override
@@ -219,6 +229,7 @@ public class ViewPatientInhalerData extends AppCompatActivity {
                 secondDateArray.add(new DateAndIntPair(date, Integer.valueOf(inhalerUsage)));
                 nextJSONArray = rowsArray.optJSONArray(i);
                 i++;
+                Log.d("inhaler plot", date.toString());
             }
         }
         catch(JSONException e){
@@ -273,8 +284,8 @@ public class ViewPatientInhalerData extends AppCompatActivity {
         }
     };
 
-    public void updateStepsCounter(int steps){
-        stepsText.setText(steps + "\nSteps Taken");
+    public static void updateStepsCounter(int steps){
+        stepsText.setText(steps + "\nSteps Taken Today");
     }
 
     private class RetrieveInhalerDataFromServer extends AsyncTask<String, Void, String>{
@@ -332,6 +343,4 @@ public class ViewPatientInhalerData extends AppCompatActivity {
         }
 
     }
-
-
 }

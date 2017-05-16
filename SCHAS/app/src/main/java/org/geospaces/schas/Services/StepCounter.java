@@ -21,7 +21,6 @@ import android.util.Log;
 
 import org.geospaces.schas.Broadcast_Receivers.MidnightAlarmReceiver;
 import org.geospaces.schas.R;
-import org.geospaces.schas.StepCounterView;
 import org.geospaces.schas.ViewPatientInhalerData;
 import org.geospaces.schas.utils.db;
 
@@ -48,7 +47,6 @@ public class StepCounter extends Service
     AlarmManager alarmManager;
 
     SharedPreferences SP;
-    SharedPreferences.OnSharedPreferenceChangeListener spListener;
 
     private static Timer timer;
     int timerInterval;
@@ -84,12 +82,11 @@ public class StepCounter extends Service
 
         Notification notification = new Notification.Builder(mContext)
                 .setContentTitle("SCHAS Step Counter")
-                //.setContentText("Location Polling Currently Enabled!")
+                .setContentText("SCHAS Pedometer is Currently Enabled")
                 .setSmallIcon(R.drawable.ic_directions_walk_white_36dp)
                 .setContentIntent(clickedOnPendingIntent)
                 .setGroup("schasGroup")
                 .build();
-
         startForeground(9, notification);
 
         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
@@ -108,7 +105,7 @@ public class StepCounter extends Service
                     mUIThreadHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            StepCounterView.updateStepsCounter(stepsForTheDay);
+                            ViewPatientInhalerData.updateStepsCounter(stepsForTheDay);
                         }
                     });
                 }
@@ -131,7 +128,8 @@ public class StepCounter extends Service
         timerInterval = Integer.valueOf(SP.getString("inhalerCapScan", "1"));
         Log.d("inhalerCapConfig", "new timerInterval = " + timerInterval);
         timer = new Timer();
-        timer.scheduleAtFixedRate(new StepCounter.heartBeatRecord(), 0, (timerInterval * 3600000));
+        timer.scheduleAtFixedRate(new StepCounter.heartBeatRecord(), 0, timerInterval * 3600000);
+        Log.d("stepcounterreportrate", Integer.toString(timerInterval * 3600000));
         SP.registerOnSharedPreferenceChangeListener(this);
 
         Calendar calendar = Calendar.getInstance();
@@ -198,7 +196,7 @@ public class StepCounter extends Service
             mUIThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    StepCounterView.updateStepsCounter(stepsForTheDay);
+                    ViewPatientInhalerData.updateStepsCounter(stepsForTheDay);
                 }
             });
         }

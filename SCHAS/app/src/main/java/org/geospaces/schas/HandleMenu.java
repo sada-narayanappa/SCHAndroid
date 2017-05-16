@@ -29,10 +29,6 @@ public class HandleMenu  {
         int id = item.getItemId();
         Intent intent = null;
 
-//        if (GoogleMaps.class.isAssignableFrom(a.getClass())){
-//            db.PrepareTextFile();
-//        }
-
         switch (id) {
             case R.id.action_test:
                 if(a.getClass() != Test.class) {
@@ -89,7 +85,6 @@ public class HandleMenu  {
                 if(a.getClass() != LegalNotices.class) {
                 intent = new Intent(a, LegalNotices.class);
                 a.startActivity(intent);
-                //a.setContentView(R.layout.activity_web);
                 return true;
             }
                 Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
@@ -113,15 +108,6 @@ public class HandleMenu  {
             Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
             return false;
 
-//            case R.id.action_step_counter:
-//                if(a.getClass() != StepCounterView.class) {
-//                    intent = new Intent(a, StepCounterView.class);
-//                    a.startActivity(intent);
-//                    return true;
-//                }
-//            Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
-//            return false;
-
             case R.id.action_emailFirebaseToken:
                 SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(a.getBaseContext());
                 String username = SP.getString("username", "NA");
@@ -141,6 +127,15 @@ public class HandleMenu  {
                 {
                     Toast.makeText(a.getBaseContext(), "No email clients installed.", Toast.LENGTH_SHORT).show();
                 }
+
+            case R.id.action_notificationLog:
+                if(a.getClass() != DeviceNotificationLog.class) {
+                    intent = new Intent(a, DeviceNotificationLog.class);
+                    a.startActivity(intent);
+                    return true;
+                }
+            Toast.makeText(a.getBaseContext(), "current activity", Toast.LENGTH_SHORT).show();
+            return false;
         }
         return false;
     }

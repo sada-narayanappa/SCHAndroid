@@ -3,13 +3,19 @@
     xmlns:a="http://schemas.android.com/apk/res-auto"
     tools:context=".Welcome">
     <item android:id="@+id/action_UploadData"
-        android:title="@string/title_activity_upload_data"
+        android:title="Map"
         android:orderInCategory="100"
         android:showAsAction="never" />
+
+    <item android:id="@+id/action_splash"
+        android:title="SCHAS Welcome Page"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
     <item android:id="@+id/action_ForgetInhalerCap"
-    android:title="Forget Inhaler Cap"
-    android:orderInCategory="100"
-    android:showAsAction="never" />
+        android:title="Forget Inhaler Cap"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 
 <!--<item android:id="@+id/action_test"
     android:title="@string/action_test"
@@ -22,12 +28,7 @@
         android:showAsAction="never" />
 
     <item android:id="@+id/action_settings_menu"
-    android:title="Settings"
-    android:orderInCategory="100"
-    android:showAsAction="never" />
-
-    <item android:id="@+id/action_splash"
-        android:title="SCHAS Welcome Page"
+        android:title="Settings"
         android:orderInCategory="100"
         android:showAsAction="never" />
 
@@ -36,10 +37,10 @@
         android:orderInCategory="100"
         android:showAsAction="never" />
 
-    <item android:id="@+id/action_step_counter"
-        android:title="Pedometer"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+    <item android:id="@+id/action_notificationLog"
+          android:title="Notification Log"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
 
     <item android:id="@+id/action_emailFirebaseToken"
         android:title="Email Firebase Token"

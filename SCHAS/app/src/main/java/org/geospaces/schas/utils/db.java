@@ -21,13 +21,14 @@ import android.text.format.Formatter;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.messaging.RemoteMessage;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.geospaces.schas.AsyncTasks.PostToServer;
 import org.geospaces.schas.Fragments.GoogleMaps;
 import org.geospaces.schas.UtilityObjectClasses.DatabaseLocationObject;
-import org.geospaces.schas.utils.GetGoogleLocations.Entry;
+import org.geospaces.schas.UtilityObjectClasses.FBNotification;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -54,6 +55,7 @@ public class db {
     public final static String DIRECTORY = "/SCHAS";
     public final static String FILE_NAME = "LOC.txt";
     public final static String SECONDARY_FILE_NAME = "SECONDARY_LOC.txt";
+    public final static String NOTIFICATION_FILE_NAME = "NOTIFICATION_LOG.txt";
     public final static String FILE_READY = "LOC_ready.txt";
     public final static String GOOGLE_FILE_NAME = "GOOGLE_LOCS.TXT";
     public static String tempFileName = "schasTempFile";
@@ -262,15 +264,18 @@ public class db {
         String versionStuff = null;
 
         try {
+            pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
+
             //use this set if doing an alpha release
             //ALPHA RELEASE SET
-            pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
-            versionStuff = "version=ALPHA" + pInfo.versionCode;
-
+            if (pInfo.versionName.equals("ALPHA")){
+                versionStuff = "version=ALPHA" + pInfo.versionCode;
+            }
             //use this set if doing a normal prod release
             //PRODUCTION RELEASE SET
-//            pInfo = cntx.getPackageManager().getPackageInfo(cntx.getPackageName(), 0);
-//            versionStuff = "version=" + pInfo.versionName + "-" + pInfo.versionCode;
+            else {
+                versionStuff = "version=" + pInfo.versionName + "-" + pInfo.versionCode;
+            }
         }
         catch(Exception e) {
             Log.i("package", "could not get package info");
@@ -302,9 +307,7 @@ public class db {
     }
 
     public static String getInhalerData(int buttonPresses) {
-
         StringBuffer sb = new StringBuffer(512);
-        long sessionNum = System.currentTimeMillis() / 1000000 * 60;
 
         StringBuffer append = sb.append(
                 "inhaler_count=" + buttonPresses
@@ -422,10 +425,10 @@ public class db {
             return "No wireless connection and no cellular upload enabled! Please enable one and check back";
         }
         else{
-            File file = db.getFile(db.FILE_NAME);
-            if (file.exists()){
-                file.delete();
-            }
+//            File file = db.getFile(db.FILE_NAME);
+//            if (file.exists()){
+//                file.delete();
+//            }
             db.PrepareTextFile();
             db.CreateDuplicateFile();
             db.splitFileIntoUploadableChunks();
@@ -524,7 +527,6 @@ public class db {
         StringBuffer sb = new StringBuffer(512);
         float sessionNum = System.currentTimeMillis() / 1000000 * 60;
         boolean isValid = true;
-        //GoogleMaps.lineCount++;
 
         sb.append(
                 "measured_at=" + convertToGMT(new Date(System.currentTimeMillis())) + "," +
@@ -597,10 +599,7 @@ public class db {
     }
 
     //take the information from the DLO's and create the info for the text file
-    //wipe the file at the start of this method
     public static void PrepareTextFile() {
-        File file = db.getFile(db.FILE_NAME);
-
         List<DatabaseLocationObject> locationList = new ArrayList<>();
         try{
             locationList = GoogleMaps.GetDLOList();
@@ -625,81 +624,9 @@ public class db {
                 Log.e("ERROR", "Exception appending to log file", e);
             }
         }
+        otherDataLines = new ArrayList<>();
 
     }
-
-//    //use to compare the location values from a clicked marker with
-//    //values in the text file
-//    public void compareLocation(double markerLat, double markerLon) throws IOException {
-//        //if the marker is clicked, find the location in the text file and mark invalid
-//        File file = db.getFile(db.FILE_NAME);
-//        BufferedReader in = new BufferedReader(new FileReader(file));
-//        String nextLine = in.readLine();
-//        int lineCount = 1;
-//
-//        //while the next line to be read does not return null (empty line, or EOF)
-//        while (nextLine != null) {
-//            if (nextLine.contains("lat=")) {
-//                //get the indices of the known substrings
-//                int indexLat = nextLine.indexOf("lat=");
-//                int indexLon = nextLine.indexOf("lon=");
-//                int indexAlt = nextLine.indexOf("alt=");
-//                //create substrings for the values of the lat and lon floats between known indices
-//                String latString = nextLine.substring(indexLat + 4, indexLon-1);
-//                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
-//
-//                //cast the strings to floats and put into the static array in GoogleMaps for plotting
-//                double thisLat = Double.valueOf(latString);
-//                double thisLon = Double.valueOf(lonString);
-//
-//                if ((thisLat == markerLat) && (thisLon == markerLon)) {
-//
-//                }
-//            }
-//            nextLine = in.readLine();
-//            lineCount++;
-//        }
-//        in.close();
-//    }
-
-    //Old method, new one is above
-    //use a readbuffer to read in from the txt and plot the points
-//    public static void plotTxtPoints() throws IOException
-//    {
-//        //open the file that has all of the location values stored within it
-//        File file = db.getFile(db.FILE_NAME);
-//
-//        if (!file.exists()) {
-//            return;
-//        }
-//
-//        BufferedReader in = new BufferedReader(new FileReader(file));
-//        String nextLine = in.readLine();
-//
-//        //while the next line to be read does not return null (empty line, or EOF)
-//        while (nextLine != null) {
-//            GoogleMaps.lineCount++;
-//            //check to see if this line is a location or a heartbeat
-//            if (nextLine.contains("lat=")) {
-//                //get the indices of the known substrings
-//                int indexLat = nextLine.indexOf("lat=");
-//                int indexLon = nextLine.indexOf("lon=");
-//                int indexAlt = nextLine.indexOf("alt=");
-//                //create substrings for the values of the lat and lon floats between known indices
-//                String latString = nextLine.substring(indexLat + 4, indexLon-1);
-//                String lonString = nextLine.substring(indexLon + 4, indexAlt - 1);
-//
-//                //cast the strings to floats and put into the static array in GoogleMaps for plotting
-//                double nextLat = Double.valueOf(latString);
-//                double nextLon = Double.valueOf(lonString);
-//                LatLng nextlatLng = new LatLng(nextLat, nextLon);
-//                GoogleMaps.AddToLocList(nextlatLng);
-//            }
-//            nextLine = in.readLine();
-//        }
-//
-//        in.close();
-//    }
 
     //use a readbuffer to read in from the secondary txt and plot the points
     public static void plotSecondaryTxtPoints() throws IOException
@@ -718,7 +645,6 @@ public class db {
 
         //while the next line to be read does not return null (empty line, or EOF)
         while (nextLine != null) {
-            //GoogleMaps.lineCount++;
             //check to see if this line is a location or a heartbeat
             if (nextLine.contains("lat=") && !nextLine.contains("peakflow") && !nextLine.contains("INHALER") && !nextLine.contains("ATTACK")) {
                 //get the indices of the known substrings
@@ -769,7 +695,6 @@ public class db {
         mUIThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                //GoogleMaps.removeMarkers();
                 try {
                     GoogleMaps.RefreshMapAfterUpload();
                 } catch (IOException e) {
@@ -780,28 +705,28 @@ public class db {
         });
     }
 
-    public static void CreateGoogleLocationFile(List<Entry> trackList){
-        for (Entry entry : trackList){
-            String[] coords = entry.location.trim().split("\\s+");
-            //location string format from Google:
-            //longitude+" "+latitude+" "+alt(?)
-            StringBuffer sb = new StringBuffer(512);
-
-            sb.append(
-                "lat=" + coords[1] + "," +
-                "lon=" + coords[0] + "," +
-                "record_type=" + "goog"
-            );
-
-            String writeString = sb.toString();
-
-            try {
-                Write(writeString + "\n");
-            } catch (IOException e) {
-                Log.e("ERROR", "Exception appending to log file", e);
-            }
-        }
-    }
+//    public static void CreateGoogleLocationFile(List<Entry> trackList){
+//        for (Entry entry : trackList){
+//            String[] coords = entry.location.trim().split("\\s+");
+//            //location string format from Google:
+//            //longitude+" "+latitude+" "+alt(?)
+//            StringBuffer sb = new StringBuffer(512);
+//
+//            sb.append(
+//                "lat=" + coords[1] + "," +
+//                "lon=" + coords[0] + "," +
+//                "record_type=" + "goog"
+//            );
+//
+//            String writeString = sb.toString();
+//
+//            try {
+//                Write(writeString + "\n");
+//            } catch (IOException e) {
+//                Log.e("ERROR", "Exception appending to log file", e);
+//            }
+//        }
+//    }
 
     public static int GetNumberOfLocations() throws IOException
     {
@@ -897,22 +822,6 @@ public class db {
         return returnString;
     }
 
-    public static void writeFirebaseTokenIntoTextFile(String token) {
-        StringBuffer sb = new StringBuffer(512);
-        sb.append(
-                "device_firebase_token=" + token + ","
-                // + whatever other data needed to link to the user table (?)
-        );
-
-        String writeString = sb.toString();
-
-        try {
-            Write(writeString + "\n");
-        } catch (IOException e) {
-            Log.e("ERROR", "Exception appending to log file", e);
-        }
-    }
-
     public static  boolean isNetworkAvailable(Context context) {
         boolean haveConnectedWifi = false;
         boolean haveConnectedMobile = false;
@@ -944,5 +853,55 @@ public class db {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static void writeNotificationIntoFile(RemoteMessage rm){
+        StringBuffer sb = new StringBuffer(512);
+        sb.append(
+                "notification_body=" + ((rm.getNotification().getBody() != null) ? rm.getNotification().getBody() : "null") + "," +
+                        "notification_title=" + ((rm.getNotification().getTitle() != null) ? rm.getNotification().getTitle() : "null")  + "," +
+                        "notification_tag=" + ((rm.getNotification().getTag() != null) ? rm.getNotification().getTag() : "null") + "," +
+                        "notification_sent_time_millis=" + rm.getSentTime()
+        );
+
+        String writeString = sb.toString();
+
+        try {
+            WriteToFile(NOTIFICATION_FILE_NAME, writeString + "\n");
+        } catch (IOException e) {
+            Log.e("ERROR", "Exception appending to log file", e);
+        }
+    }
+
+    public static List<FBNotification> readNotificationsFromFile() throws IOException{
+        //open the file that has all of the location values stored within it
+        File file = db.getFile(db.NOTIFICATION_FILE_NAME);
+
+        List<FBNotification> notificationArray = new ArrayList<FBNotification>();
+
+        if (!file.exists()) {
+            return notificationArray;
+        }
+
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String nextLine = in.readLine();
+
+        //while the next line to be read does not return null (empty line, or EOF)
+        while (nextLine != null) {
+            //split the string by the '=' and ',' delimiters
+            String[] currentLine = nextLine.split("=|,");
+
+            FBNotification newNotification = new FBNotification(currentLine[1],
+                    currentLine[3],
+                    currentLine[5],
+                    Long.valueOf(currentLine[7]));
+
+            notificationArray.add(newNotification);
+            nextLine = in.readLine();
+        }
+
+        in.close();
+
+        return notificationArray;
     }
 }

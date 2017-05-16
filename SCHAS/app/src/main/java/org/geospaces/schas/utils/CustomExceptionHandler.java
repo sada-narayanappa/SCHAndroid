@@ -15,8 +15,6 @@ public class CustomExceptionHandler extends Activity implements Thread.UncaughtE
 
     private Thread.UncaughtExceptionHandler defaultHandler;
 
-    //include more here if needed for file and server url, this just covers sending to
-
     public CustomExceptionHandler() {
         this.defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
     }

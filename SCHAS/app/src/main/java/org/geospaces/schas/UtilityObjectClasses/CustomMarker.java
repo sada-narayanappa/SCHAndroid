@@ -10,34 +10,45 @@ public class CustomMarker {
     private Location MarkerLocation;
     private boolean IsValid;
     private boolean IsRecentPoint;
+    private boolean isWrittenIntoFile;
 
     public CustomMarker(Location location, boolean isRecentPoint){
         MarkerLocation = location;
         IsValid = true;
         IsRecentPoint = isRecentPoint;
+        isWrittenIntoFile = false;
     }
 
-    public void MarkAsInvalid(){
+    public void markAsInvalid(){
         IsValid = false;
     }
 
-    public void MarkAsValid(){
+    public void markAsValid(){
         IsValid = true;
     }
 
-    public Location GetMarkerLocation(){
+    public Location getMarkerLocation(){
         return MarkerLocation;
     }
 
-    public boolean GetValidity(){
+    public boolean getValidity(){
         return IsValid;
     }
 
-    public boolean GetPointIsRecent(){
+    public boolean getPointIsRecent(){
         return IsRecentPoint;
     }
 
-    public String ToString(){
+    public boolean getWrittenIntoFile() {
+        return isWrittenIntoFile;
+    }
+
+    public void setIsWrittenIntoFile(boolean isWrittenIntoFile){
+        this.isWrittenIntoFile = isWrittenIntoFile;
+    }
+
+    @Override
+    public String toString(){
         String uploadString =
                 "measured_at=" + (System.currentTimeMillis() / 1000) + "," +
                         "lat=" + MarkerLocation.getLatitude() + "," +
